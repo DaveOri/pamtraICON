@@ -9,6 +9,8 @@ import time
 from datetime import datetime
 from sys import argv, path
 
+plt.close('all')
+
 #########################################################################
 # PATHS
 #########################################################################
@@ -30,7 +32,9 @@ descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
 #ICON_filename = '1d_vars_DOM02.nc'#_20151124T180000-20151124T200000_c1.nc'
 ICON_filename = ICON_folder + 'METEOGRAM_patch001_joyce.nc'
 
-script, ICON_filename, output_nc, output_Z = argv
+output_nc = 'test_profile_attenuation.nc'
+output_Z = 'test_profile_attenuation'
+#script, ICON_filename, output_nc, output_Z = argv
 
 # Descriptor file for hydrometeors (Scattering models, m(D), v(D))
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
@@ -78,6 +82,7 @@ pam.df.readFile(descriptor_folder+descriptor_filename)
 # SETTINGS
 pam.nmlSet['active'] = True
 pam.nmlSet['passive'] = False # Passive is time consuming
+pam.nmlSet['radar_attenuation'] = 'disabled'
 pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
 
@@ -112,8 +117,8 @@ print H.shape, tt.shape, rain.shape
 # 2400 are the numer of times
 # 150 are the number of levels (height_2)
 
-#timeidx = np.arange(4500,4600) 
-timeidx = np.arange(0,Nt)
+timeidx = np.arange(4500,4501) 
+#timeidx = np.arange(0,Nt)
 pamData = dict() # empty dictionary to store pamtra Data
 
 times   = vals['time'] # seconds since 2015-11-24 02:00:03 proplectic gregorian
@@ -174,98 +179,210 @@ pam.createProfile(**pamData)
 # RUN
 #########################################################################
 frequencies = [13.6,35.6,94,220]
-cores = 8 # number of parallel cores
+cores = 4 # number of parallel cores
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
 
 #########################################################################
 # PLOTTING :)
 #########################################################################
-ZeX = pam.r['Ze'][:,0,:,0,0,0]
-ZeK = pam.r['Ze'][:,0,:,1,0,0]
-ZeW = pam.r['Ze'][:,0,:,2,0,0]
-ZeG = pam.r['Ze'][:,0,:,3,0,0]
-ZeX = np.ma.masked_values(ZeX,-9999)#[:-1,:]
-ZeK = np.ma.masked_values(ZeK,-9999)#[:-1,:]
-ZeW = np.ma.masked_values(ZeW,-9999)#[:-1,:]
-ZeG = np.ma.masked_values(ZeG,-9999)#[:-1,:]
-H = pam.p['hgt'][:,0,:]#[:-1,:]
-tt=np.tile((basetime + dtimes),(150,1)).T#[:-1,:]
+ZeX = pam.r['Ze'][0,0,:,0,0,0]
+ZeK = pam.r['Ze'][0,0,:,1,0,0]
+ZeW = pam.r['Ze'][0,0,:,2,0,0]
+ZeG = pam.r['Ze'][0,0,:,3,0,0]
+ZeX = np.ma.masked_values(ZeX,-9999)
+ZeK = np.ma.masked_values(ZeK,-9999)
+ZeW = np.ma.masked_values(ZeW,-9999)
+ZeG = np.ma.masked_values(ZeG,-9999)
 
-xfmt = md.DateFormatter('%H:%M')
+AAX = pam.r['Att_atmo'][0,0,:,0]
+AAK = pam.r['Att_atmo'][0,0,:,1]
+AAW = pam.r['Att_atmo'][0,0,:,2]
+AAG = pam.r['Att_atmo'][0,0,:,3]
+AAX = np.ma.masked_values(AAX,-9999)
+AAK = np.ma.masked_values(AAK,-9999)
+AAW = np.ma.masked_values(AAW,-9999)
+AAG = np.ma.masked_values(AAG,-9999)
+
+AHX = pam.r['Att_hydro'][0,0,:,0,0]
+AHK = pam.r['Att_hydro'][0,0,:,1,0]
+AHW = pam.r['Att_hydro'][0,0,:,2,0]
+AHG = pam.r['Att_hydro'][0,0,:,3,0]
+AHX = np.ma.masked_values(AHX,-9999)
+AHK = np.ma.masked_values(AHK,-9999)
+AHW = np.ma.masked_values(AHW,-9999)
+AHG = np.ma.masked_values(AHG,-9999)
+
+H = 0.001*pam.p['hgt'][0,0,:]
+
 levels = np.arange(-25,35,1)
 
-plt.subplot(2, 1, 1)
-#plt.contourf(tt,H,ZeX,levels,cmap='jet')
-plt.pcolormesh(tt,H,ZeX,vmin=-25,vmax=35,cmap='jet')
-plt.text(0.1,0.1,'X-band', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="X band Ze [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.ylabel('height [m]')
-plt.gca().xaxis.set_major_formatter(xfmt)
-plt.title(descriptor_filename.split('_')[-1])
-plt.subplot(2, 1, 2)
-#plt.contourf(tt,H,ZeK,levels,cmap='jet')
-plt.pcolormesh(tt,H,ZeK,vmin=-25,vmax=35,cmap='jet')
-plt.text(0.1,0.1,'Ka-band', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="Ka band Ze [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.ylabel('height [m]')
-plt.gca().xaxis.set_major_formatter(xfmt)
-plt.tight_layout()
-plt.savefig(output_Z+'_XKa.png')
-plt.close('all')
-plt.subplot(2, 1, 1)
-#plt.contourf(tt,H,ZeW,levels,cmap='jet')
-plt.pcolormesh(tt,H,ZeW,vmin=-25,vmax=35,cmap='jet')
-plt.text(0.1,0.1,'W-band', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="W band Ze [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.gca().xaxis.set_major_formatter(xfmt)
-plt.ylabel('height [m]')
-plt.tight_layout()
-#plt.show()
-plt.subplot(2, 1, 2)
-#plt.contourf(tt,H,ZeG,levels,cmap='jet')
-plt.pcolormesh(tt,H,ZeG,vmin=-25,vmax=35,cmap='jet')
-plt.text(0.1,0.1,'G-band', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="G band Ze [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.ylabel('height [m]')
-plt.gca().xaxis.set_major_formatter(xfmt)
-plt.tight_layout()
-#plt.show()
-plt.savefig(output_Z+'_WG.png')
-plt.close('all')
+figx, ((ax1,ax2),(ax3,ax4)) = plt.subplots(2,2,sharex=True,sharey=True)
+figy, ((ay1,ay2),(ay3,ay4)) = plt.subplots(2,2,sharex=True,sharey=True)
+figz, ((az1,az2),(az3,az4)) = plt.subplots(2,2,sharex=True,sharey=True)
 
-X_K = ZeX - ZeK
-K_W = ZeK - ZeW
-levels = np.arange(-2,10,0.1)
-plt.subplot(2, 1, 1)
-#plt.contourf(tt,H,X_K,levels,cmap='jet')
-plt.pcolormesh(tt,H,X_K,vmin=-2,vmax=10,cmap='jet')
-plt.text(0.1,0.1,'X-Ka  dwr', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="DWR$_{XK}$ [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.ylabel('height [m]')
-plt.title(descriptor_filename.split('_')[-1])
-levels = np.arange(0,20,0.1)
-plt.subplot(2, 1, 2)
-#plt.contourf(tt,H,K_W,levels,cmap='jet')
-plt.pcolormesh(tt,H,K_W,vmin=0,vmax=20,cmap='jet')
-plt.text(0.1,0.1,'Ka-W  dwr', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
-plt.colorbar(label="DWR$_{KW}$ [dBZ]")
-plt.grid()
-plt.ylim([0,10000])
-plt.ylabel('height [m]')
-xfmt = md.DateFormatter('%H:%M')
-plt.gca().xaxis.set_major_formatter(xfmt)
-plt.tight_layout()
-#plt.show()
-plt.savefig(output_Z+'_DWRs.png')
-plt.close('all')
+ax1.plot(ZeX,H,label='dis')
+ax2.plot(ZeK,H,label='dis')
+ax3.plot(ZeW,H,label='dis')
+ax4.plot(ZeG,H,label='dis')
+
+ay1.plot(2.0*AAX.cumsum(),H)
+ay2.plot(2.0*AAK.cumsum(),H)
+ay3.plot(2.0*AAW.cumsum(),H)
+ay4.plot(2.0*AAG.cumsum(),H)
+
+az1.plot(2.0*AHX.cumsum(),H)
+az2.plot(2.0*AHK.cumsum(),H)
+az3.plot(2.0*AHW.cumsum(),H)
+az4.plot(2.0*AHG.cumsum(),H)
+
+
+pam.nmlSet['radar_attenuation'] = 'top-down'
+output_nc = 'test_profile_attenuation_td.nc'
+pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
+pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
+
+ZeX = pam.r['Ze'][0,0,:,0,0,0]
+ZeK = pam.r['Ze'][0,0,:,1,0,0]
+ZeW = pam.r['Ze'][0,0,:,2,0,0]
+ZeG = pam.r['Ze'][0,0,:,3,0,0]
+ZeX = np.ma.masked_values(ZeX,-9999)
+ZeK = np.ma.masked_values(ZeK,-9999)
+ZeW = np.ma.masked_values(ZeW,-9999)
+ZeG = np.ma.masked_values(ZeG,-9999)
+ax1.plot(ZeX,H,label='t-d')
+ax2.plot(ZeK,H,label='t-d')
+ax3.plot(ZeW,H,label='t-d')
+ax4.plot(ZeG,H,label='t-d')
+
+AAX = pam.r['Att_atmo'][0,0,:,0]
+AAK = pam.r['Att_atmo'][0,0,:,1]
+AAW = pam.r['Att_atmo'][0,0,:,2]
+AAG = pam.r['Att_atmo'][0,0,:,3]
+AAX = np.ma.masked_values(AAX,-9999)
+AAK = np.ma.masked_values(AAK,-9999)
+AAW = np.ma.masked_values(AAW,-9999)
+AAG = np.ma.masked_values(AAG,-9999)
+AHX = pam.r['Att_hydro'][0,0,:,0,0]
+AHK = pam.r['Att_hydro'][0,0,:,1,0]
+AHW = pam.r['Att_hydro'][0,0,:,2,0]
+AHG = pam.r['Att_hydro'][0,0,:,3,0]
+AHX = np.ma.masked_values(AHX,-9999)
+AHK = np.ma.masked_values(AHK,-9999)
+AHW = np.ma.masked_values(AHW,-9999)
+AHG = np.ma.masked_values(AHG,-9999)
+
+ay1.plot(2.0*AAX.cumsum(),H)
+ay2.plot(2.0*AAK.cumsum(),H)
+ay3.plot(2.0*AAW.cumsum(),H)
+ay4.plot(2.0*AAG.cumsum(),H)
+
+az1.plot(2.0*AHX.cumsum(),H)
+az2.plot(2.0*AHK.cumsum(),H)
+az3.plot(2.0*AHW.cumsum(),H)
+az4.plot(2.0*AHG.cumsum(),H)
+
+pam.nmlSet['radar_attenuation'] = 'bottom-up'
+output_nc = 'test_profile_attenuation_bu.nc'
+pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
+pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
+
+ZeX = pam.r['Ze'][0,0,:,0,0,0]
+ZeK = pam.r['Ze'][0,0,:,1,0,0]
+ZeW = pam.r['Ze'][0,0,:,2,0,0]
+ZeG = pam.r['Ze'][0,0,:,3,0,0]
+ZeX = np.ma.masked_values(ZeX,-9999)
+ZeK = np.ma.masked_values(ZeK,-9999)
+ZeW = np.ma.masked_values(ZeW,-9999)
+ZeG = np.ma.masked_values(ZeG,-9999)
+ax1.plot(ZeX,H,label='b-u')
+ax2.plot(ZeK,H,label='b-u')
+ax3.plot(ZeW,H,label='b-u')
+ax4.plot(ZeG,H,label='b-u')
+
+AAX = pam.r['Att_atmo'][0,0,:,0]
+AAK = pam.r['Att_atmo'][0,0,:,1]
+AAW = pam.r['Att_atmo'][0,0,:,2]
+AAG = pam.r['Att_atmo'][0,0,:,3]
+AAX = np.ma.masked_values(AAX,-9999)
+AAK = np.ma.masked_values(AAK,-9999)
+AAW = np.ma.masked_values(AAW,-9999)
+AAG = np.ma.masked_values(AAG,-9999)
+
+AHX = pam.r['Att_hydro'][0,0,:,0,0]
+AHK = pam.r['Att_hydro'][0,0,:,1,0]
+AHW = pam.r['Att_hydro'][0,0,:,2,0]
+AHG = pam.r['Att_hydro'][0,0,:,3,0]
+AHX = np.ma.masked_values(AHX,-9999)
+AHK = np.ma.masked_values(AHK,-9999)
+AHW = np.ma.masked_values(AHW,-9999)
+AHG = np.ma.masked_values(AHG,-9999)
+
+ay1.plot(2.0*AAX.cumsum(),H)
+ay2.plot(2.0*AAK.cumsum(),H)
+ay3.plot(2.0*AAW.cumsum(),H)
+ay4.plot(2.0*AAG.cumsum(),H)
+
+az1.plot(2.0*AHX.cumsum(),H)
+az2.plot(2.0*AHK.cumsum(),H)
+az3.plot(2.0*AHW.cumsum(),H)
+az4.plot(2.0*AHG.cumsum(),H)
+
+ax1.legend()
+ax2.legend()
+ax3.legend()
+ax4.legend()
+
+ax1.set_title('X  band')
+ax2.set_title('Ka band')
+ax3.set_title('W  band')
+ax4.set_title('G  band')
+
+ay1.set_title('X  band')
+ay2.set_title('Ka band')
+ay3.set_title('W  band')
+ay4.set_title('G  band')
+
+az1.set_title('X  band')
+az2.set_title('Ka band')
+az3.set_title('W  band')
+az4.set_title('G  band')
+
+ax1.set_ylabel('H    [km]')
+ax3.set_ylabel('H    [km]')
+ay1.set_ylabel('H    [km]')
+ay3.set_ylabel('H    [km]')
+az1.set_ylabel('H    [km]')
+az3.set_ylabel('H    [km]')
+
+ax3.set_xlabel('Z   [dBZ]')
+ax4.set_xlabel('Z   [dBZ]')
+ay3.set_xlabel('Atmo Att   [dB]')
+ay4.set_xlabel('Atmo Att   [dB]')
+az3.set_xlabel('Hydro Att   [dB]')
+az4.set_xlabel('Hydro Att   [dB]')
+
+ax1.set_xlim([-30,30])
+ax2.set_xlim([-30,30])
+ax3.set_xlim([-30,30])
+ax4.set_xlim([-30,30])
+ax1.set_ylim([0,10])
+ax2.set_ylim([0,10])
+ax3.set_ylim([0,10])
+ax4.set_ylim([0,10])
+
+ay1.set_ylim([0,10])
+ay2.set_ylim([0,10])
+ay3.set_ylim([0,10])
+ay4.set_ylim([0,10])
+az1.set_ylim([0,10])
+az2.set_ylim([0,10])
+az3.set_ylim([0,10])
+az4.set_ylim([0,10])
+
+
+
+figx.show()
+figy.show()
+figz.show()
+
