@@ -21,6 +21,7 @@ ICON_folder = '/data/inscape/icon/experiments/tripex_220km/newicon/'
 # Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
 #descriptor_folder = '/home/mech/workspace/pamtra/descriptorfiles/'
 descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
+descriptor_folder = '/home/dori/descriptorfiles/'
 
 #########################################################################
 # FILES
@@ -34,7 +35,7 @@ script, ICON_filename, output_nc, output_Z = argv
 
 # Descriptor file for hydrometeors (Scattering models, m(D), v(D))
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
-descriptor_filename = 'descriptor_file_2m_ssrg.txt'
+descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
 
 # Directory of pluvios for precipitation comparison
 #plufile = '/data/data_hatpro/jue/data/pluvio/201511/pluvio2_jue_20151124.log'
@@ -112,7 +113,7 @@ print H.shape, tt.shape, rain.shape
 # 2400 are the numer of times
 # 150 are the number of levels (height_2)
 
-#timeidx = np.arange(4500,4600) 
+#timeidx = np.arange(4500,4501) 
 timeidx = np.arange(0,Nt)
 pamData = dict() # empty dictionary to store pamtra Data
 
@@ -173,7 +174,7 @@ pam.createProfile(**pamData)
 #########################################################################
 # RUN
 #########################################################################
-frequencies = [13.6,35.6,94,220]
+frequencies = [9.6,13.6,35.6,94,220]
 cores = 8 # number of parallel cores
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
@@ -181,14 +182,16 @@ pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
 #########################################################################
 # PLOTTING :)
 #########################################################################
-ZeX = pam.r['Ze'][:,0,:,0,0,0]
-ZeK = pam.r['Ze'][:,0,:,1,0,0]
-ZeW = pam.r['Ze'][:,0,:,2,0,0]
-ZeG = pam.r['Ze'][:,0,:,3,0,0]
-ZeX = np.ma.masked_values(ZeX,-9999)#[:-1,:]
-ZeK = np.ma.masked_values(ZeK,-9999)#[:-1,:]
-ZeW = np.ma.masked_values(ZeW,-9999)#[:-1,:]
-ZeG = np.ma.masked_values(ZeG,-9999)#[:-1,:]
+ZeX  = pam.r['Ze'][:,0,:,0,0,0]
+ZeKu = pam.r['Ze'][:,0,:,1,0,0]
+ZeKa = pam.r['Ze'][:,0,:,2,0,0]
+ZeW  = pam.r['Ze'][:,0,:,3,0,0]
+ZeG  = pam.r['Ze'][:,0,:,4,0,0]
+ZeX  = np.ma.masked_values(ZeX,-9999)#[:-1,:]
+ZeKu = np.ma.masked_values(ZeKu,-9999)#[:-1,:]
+ZeKa = np.ma.masked_values(ZeKa,-9999)#[:-1,:]
+ZeW  = np.ma.masked_values(ZeW,-9999)#[:-1,:]
+ZeG  = np.ma.masked_values(ZeG,-9999)#[:-1,:]
 H = pam.p['hgt'][:,0,:]#[:-1,:]
 tt=np.tile((basetime + dtimes),(150,1)).T#[:-1,:]
 
@@ -206,8 +209,8 @@ plt.ylabel('height [m]')
 plt.gca().xaxis.set_major_formatter(xfmt)
 plt.title(descriptor_filename.split('_')[-1])
 plt.subplot(2, 1, 2)
-#plt.contourf(tt,H,ZeK,levels,cmap='jet')
-plt.pcolormesh(tt,H,ZeK,vmin=-25,vmax=35,cmap='jet')
+#plt.contourf(tt,H,ZeKa,levels,cmap='jet')
+plt.pcolormesh(tt,H,ZeKa,vmin=-25,vmax=35,cmap='jet')
 plt.text(0.1,0.1,'Ka-band', transform=plt.gca().transAxes, bbox=dict(facecolor='white', alpha=1),fontsize='x-large')
 plt.colorbar(label="Ka band Ze [dBZ]")
 plt.grid()
@@ -242,8 +245,8 @@ plt.tight_layout()
 plt.savefig(output_Z+'_WG.png')
 plt.close('all')
 
-X_K = ZeX - ZeK
-K_W = ZeK - ZeW
+X_K = ZeX - ZeKa
+K_W = ZeKa - ZeW
 levels = np.arange(-2,10,0.1)
 plt.subplot(2, 1, 1)
 #plt.contourf(tt,H,X_K,levels,cmap='jet')

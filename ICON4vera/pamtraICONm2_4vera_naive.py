@@ -26,6 +26,7 @@ ICON_folder = '/data/inscape/icon/experiments/nyalesund/newicon-2017-06-23-albed
 # Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
 #descriptor_folder = '/home/mech/workspace/pamtra/descriptorfiles/'
 descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
+descriptor_folder = '/home/dori/descriptorfiles/'
 
 #########################################################################
 # FILES
@@ -39,6 +40,7 @@ script, ICON_filename, output_nc, output_Z = argv
 # Descriptor file for hydrometeors (Scattering models, m(D), v(D))
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
 descriptor_filename = 'descriptor_file_2m_ssrg.txt'
+descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
 
 #########################################################################
 # INIT
@@ -110,7 +112,7 @@ pam.createProfile(**pamData)
 #########################################################################
 # RUN
 #########################################################################
-frequencies = [94]
+frequencies = [9.6,13.6,35.6,94,220]
 cores = 1 # number of parallel cores
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
@@ -118,7 +120,7 @@ pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
 #########################################################################
 # PLOTTING :)
 #########################################################################
-ZeW = pam.r['Ze'][:,0,:,0,0,0]
+ZeW = pam.r['Ze'][:,0,:,3,0,0]
 #ZeW = pam.r['Ze'][:,0,:,2,0,0]
 ZeW = np.ma.masked_values(ZeW,-9999)
 
