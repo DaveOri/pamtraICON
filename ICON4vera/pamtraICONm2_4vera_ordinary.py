@@ -26,6 +26,7 @@ ICON_folder = '/data/inscape/icon/experiments/nyalesund/newicon-2017-06-23-albed
 # Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
 #descriptor_folder = '/home/mech/workspace/pamtra/descriptorfiles/'
 descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
+descriptor_folder = '/home/dori/descriptorfiles/'
 
 #########################################################################
 # FILES
@@ -40,6 +41,7 @@ script, ICON_filename, output_nc, output_Z = argv
 # Descriptor file for hydrometeors (Scattering models, m(D), v(D))
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
 descriptor_filename = 'descriptor_file_2m_ssrg.txt'
+descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
 
 #########################################################################
 # INIT
@@ -97,7 +99,7 @@ hydro_cmpl[:,:,1] = np.flip(vals['QI'][timeidx],1)   # specific cloud ice conten
 hydro_cmpl[:,:,2] = np.flip(vals['QR'][timeidx],1)   # rain mixing ratio
 hydro_cmpl[:,:,3] = np.flip(vals['QS'][timeidx],1)   # snow mixing ratio
 hydro_cmpl[:,:,4] = np.flip(vals['QG'][timeidx],1)   # graupel mixing ratio
-hydro_cmpl[:,:,5] = np.flip(vals['QH'][timeidx],1)   # graupel mixing ratio
+hydro_cmpl[:,:,5] = np.flip(vals['QH'][timeidx],1)   # hail mixing ratio (it says graupel)
 
 # Read hydrometeors number concentration
 hydro_num_cmpl = np.zeros((len(timeidx),150,6))
@@ -117,8 +119,8 @@ pam.createProfile(**pamData)
 #########################################################################
 # RUN
 #########################################################################
-frequencies = [94]
-cores = 4 # number of parallel cores
+frequencies = [9.6,13.6,35.6,94,220]
+cores = 8 # number of parallel cores
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
 

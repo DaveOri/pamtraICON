@@ -98,7 +98,7 @@ Nh = len(vals['height_2'])
 Nt = len(vals['time'])
 H = np.tile(vals['height_2'][:],(Nt,1))
 tt = np.tile(vals['time'][:],(Nh,1)).T
-rain = vals['RAIN_GSP'][:] + vals['SNOW_GSP'][:]
+rain = vals['RAIN_GSP'][:] + vals['SNOW_GSP'][:] # rapid check against pluvio of rain accumulation at the ground
 print H.shape, tt.shape, rain.shape
 
 # PLOT microphysic quantities (if you want)
