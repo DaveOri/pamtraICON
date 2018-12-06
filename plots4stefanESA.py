@@ -27,6 +27,12 @@ nya_res_filename = 'ICON4vera/nyalesund_patch004_5f.nc'
 frt_filename = icon_folder + 'fronts_postproc/METEOGRAM_patch004_joyce_26only.nc'
 frt_res_filename = 'ICON4vera/fronts26only.nc'
 
+old_icon = '/data/hdcp/icon/tripex/1d_vars_DOM01.nc'
+res_oldi = '/data/optimice/pamtra_runs/icon_simple_20151124_allday.nc'
+old_data = Dataset(old_icon)
+old_res = Dataset(res_oldi)
+ol_dt_var = old_data.variables
+ol_rs_var = old_res.variables
 
 # Open the netcdf files
 
@@ -77,9 +83,163 @@ def plot_variable(x,y,v,axes,
     axes.set_ylim(ylim)
 
 versus = -1 # Top Down
-#versus =  1 # Bottom Up
+versus =  1 # Bottom Up
+
+#%%############################################################################
+# 24 November case icon 660 m
+###############################################################################
+# Plot Z
+
+H = (ol_rs_var['height'][:,0,:]*0.001)[:15000,:]
+times   = ol_dt_var['time'] # seconds since 2015-11-24 02:00:03 proplectic gregorian
+units=times.units.split('since')[0]
+basetime=pd.to_datetime(times.units.split('since')[-1])
+dtimes = pd.to_timedelta(times[:],unit=str(units)[0])
+tt=(np.tile((basetime + dtimes),(H.shape[1],1)).T)[:15000,:]
+
+f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+ylim=(0,15)
+xfmt = md.DateFormatter('%H:%M')
+Ax = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,0,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,0])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Au = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,1,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,1])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Aa = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,2,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,2])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Aw = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,3,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,3])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Ag = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,4,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,4])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+plot_variable(tt,H,Au,ax1,None,'height [km]','dB','Ku-band 2-way Attenuation hydro',0,1,ylim=ylim)
+plot_variable(tt,H,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation hydro',0,1,ylim=ylim)
+plot_variable(tt,H,Aw,ax3,None,'height [km]','dB', 'W-band 2-way Attenuation hydro',0,5,ylim=ylim)
+plot_variable(tt,H,Ag,ax4,'time','height [km]','dB', 'G-band 2-way Attenuation hydro',0,10,ylim=ylim)
+
+f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+ylim=(0,15)
+xfmt = md.DateFormatter('%H:%M')
+Ax = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,0,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,0])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Au = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,1,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,1])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Aa = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,2,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,2])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Aw = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,3,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,3])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+Ag = 2.0*(ol_rs_var['Attenuation_Hydrometeors'][:,0,:,4,0]+ol_rs_var['Attenuation_Atmosphere'][:,0,:,4])[:,::versus].cumsum(axis=1)[:,::versus][:15000,:]
+plot_variable(tt,H,Au,ax1,None,'height [km]','dB','Ku-band 2-way Attenuation',0,3,ylim=ylim)
+plot_variable(tt,H,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation',0,3,ylim=ylim)
+plot_variable(tt,H,Aw,ax3,None,'height [km]','dB', 'W-band 2-way Attenuation',0,3,ylim=ylim)
+plot_variable(tt,H,Ag,ax4,'time','height [km]','dB', 'G-band 2-way Attenuation',0,10,ylim=ylim)
+
+#f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=True)
+ylim=(0,15)
+xfmt = md.DateFormatter('%H:%M')
+Zx = ol_rs_var['Ze'][:,0,:,0,0,0][:15000,:]
+Zu = ol_rs_var['Ze'][:,0,:,1,0,0][:15000,:]
+Za = ol_rs_var['Ze'][:,0,:,2,0,0][:15000,:]
+Zw = ol_rs_var['Ze'][:,0,:,3,0,0][:15000,:]
+Zg = ol_rs_var['Ze'][:,0,:,4,0,0][:15000,:]
+plot_variable(tt,H,Zx,ax1,None,'height [km]','dBZ','X-band Ze',-25,35,ylim=ylim)
+plot_variable(tt,H,Za,ax2,None,'height [km]','dBZ','Ka-band Ze',-25,35,ylim=ylim)
+plot_variable(tt,H,Zw,ax3,'time','height [km]','dBZ', 'W-band Ze',-25,35,ylim=ylim)
+#plot_variable(tt,H,Zg,ax4,'time','height [km]','dBZ', 'G-band Ze',-20,20,ylim=ylim)
+
+ax4.xaxis.set_major_formatter(xfmt)
+f.tight_layout(pad=0)
+
+#f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=True)
+DWRua = Zu-Za
+DWRaw = Za-Zw
+DWRag = Za-Zg
+DWRwg = Zw-Zg
+plot_variable(tt,H,DWRua,ax1,None,'height [km]','dB','DWR$_{Ku Ka}$',0,20,ylim=ylim)
+plot_variable(tt,H,DWRaw,ax2,None,'height [km]','dB','DWR$_{Ka W}$',0,20,ylim=ylim)
+plot_variable(tt,H,DWRag,ax3,'time','height [km]','dB','DWR$_{Ka G}$',0,20,ylim=ylim)
+#plot_variable(tt,H,DWRwg,ax4,'time','height [km]','dB','DWR$_{W G}$',0,20,ylim=ylim)
+ax4.xaxis.set_major_formatter(xfmt)
+f.tight_layout(pad=0)
+
+#f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=True)
+ylim=(0,15)
+xfmt = md.DateFormatter('%H:%M')
+Zx = ol_rs_var['Ze'][:,0,:,0,0,0][:15000,:]-Ax
+Zu = ol_rs_var['Ze'][:,0,:,1,0,0][:15000,:]-Au
+Za = ol_rs_var['Ze'][:,0,:,2,0,0][:15000,:]-Aa
+Zw = ol_rs_var['Ze'][:,0,:,3,0,0][:15000,:]-Aw
+Zg = ol_rs_var['Ze'][:,0,:,4,0,0][:15000,:]-Ag
+plot_variable(tt,H,Zx,ax1,None,'height [km]','dBZ','X-band Z attenuated',-25,35,ylim=ylim)
+plot_variable(tt,H,Za,ax2,None,'height [km]','dBZ','Ka-band Z attenuated',-25,35,ylim=ylim)
+plot_variable(tt,H,Zw,ax3,'time','height [km]','dBZ', 'W-band Z attenuated',-25,35,ylim=ylim)
+#plot_variable(tt,H,Zg,ax4,'time','height [km]','dBZ', 'G-band Z attenuated',-20,20,ylim=ylim)
+
+f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+DWRua = Zu-Za
+DWRaw = Za-Zw
+DWRag = Za-Zg
+DWRwg = Zw-Zg
+plot_variable(tt,H,DWRua,ax1,None,'height [km]','dB','DWR$_{Ku Ka}$ attenuated',0,20,ylim=ylim)
+plot_variable(tt,H,DWRaw,ax2,None,'height [km]','dB','DWR$_{Ka W}$ attenuated',0,20,ylim=ylim)
+plot_variable(tt,H,DWRag,ax3,None,'height [km]','dB','DWR$_{Ka G}$ attenuated',0,20,ylim=ylim)
+plot_variable(tt,H,DWRwg,ax4,'time','height [km]','dB','DWR$_{W G}$ attenuated',0,20,ylim=ylim)
+ax4.xaxis.set_major_formatter(xfmt)
+f.tight_layout(pad=0)
+
 
 ###############################################################################
+# Plot hydrometeors
+
+f,((ax1,ay1),(ax2,ay2),(ax3,ay3),(ax4,ay4),(ax6,ay6)) = plt.subplots(5,2,sharex=True,sharey=True)
+var = ol_dt_var['QNI']
+vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+var_dim_labels = var.dimensions
+xvar = ol_dt_var[var_dim_labels[0]]
+yvar = ol_dt_var[var_dim_labels[1]]
+xval, yval = np.meshgrid(xvar[:], 0.001*yvar[:])
+plot_variable(tt,H,vval,ax1,None,'height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QNS']
+vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+plot_variable(tt,H,vval,ax2,None,'height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QNC']
+vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+plot_variable(tt,H,vval,ax3,None,'height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QNR']
+vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+plot_variable(tt,H,vval,ax4,None,'height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QNG']
+vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+#plot_variable(tt,H,vval,ax5,None,'height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+#var = ml_dt_var['QNH']
+#vval = np.ma.masked_less(np.flip(var[:],1),0.1)
+plot_variable(tt,H,vval,ax6,'time','height [Km]',var.name+'  '+var.unit,var.long_name,ylim=ylim)
+
+var = ol_dt_var['QI']
+vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+plot_variable(tt,H,vval,ay1,None,None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QS']
+vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+plot_variable(tt,H,vval,ay2,None,None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QC']
+vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+plot_variable(tt,H,vval,ay3,None,None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QR']
+vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+plot_variable(tt,H,vval,ay4,None,None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+var = ol_dt_var['QG']
+vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+#plot_variable(tt,H,vval,ay5,None,None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+#var = ml_dt_var['QH']
+#vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
+plot_variable(tt,H,vval,ay6,'time',None,var.name+'  '+var.unit,var.long_name,ylim=ylim)
+ax4.xaxis.set_major_formatter(xfmt)
+
+#lams = np.sqrt((0.228*np.flip(ml_dt_var['QNS'][:],1))/np.flip(ml_dt_var['QS'][:],1))
+#n0s = np.flip(ml_dt_var['QNS'][:],1)*lams**2.0
+#D0s = vD0(lams)
+#Dms = vDm(lams)
+#f,((ax1,ax2)) = plt.subplots(2,1,sharex=True,sharey=True)
+#plot_variable(tt,H,D0s,ax1,'time',None,'D0   [m]','Mean volume diameter',vmin=0.0,vmax=0.02,ylim=ylim)
+#plot_variable(tt,H,Dms,ax2,'time',None,'Dm   [m]','Mean mass diameter',vmin=0.0,vmax=0.02,ylim=ylim)
+
+
+
+
+
+#%%##############################################################################
 # Plot Z
 
 H = fr_rs_var['height'][:,0,:]*0.001
@@ -88,6 +248,20 @@ units=times.units.split('since')[0]
 basetime=pd.to_datetime(times.units.split('since')[-1])
 dtimes = pd.to_timedelta(times[:],unit=str(units)[0])
 tt=np.tile((basetime + dtimes),(H.shape[1],1)).T
+
+f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+ylim=(0,12)
+xlim=None#(np.datetime64('2013-04-26T18:20:01'),np.datetime64('2013-04-26T20:59:00'))
+xfmt = md.DateFormatter('%H:%M')
+Ax = 2.0*(fr_rs_var['Attenuation_Hydrometeors'][:,0,:,0,0]+0.0*fr_rs_var['Attenuation_Atmosphere'][:,0,:,0])[:,::versus].cumsum(axis=1)[:,::versus]
+Au = 2.0*(fr_rs_var['Attenuation_Hydrometeors'][:,0,:,1,0]+0.0*fr_rs_var['Attenuation_Atmosphere'][:,0,:,1])[:,::versus].cumsum(axis=1)[:,::versus]
+Aa = 2.0*(fr_rs_var['Attenuation_Hydrometeors'][:,0,:,2,0]+0.0*fr_rs_var['Attenuation_Atmosphere'][:,0,:,2])[:,::versus].cumsum(axis=1)[:,::versus]
+Aw = 2.0*(fr_rs_var['Attenuation_Hydrometeors'][:,0,:,3,0]+0.0*fr_rs_var['Attenuation_Atmosphere'][:,0,:,3])[:,::versus].cumsum(axis=1)[:,::versus]
+Ag = 2.0*(fr_rs_var['Attenuation_Hydrometeors'][:,0,:,4,0]+0.0*fr_rs_var['Attenuation_Atmosphere'][:,0,:,4])[:,::versus].cumsum(axis=1)[:,::versus]
+plot_variable(tt,H,Au,ax1,None,'height [km]','dB','Ku-band 2-way Attenuation hydro',0,1,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation hydro',0,1,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,Aw,ax3,None,'height [km]','dB', 'W-band 2-way Attenuation hydro',0,1,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,Ag,ax4,'time','height [km]','dB', 'G-band 2-way Attenuation hydro',0,10,xlim=xlim,ylim=ylim)
 
 f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
 ylim=(0,12)
@@ -328,22 +502,22 @@ plot_variable(tt,H,vval,ax6,'time','height [Km]',var.name+'  '+var.unit,var.long
 
 var = ny_dt_var['QI']
 vval = np.ma.masked_less(np.flip(var[:],1),1e-8)
-plot_variable(tt,H,vval,ay1,None,None,var.name+'  '+var.unit,var.long_name,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,vval,ay1,None,None,var.name+'  '+var.unit,'ice mixing ratio',xlim=xlim,ylim=ylim)
 var = ny_dt_var['QS']
 vval = np.ma.masked_less(np.flip(var[:],1),1e-8)
-plot_variable(tt,H,vval,ay2,None,None,var.name+'  '+var.unit,var.long_name,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,vval,ay2,None,None,var.name+'  '+var.unit,'snow water mixing ratio',xlim=xlim,ylim=ylim)
 var = ny_dt_var['QC']
 vval = np.ma.masked_less(np.flip(var[:],1),1e-8)
-plot_variable(tt,H,vval,ay3,None,None,var.name+'  '+var.unit,var.long_name,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,vval,ay3,None,None,var.name+'  '+var.unit,'cloud mixing ratio',xlim=xlim,ylim=ylim)
 var = ny_dt_var['QR']
 vval = np.ma.masked_less(np.flip(var[:],1),1e-8)
-plot_variable(tt,H,vval,ay4,None,None,var.name+'  '+var.unit,var.long_name,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,vval,ay4,None,None,var.name+'  '+var.unit,'rain mixing ratio',xlim=xlim,ylim=ylim)
 var = ny_dt_var['QG']
 vval = np.ma.masked_less(np.flip(var[:],1),1e-8)
 #plot_variable(tt,H,vval,ay5,None,None,var.name+'  '+var.unit,var.long_name)
 #var = ny_dt_var['QH']
 #vval = np.ma.masked_less(np.flip(var[:],1),1e-7)
-plot_variable(tt,H,vval,ay6,'time',None,var.name+'  '+var.unit,var.long_name,xlim=xlim,ylim=ylim)
+plot_variable(tt,H,vval,ay6,'time',None,var.name+'  '+var.unit,'graupel mixing ratio',xlim=xlim,ylim=ylim)
 ax4.xaxis.set_major_formatter(xfmt)
 
 lams = np.sqrt((0.228*np.flip(ny_dt_var['QNS'][:],1))/np.flip(ny_dt_var['QS'][:],1))
@@ -365,6 +539,19 @@ units=times.units.split('since')[0]
 basetime=pd.to_datetime(times.units.split('since')[-1])
 dtimes = pd.to_timedelta(times[:],unit=str(units)[0])
 tt=np.tile((basetime + dtimes),(H.shape[1],1)).T
+
+f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
+ylim=(0,15)
+xfmt = md.DateFormatter('%H:%M')
+Ax = 2.0*(ml_rs_var['Attenuation_Hydrometeors'][:,0,:,0,0]+0.0*ml_rs_var['Attenuation_Atmosphere'][:,0,:,0])[:,::versus].cumsum(axis=1)[:,::versus]
+Au = 2.0*(ml_rs_var['Attenuation_Hydrometeors'][:,0,:,1,0]+0.0*ml_rs_var['Attenuation_Atmosphere'][:,0,:,1])[:,::versus].cumsum(axis=1)[:,::versus]
+Aa = 2.0*(ml_rs_var['Attenuation_Hydrometeors'][:,0,:,2,0]+0.0*ml_rs_var['Attenuation_Atmosphere'][:,0,:,2])[:,::versus].cumsum(axis=1)[:,::versus]
+Aw = 2.0*(ml_rs_var['Attenuation_Hydrometeors'][:,0,:,3,0]+0.0*ml_rs_var['Attenuation_Atmosphere'][:,0,:,3])[:,::versus].cumsum(axis=1)[:,::versus]
+Ag = 2.0*(ml_rs_var['Attenuation_Hydrometeors'][:,0,:,4,0]+0.0*ml_rs_var['Attenuation_Atmosphere'][:,0,:,4])[:,::versus].cumsum(axis=1)[:,::versus]
+plot_variable(tt,H,Au,ax1,None,'height [km]','dB','Ku-band 2-way Attenuation hydro',0,1,ylim=ylim)
+plot_variable(tt,H,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation hydro',0,1,ylim=ylim)
+plot_variable(tt,H,Aw,ax3,None,'height [km]','dB', 'W-band 2-way Attenuation hydro',0,5,ylim=ylim)
+plot_variable(tt,H,Ag,ax4,'time','height [km]','dB', 'G-band 2-way Attenuation hydro',0,10,ylim=ylim)
 
 f,((ax1,ax2,ax3,ax4)) = plt.subplots(4,1,sharex=True)
 ylim=(0,15)

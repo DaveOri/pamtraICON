@@ -20,7 +20,7 @@ ICON_folder = '/data/inscape/icon/experiments/tripex_220km/newicon/'
 
 # Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
 #descriptor_folder = '/home/mech/workspace/pamtra/descriptorfiles/'
-descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
+#descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
 descriptor_folder = '/home/dori/descriptorfiles/'
 
 #########################################################################
@@ -31,11 +31,12 @@ descriptor_folder = '/home/dori/descriptorfiles/'
 #ICON_filename = '1d_vars_DOM02.nc'#_20151124T180000-20151124T200000_c1.nc'
 ICON_filename = ICON_folder + 'METEOGRAM_patch001_joyce.nc'
 
-script, ICON_filename, output_nc, output_Z = argv
+#script, ICON_filename, output_nc, output_Z = argv
 
 # Descriptor file for hydrometeors (Scattering models, m(D), v(D))
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
-descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
+#descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
+descriptor_filename = 'descriptor_file_2m_ssrgNEWpowerLaw.txt'
 
 # Directory of pluvios for precipitation comparison
 #plufile = '/data/data_hatpro/jue/data/pluvio/201511/pluvio2_jue_20151124.log'
@@ -82,7 +83,7 @@ pam.nmlSet['passive'] = False # Passive is time consuming
 pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
 
-#pam.nmlSet["radar_mode"] = "spectrum"
+pam.nmlSet["radar_mode"] = "spectrum"
 
 #########################################################################
 # READ DATA
@@ -113,8 +114,8 @@ print H.shape, tt.shape, rain.shape
 # 2400 are the numer of times
 # 150 are the number of levels (height_2)
 
-#timeidx = np.arange(4500,4501) 
-timeidx = np.arange(0,Nt)
+timeidx = np.arange(4500,4501) 
+#timeidx = np.arange(0,Nt)
 pamData = dict() # empty dictionary to store pamtra Data
 
 times   = vals['time'] # seconds since 2015-11-24 02:00:03 proplectic gregorian
@@ -175,7 +176,7 @@ pam.createProfile(**pamData)
 # RUN
 #########################################################################
 frequencies = [9.6,13.6,35.6,94,220]
-cores = 8 # number of parallel cores
+cores = 4 # number of parallel cores
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF(output_nc) # SAVE OUTPUT
 
