@@ -193,8 +193,8 @@ def run41day(datestr):
         DWRag = Za-Zg
         DWRwg = Zw-Zg
         f,((ax1,ax2)) = plt.subplots(2,1,sharex=False,figsize=figsize21)
-        plot_variable(tt,H,DWRxa,ax1,None,'height [km]','dB','DWR$_{X Ka}$ attenuated',-5,20,ylim=ylim)    
-        plot_variable(tt,H,DWRaw,ax2,'time','height [km]','dB','DWR$_{Ka W}$ attenuated',-5,20,ylim=ylim)
+        plot_variable(tt,H,DWRxa,ax1,None,'height [km]','dB','DWR$_{X Ka}$ attenuated',-5,20,ylim=ylim,cmap='nipy_spectral')    
+        plot_variable(tt,H,DWRaw,ax2,'time','height [km]','dB','DWR$_{Ka W}$ attenuated',-5,20,ylim=ylim,cmap='nipy_spectral')
         #f.suptitle(runTitles[run], weight='black',bbox=dict(facecolor='white'))
         ax1.set_title('X-Ka')
         ax2.set_title('Ka-W')
@@ -222,24 +222,7 @@ def run41day(datestr):
         ax3.grid(color='k')
         f.tight_layout(pad=0)
         f.savefig(plotFld+datestr+run[:-3]+'_MDV'+'.png', dpi=200, bbox_inches='tight')
-
-        # Plot spectrum widthDWRxa = Zx-Za
-        DWRaw = Za-Zw
-        DWRag = Za-Zg
-        DWRwg = Zw-Zg
-        f,((ax1,ax2)) = plt.subplots(2,1,sharex=False,figsize=figsize21)
-        plot_variable(tt,H,DWRxa,ax1,None,'height [km]','dB','DWR$_{X Ka}$ attenuated',-5,20,ylim=ylim)    
-        plot_variable(tt,H,DWRaw,ax2,'time','height [km]','dB','DWR$_{Ka W}$ attenuated',-5,20,ylim=ylim)
-        #f.suptitle(runTitles[run], weight='black',bbox=dict(facecolor='white'))
-        ax1.set_title('X-Ka')
-        ax2.set_title('Ka-W')
-        ax1.xaxis.set_major_formatter(xfmt)
-        ax2.xaxis.set_major_formatter(xfmt)
-        ax1.grid(color='k')
-        ax2.grid(color='k')
-        f.tight_layout(pad=0)
-        f.savefig(plotFld+datestr+run[:-3]+'_DWRattenuated'+'.png', dpi=200, bbox_inches='tight')
-        
+      
         f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
         plot_variable(tt,H,SWx,ax1,None,  'height [km]','m/s','Ku-band SW',0,1,ylim=ylim)
         plot_variable(tt,H,SWa,ax2,None,  'height [km]','m/s','Ka-band SW',0,1,ylim=ylim)

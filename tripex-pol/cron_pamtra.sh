@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /home/dori/.bashrc
+
 ICON_PATH='/data/inscape/icon/experiments/juelich/testbed/testbed_'
 DATA_PATH='/data/optimice/pamtra_runs/tripex-pol/data/'
 CODE_PATH='/home/dori/develop/pamtraICON/tripex-pol/'
@@ -17,11 +19,12 @@ until [[ ${DAY} > ${TODAY} ]]; do
 			echo "Day already processed "${DAY}
 		else
 			echo "Running "${DAY}
-			python ${CODE_PATH}run_pamtra_group_hydro.py --date ${DAY} > pamtra${DAY}.out
-			python ${CODE_PATH}plot_results.py --date ${DAY} > plot${DAY}.out
+			python ${CODE_PATH}run_pamtra_group_hydro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}.out
+			python ${CODE_PATH}plot_results.py --date ${DAY} > ${CODE_PATH}plot${DAY}.out
 		fi
 	else
 		echo "no ICON data for "${DAY}
 	fi
+
 	DAY=$(date -d "$DAY + 1 day" +%Y%m%d)
 done
