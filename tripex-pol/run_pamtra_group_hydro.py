@@ -16,7 +16,7 @@ parser.print_help()
 args = parser.parse_args()
 print(args)
 
-cores = 8 # number of parallel cores
+cores = 4 # number of parallel cores
 
 #########################################################################
 # PATHS
@@ -71,6 +71,7 @@ pam.nmlSet["radar_pnoise0"] = -60.0
 
 #########################################################################
 # READ DATA
+print ICON_filename
 ICON_file = Dataset(ICON_filename, mode='r')
 #########################################################################
 # Akio ICON files give all of the varaibles in a multidimensional array
