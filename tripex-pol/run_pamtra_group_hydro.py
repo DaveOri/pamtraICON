@@ -8,6 +8,7 @@ import matplotlib.dates as md
 import time
 from datetime import datetime
 from sys import argv, path
+import gc
 
 import argparse
 parser =  argparse.ArgumentParser(description='do plots for QuickLookBrowser')
@@ -144,6 +145,7 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_snow_mom.nc') # SAVE OUTPUT
+gc.collect()
 
 ################################################################################
 pam = pyPamtra.pyPamtra()
@@ -193,6 +195,7 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'no_snow_mom.nc') # SAVE OUTPUT
+gc.collect()
 
 ################################################################################
 pam = pyPamtra.pyPamtra()
@@ -242,6 +245,7 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_liquid_mom.nc') # SAVE OUTPUT
+gc.collect()
 
 ################################################################################
 pam = pyPamtra.pyPamtra()
@@ -291,6 +295,7 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_ice_mom.nc') # SAVE OUTPUT
+gc.collect()
 
 ################################################################################
 pam = pyPamtra.pyPamtra()
@@ -340,7 +345,7 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_graupel_hail_mom.nc') # SAVE OUTPUT
-
+gc.collect()
 
 #################################################################################
 
@@ -391,3 +396,4 @@ pam.createProfile(**pamData)
 frequencies = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'all_hydro_mom.nc') # SAVE OUTPUT
+gc.collect()
