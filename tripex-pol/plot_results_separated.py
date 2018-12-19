@@ -33,7 +33,7 @@ plt.close('all')
 runFld = '/data/optimice/pamtra_runs/tripex-pol/data/'
 plotFld = '/data/optimice/pamtra_runs/tripex-pol/plots/'
 
-runs = ['all_hydro_mom.nc', 'no_snow_mom.nc', 'only_ice_mom.nc', 'only_liquid_mom.nc', 'only_snow_mom.nc', 'only_graupel_hail_mom.nc']
+runs = ['all_hydro', 'no_snow', 'only_ice', 'only_liquid', 'only_snow', 'only_graupel_hail']
 titles = ['all Hydrometeors', 'No Snow', 'Only Ice', 'Only liquid (cloud drops and rain)', 'only Snow', 'only Graupel and Hail']
 runTitles=dict(zip(runs,titles))
 
@@ -68,6 +68,8 @@ runFile10 = runFld + datestr + hydrostr + '_mom_'+'Joyrad10.nc'
 runFile35 = runFld + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
 runFile94 = runFld + datestr + hydrostr + '_mom_'+'Grarad94.nc'
 print runFile10
+print runFile35
+print runFile94
 
 def readPamtra_nc(ncfile):
     runDataset = Dataset(ncfile)
@@ -93,7 +95,7 @@ f,((ax1,ax2,ax3)) = plt.subplots(3, 1, sharex=False, figsize=figsize31)
 plot_variable(ttx,Hx,Ax,ax1,None,'height [km]','dB','X-band 2-way Attenuation',0,1,ylim=ylim)
 plot_variable(tta,Ha,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation',0,5,ylim=ylim)
 plot_variable(ttw,Hw,Aw,ax3,'time','height [km]','dB', 'W-band 2-way Attenuation',0,15,ylim=ylim)
-#f.suptitle(runTitles[run], weight='black',bbox=dict(facecolor='white'))
+f.suptitle(runTitles[hydrostr], weight='black',bbox=dict(facecolor='white'))
 ax1.set_title('X-band')
 ax2.set_title('Ka-band')
 ax3.set_title('W-band')
@@ -104,7 +106,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_attenuation'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_attenuation'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot Ze
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
@@ -121,7 +123,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_Ze'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_Ze'+'.png', dpi=200, bbox_inches='tight')
 
 # make DWRs and plot
 DWRxa = Zex-Zea
@@ -129,7 +131,7 @@ DWRaw = Zea-Zew
 f,((ax1,ax2)) = plt.subplots(2,1,sharex=False,figsize=figsize21)
 plot_variable(ttx,Hx,DWRxa,ax1,None,'height [km]','dB','DWR$_{X Ka}$',-5,20, ylim=ylim,cmap='nipy_spectral')
 plot_variable(ttx,Hx,DWRaw,ax2,'time','height [km]','dB','DWR$_{Ka W}$',-5,20, ylim=ylim,cmap='nipy_spectral')
-f.suptitle(runTitles[run], weight='black',bbox=dict(facecolor='white'))
+f.suptitle(runTitles[hydrostr], weight='black',bbox=dict(facecolor='white'))
 ax1.xaxis.set_major_formatter(xfmt)
 ax2.xaxis.set_major_formatter(xfmt)
 ax1.set_title('X-Ka')
@@ -137,7 +139,7 @@ ax2.set_title('Ka-W')
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_DWRe'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_DWRe'+'.png', dpi=200, bbox_inches='tight')
 
 # make attenuated Z and DWRs and respective plots
 Zx = Zex-Ax
@@ -157,7 +159,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_Zattenuated'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_Zattenuated'+'.png', dpi=200, bbox_inches='tight')
 
 DWRxa = Zx-Za
 DWRaw = Za-Zw
@@ -171,11 +173,11 @@ ax2.xaxis.set_major_formatter(xfmt)
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_DWRattenuated'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_DWRattenuated'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot mean doppler velocity
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
-plot_variable(ttx,Hx,MDVx,ax1,None,  'height [km]','m/s','Ku-band MDV',-3,0,ylim=ylim)
+plot_variable(ttx,Hx,MDVx,ax1,None,  'height [km]','m/s',' X-band MDV',-3,0,ylim=ylim)
 plot_variable(tta,Ha,MDVa,ax2,None,  'height [km]','m/s','Ka-band MDV',-3,0,ylim=ylim)
 plot_variable(ttw,Hw,MDVw,ax3,'time','height [km]','m/s', 'W-band MDV',-3,0,ylim=ylim)
 ax1.set_title('X-band')
@@ -188,7 +190,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_MDV'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_MDV'+'.png', dpi=200, bbox_inches='tight')
 
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
 plot_variable(ttx,Hx,SWx,ax1,None,  'height [km]','m/s','Ku-band SW',0,1,ylim=ylim)
@@ -204,7 +206,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_SW'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_SW'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot dual doppler velocity
 DDWxa = MDVx-MDVa
@@ -219,7 +221,7 @@ ax2.xaxis.set_major_formatter(xfmt)
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_DDV'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_DDV'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot dual spectral width
 DSWxa = SWx-SWa
@@ -234,6 +236,6 @@ ax2.grid(color='k')
 ax1.xaxis.set_major_formatter(xfmt)
 ax2.xaxis.set_major_formatter(xfmt)
 f.tight_layout(pad=0)
-f.savefig(plotFld+datestr+run[:-3]+'_DSW'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+datestr+hydrostr+'_DSW'+'.png', dpi=200, bbox_inches='tight')
 
 plt.close('all')

@@ -61,9 +61,8 @@ figsize21=(18,12)
 def run41day(datestr):
     for run in runs[:]:
         print(datestr+' '+run)
-        
         # Open the netcdf results file
-        runFile = runFld + datestr + run 
+        runFile = runFld + datestr + run
         runDataset = Dataset(runFile)
         runVars = runDataset.variables
 
@@ -90,7 +89,7 @@ def run41day(datestr):
             runVars['Attenuation_Atmosphere'][:,0,:,4])
         Ag = ag[:,::versus].cumsum(axis=1)[:,::versus][:xDataLim,:]
 
-        # Plot Attenuation   
+        # Plot Attenuation
         f,((ax1,ax2,ax3)) = plt.subplots(3, 1, sharex=False, figsize=figsize31)
         plot_variable(tt,H,Ax,ax1,None,'height [km]','dB','X-band 2-way Attenuation',0,1,ylim=ylim)
         plot_variable(tt,H,Aa,ax2,None,'height [km]','dB','Ka-band 2-way Attenuation',0,5,ylim=ylim)

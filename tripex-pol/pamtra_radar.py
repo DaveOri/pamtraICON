@@ -54,8 +54,9 @@ descriptorFile = np.array([
 ICON_filename = ICON_folder + 'METEOGRAM_patch001_' + datestr + '_joyce.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 											  descriptorFile,
-											  timeidx=None,
-											  verbosity=1)
+											  timeidx=None,#np.arange(1200,2400),
+											  verbosity=1,
+											  hydro_content=hydrodict[hydrostr])
 
 # SETTINGS
 pam.nmlSet['active'] = True
@@ -65,32 +66,32 @@ pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
 pam.p['turb_edr'][:] = 1.0e-4
 pam.nmlSet['radar_airmotion'] = True
-pam.nmlSet['radar_airmotion_vmax'] = 10.0
-pam.nmlSet['radar_airmotion_vmin'] = -10.0
+pam.nmlSet['radar_airmotion_vmin'] = 0.0 # workaround to potential bug in radar_spectrum
+pam.nmlSet['radar_airmotion_model'] = 'constant'
 
 # HANDLING FUNCTIONS
-QC = 1.0*pam.p['hydro_q'][...,0]
-QI = 1.0*pam.p['hydro_q'][...,1]
-QR = 1.0*pam.p['hydro_q'][...,2]
-QS = 1.0*pam.p['hydro_q'][...,3]
-QG = 1.0*pam.p['hydro_q'][...,4]
-QH = 1.0*pam.p['hydro_q'][...,5]
+# QC = 1.0*pam.p['hydro_q'][...,0]
+# QI = 1.0*pam.p['hydro_q'][...,1]
+# QR = 1.0*pam.p['hydro_q'][...,2]
+# QS = 1.0*pam.p['hydro_q'][...,3]
+# QG = 1.0*pam.p['hydro_q'][...,4]
+# QH = 1.0*pam.p['hydro_q'][...,5]
 
-NC = 1.0*pam.p['hydro_n'][...,0]
-NI = 1.0*pam.p['hydro_n'][...,1]
-NR = 1.0*pam.p['hydro_n'][...,2]
-NS = 1.0*pam.p['hydro_n'][...,3]
-NG = 1.0*pam.p['hydro_n'][...,4]
-NH = 1.0*pam.p['hydro_n'][...,5]
+# NC = 1.0*pam.p['hydro_n'][...,0]
+# NI = 1.0*pam.p['hydro_n'][...,1]
+# NR = 1.0*pam.p['hydro_n'][...,2]
+# NS = 1.0*pam.p['hydro_n'][...,3]
+# NG = 1.0*pam.p['hydro_n'][...,4]
+# NH = 1.0*pam.p['hydro_n'][...,5]
 
-Q = [QC,QI,QR,QS,QG,QH]
-N = [NC,NI,NR,NS,NG,NH]
+# Q = [QC,QI,QR,QS,QG,QH]
+# N = [NC,NI,NR,NS,NG,NH]
 
-def set_hydro_content(pam,hydro):
-	for i,h in enumerate(hydro):
-		pam.p['hydro_n'][...,i] = h*N[i]
-		pam.p['hydro_q'][...,i] = h*Q[i]
-	return pam
+# def set_hydro_content(pam,hydro):
+# 	for i,h in enumerate(hydro):
+# 		pam.p['hydro_n'][...,i] = h*N[i]
+# 		pam.p['hydro_q'][...,i] = h*Q[i]
+# 	return pam
 
 def set_radar_properties(pam,radarlib,radar):
 	radarbook = radarlib[radar]
@@ -100,84 +101,11 @@ def set_radar_properties(pam,radarlib,radar):
 	return pam, radarbook['frequency']
 
 def run_radar_simulation(pam, radarname, hydroconf):
-	pam, frequency = set_radar_properties(pam, radarlib, 'Joyrad10')
-	pam = set_hydro_content(pam, hydrodict[hydroconf])
+	pam, frequency = set_radar_properties(pam, radarlib, radarname)
+	# pam = set_hydro_content(pam, hydrodict[hydroconf])
 	pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	#pam.runPamtra(frequency)
 	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
+	return pam
 
 # RUN PAMTRA
-run_radar_simulation(pam, radarstr, hydrostr)
-
-# pam, frequency = set_radar_properties(pam, radarlib, 'Joyrad10')
-# pam = set_hydro_content(pam,[1.,1.,1.,1.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'all_hydro_mom_X.nc')
-
-# pam = set_hydro_content(pam,[1.,1.,1.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'no_snow_mom_X.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,1.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_snow_mom_X.nc')
-
-# pam = set_hydro_content(pam,[0.,1.,0.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_ice_mom_X.nc')
-
-# pam = set_hydro_content(pam,[1.,0.,1.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_liquid_mom_X.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_graupel_hail_mom_X.nc')
-
-# pam, frequency = set_radar_properties(pam, radarlib, 'Joyrad35')
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'all_hydro_mom_Ka.nc')
-
-# pam = set_hydro_content(pam,[1.,1.,1.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'no_snow_mom_Ka.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,1.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_snow_mom_Ka.nc')
-
-# pam = set_hydro_content(pam,[0.,1.,0.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_ice_mom_Ka.nc')
-
-# pam = set_hydro_content(pam,[1.,0.,1.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_liquid_mom_Ka.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_graupel_hail_mom_Ka.nc')
-
-# pam, frequency = set_radar_properties(pam, radarlib, 'Grarad94')
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'all_hydro_mom_W.nc')
-
-# pam = set_hydro_content(pam,[1.,1.,1.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'no_snow_mom_W.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,1.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_snow_mom_W.nc')
-
-# pam = set_hydro_content(pam,[0.,1.,0.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_ice_mom_W.nc')
-
-# pam = set_hydro_content(pam,[1.,0.,1.,0.,0.,0.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_liquid_mom_W.nc')
-
-# pam = set_hydro_content(pam,[0.,0.,0.,0.,1.,1.])
-# pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-# pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'only_graupel_hail_mom_W.nc')
+pam = run_radar_simulation(pam, radarstr, hydrostr)

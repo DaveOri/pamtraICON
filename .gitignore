@@ -1,2 +1,5 @@
 *.png
 *.nc
+ICON/
+ICON4vera/
+__pycache__/
