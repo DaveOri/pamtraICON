@@ -47,10 +47,7 @@ descriptorFile = np.array([
 def runHatpro(datestr):
 	# Meteogram
 	ICON_filename = ICON_folder + 'METEOGRAM_patch001_' + datestr + '_joyce.nc'
-	pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
-												  descriptorFile,
-												  timeidx=np.arange(990,991,1),
-												  verbosity=1)
+	pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename, descriptorFile, timeidx=None, verbosity=1)
 	# SETTINGS
 	pam.nmlSet['active'] = False
 	pam.nmlSet['passive'] = True # Passive is time consuming
@@ -59,9 +56,10 @@ def runHatpro(datestr):
 
 	f_hatpro_Kband = [22.24, 23.04, 23.84, 25.44, 26.24, 27.84, 31.40]
 	f_hatpro_Vband = [51.26, 52.28, 53.86, 54.94, 56.66, 57.30, 58.00]
-	frequencies = f_hatpro_Kband + f_hatpro_Vband  
+	frequencies = f_hatpro_Kband + f_hatpro_Vband
 	pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	#pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'hatpro.nc') # SAVE OUTPUT
+	#pam.runPamtra(np.array(frequencies))
+	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'hatpro.nc') # SAVE OUTPUT
 
 if (args.date[0] == 'all'):
     alldates = [os.path.basename(x)[:8] for x in glob('/data/optimice/pamtra_runs/tripex-pol/data/*all_hydro_mom.nc')]

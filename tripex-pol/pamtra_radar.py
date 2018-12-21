@@ -35,7 +35,7 @@ cores = 8 # number of parallel cores
 ICON_folder = '/data/inscape/icon/experiments/juelich/testbed/testbed_' + datestr + '/'
 
 # Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
-descriptor_folder = '/home/dori/descriptorfiles/'
+# descriptor_folder = '/home/dori/descriptorfiles/'
 
 # INIT
 #descriptor_filename = 'descriptor_file_2m_ssrgNEWpowerLaw.txt'
@@ -69,30 +69,6 @@ pam.nmlSet['radar_airmotion'] = True
 pam.nmlSet['radar_airmotion_vmin'] = 0.0 # workaround to potential bug in radar_spectrum
 pam.nmlSet['radar_airmotion_model'] = 'constant'
 
-# HANDLING FUNCTIONS
-# QC = 1.0*pam.p['hydro_q'][...,0]
-# QI = 1.0*pam.p['hydro_q'][...,1]
-# QR = 1.0*pam.p['hydro_q'][...,2]
-# QS = 1.0*pam.p['hydro_q'][...,3]
-# QG = 1.0*pam.p['hydro_q'][...,4]
-# QH = 1.0*pam.p['hydro_q'][...,5]
-
-# NC = 1.0*pam.p['hydro_n'][...,0]
-# NI = 1.0*pam.p['hydro_n'][...,1]
-# NR = 1.0*pam.p['hydro_n'][...,2]
-# NS = 1.0*pam.p['hydro_n'][...,3]
-# NG = 1.0*pam.p['hydro_n'][...,4]
-# NH = 1.0*pam.p['hydro_n'][...,5]
-
-# Q = [QC,QI,QR,QS,QG,QH]
-# N = [NC,NI,NR,NS,NG,NH]
-
-# def set_hydro_content(pam,hydro):
-# 	for i,h in enumerate(hydro):
-# 		pam.p['hydro_n'][...,i] = h*N[i]
-# 		pam.p['hydro_q'][...,i] = h*Q[i]
-# 	return pam
-
 def set_radar_properties(pam,radarlib,radar):
 	radarbook = radarlib[radar]
 	for k in radarbook.keys():
@@ -102,7 +78,6 @@ def set_radar_properties(pam,radarlib,radar):
 
 def run_radar_simulation(pam, radarname, hydroconf):
 	pam, frequency = set_radar_properties(pam, radarlib, radarname)
-	# pam = set_hydro_content(pam, hydrodict[hydroconf])
 	pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
 	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
 	return pam
