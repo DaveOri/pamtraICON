@@ -14,7 +14,7 @@ declare -a hydro_combo=("all_hydro" "no_snow" "only_snow" "only_liquid" "only_ic
 declare -a radar_names=("Joyrad10" "Joyrad35" "Grarad94")
 
 newactive=0
-newpassive=0
+newpassive=1
 
 DAY=$FIRST_DAY
 echo $DAY $TODAY
@@ -31,7 +31,7 @@ until [[ ${DAY} > ${TODAY} ]]; do
 		if [ "$newpassive" -eq "1" ]; then
 			echo "New passive data ... plotting"
 			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
-			newpassive=0
+			newpassive=1
 		fi
 		if [ -f ${PLOT_PATH}${DAY}hatpro.png ]; then
 			echo "Already plotted passive " ${DAY}
