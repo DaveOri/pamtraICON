@@ -13,7 +13,8 @@ TODAY=`date +%Y%m%d`
 declare -a hydro_combo=("all_hydro" "no_snow" "only_snow" "only_liquid" "only_ice" "only_graupel_hail")
 declare -a radar_names=("Joyrad10" "Joyrad35" "Grarad94")
 
-newdata=0
+newactive=0
+newpassive=0
 
 DAY=$FIRST_DAY
 echo $DAY $TODAY
@@ -25,6 +26,18 @@ until [[ ${DAY} > ${TODAY} ]]; do
 			echo "passive "${DAY}" already done"
 		else
 			python run_pamtra_hatpro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}_hatpro.out
+			newpassive=1
+		fi
+		if [ "$newpassive" -eq "1" ]; then
+			echo "New passive data ... plotting"
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
+			newpassive=0
+		fi
+		if [ -f ${PLOT_PATH}${DAY}hatpro.png ]; then
+			echo "Already plotted passive " ${DAY}
+		else
+			echo "Found no passive plot ... plotting"
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
 		fi
 		for hydro in "${hydro_combo[@]}"; do
 			for radar in "${radar_names[@]}"; do
@@ -33,13 +46,13 @@ until [[ ${DAY} > ${TODAY} ]]; do
 				else
 					echo "Running "${DAY} ${hydro} ${radar}
 					python ${CODE_PATH}pamtra_radar.py --date ${DAY} --hydroset ${hydro} --radarset ${radar} > ${CODE_PATH}pamtra${DAY}_${hydro}_${radar}.out
-					newdata=1
+					newactive=1
 				fi
 			done
-			if [ "$newdata" -eq "1" ]; then
-				echo "Newdata ... plotting"
+			if [ "$newactive" -eq "1" ]; then
+				echo "Newdata active ... plotting"
 				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
-				newdata=0
+				newactive=0
 			fi
 			if [ -f ${PLOT_PATH}${DAY}${hydro}_Ze.png ]; then
 				echo "Already plotted " ${DAY} ${hydro}

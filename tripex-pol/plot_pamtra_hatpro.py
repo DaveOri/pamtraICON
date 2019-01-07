@@ -3,6 +3,7 @@
 Import from pamtra simulated Tb and plot in the same format as hatpro quicklooks
 
 """
+from __future__ import print_function
 import netCDF4
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +16,7 @@ parser.add_argument('-d','--date', nargs=1,
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
+print(datestr)
 
 runFld = '/data/optimice/pamtra_runs/tripex-pol/data/'
 plotFld = '/data/optimice/pamtra_runs/tripex-pol/plots/'
@@ -30,6 +32,8 @@ datetime = netCDF4.num2date(datavars['datatime'][:],
 timestamp = netCDF4.date2num(datetime, 'seconds since 1970-01-01 00:00:00')
 tb = datavars['tb'][:,0,1,31,:,0] # downwelling at 0 meters
 
+print(timestamp.shape, tb.shape)
+
 def plot_one_frequency(ax, time, tb, frequency, noxtick=True):
     ax.plot(time, tb,'k')
     ax.plot(time, tb.mean()*np.ones(time.shape), 'k', ls=':')
@@ -43,7 +47,7 @@ def plot_one_frequency(ax, time, tb, frequency, noxtick=True):
                   verticalalignment='center',
                   color='red',
                   transform=ax.transAxes)
-    ax.set_xlim([min(time),max(time)])
+    ax.set_xlim([min(time), max(time)])
     ax.xaxis.set_major_formatter(xfmt)
     if noxtick:
         ax.set_xticklabels([])
@@ -67,7 +71,7 @@ plot_one_frequency(axs[4,1], datetime, tb[:,10], datavars['frequency'][10])
 plot_one_frequency(axs[5,1], datetime, tb[:,11], datavars['frequency'][11])
 plot_one_frequency(axs[6,1], datetime, tb[:,12], datavars['frequency'][12])
 plot_one_frequency(axs[7,1], datetime, tb[:,13], datavars['frequency'][13],False)
-f.tight_layout()
+#f.tight_layout(pad=0)
 f.savefig(plotFld+datestr+'hatpro'+'.png', dpi=200, bbox_inches='tight')
 plt.close('all')
 
