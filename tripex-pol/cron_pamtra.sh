@@ -4,6 +4,7 @@ source /home/dori/.bashrc
 
 ICON_PATH='/data/inscape/icon/experiments/juelich/testbed/testbed_'
 DATA_PATH='/data/optimice/pamtra_runs/tripex-pol/data/'
+PLOT_PATH='/data/optimice/pamtra_runs/tripex-pol/plots/'
 CODE_PATH='/net/ora/develop/pamtraICON/tripex-pol/'
 
 FIRST_DAY='20181101'
@@ -36,14 +37,16 @@ until [[ ${DAY} > ${TODAY} ]]; do
 				fi
 			done
 			if [ "$newdata" -eq "1" ]; then
-				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} > ${CODE_PATH}plot${DAY}_${hydro}.out
+				echo "Newdata ... plotting"
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 				newdata=0
 			fi
-#			if [ -f ${DATA_PATH}${DAY}${hydro}_Ze.png ]; then
-#				echo "Already plotted " ${DAY} ${hydro}
-#			else
-#				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} > ${CODE_PATH}plot${DAY}_${hydro}.out
-#			fi
+			if [ -f ${PLOT_PATH}${DAY}${hydro}_Ze.png ]; then
+				echo "Already plotted " ${DAY} ${hydro}
+			else
+				echo "found no plot ... plotting"
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
+			fi
 		done
 	else
 		echo "no ICON data for "${DAY}

@@ -16,7 +16,7 @@ parser.print_help()
 args = parser.parse_args()
 print(args)
 
-cores = 2 # number of parallel cores
+cores = 6 # number of parallel cores
 
 #########################################################################
 # PATHS
@@ -57,8 +57,8 @@ def runHatpro(datestr):
 	f_hatpro_Kband = [22.24, 23.04, 23.84, 25.44, 26.24, 27.84, 31.40]
 	f_hatpro_Vband = [51.26, 52.28, 53.86, 54.94, 56.66, 57.30, 58.00]
 	frequencies = f_hatpro_Kband + f_hatpro_Vband
-	pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	#pam.runPamtra(np.array(frequencies))
+	#pam.runParallelPamtra(np.array(frequencies), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
+	pam.runPamtra(np.array(frequencies))
 	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+'hatpro.nc') # SAVE OUTPUT
 
 if (args.date[0] == 'all'):
