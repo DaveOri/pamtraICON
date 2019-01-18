@@ -17,7 +17,7 @@ Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,
                'radar_nfft':512,
                'radar_no_ave':38,
                'radar_pnoise0':-64.0,
-			         'frequency':35.5}
+               'frequency':35.5}
 
 Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_integration_time':1.0,
@@ -27,8 +27,9 @@ Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_nfft':512,
                'radar_no_ave':17,
                'radar_pnoise0':-54.0,
-			         'frequency':94.0}
-radarlib = {'Joyrad10':Joyrad10nml,'Joyrad35':Joyrad35nml,'Grarad94':Grarad94nml}
+               'frequency':94.0}
+Default = {}
+radarlib = {'Joyrad10':Joyrad10nml,'Joyrad35':Joyrad35nml,'Grarad94':Grarad94nml, 'Default':Default}
 
 # DEFINE DICTIONARY OF HYDROMETOR CONTENT COMBINATIONS
 hydrodict = {'all_hydro'        :[1.,1.,1.,1.,1.,1.],

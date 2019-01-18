@@ -1,13 +1,6 @@
 from __future__ import division
 import pyPamtra
 import numpy as np
-import pandas as pd
-from netCDF4 import Dataset
-import matplotlib.pyplot as plt
-import matplotlib.dates as md
-import time
-from datetime import datetime
-from sys import argv, path
 import argparse
 from radar_settings import radarlib, hydrodict
 

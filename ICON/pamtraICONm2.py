@@ -22,6 +22,7 @@ ICON_folder = '/data/inscape/icon/experiments/tripex_220km/newicon/'
 #descriptor_folder = '/home/mech/workspace/pamtra/descriptorfiles/'
 #descriptor_folder = '/home/dori/pamtra/descriptorfiles/'
 descriptor_folder = '/home/dori/descriptorfiles/'
+descriptor_filename = 'descriptor_file_2m_ssrgNEWpowerLaw.txt'
 
 #########################################################################
 # FILES

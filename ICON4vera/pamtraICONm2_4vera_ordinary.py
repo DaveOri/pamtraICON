@@ -42,6 +42,7 @@ script, ICON_filename, output_nc, output_Z = argv
 #descriptor_filename = 'descriptor_file_2m_liudb.txt'
 descriptor_filename = 'descriptor_file_2m_ssrg.txt'
 descriptor_filename = 'descriptor_file_2m_ssrgNEW.txt'
+descriptor_filename = 'descriptor_file_2m_ssrgNEWpowerLaw.txt'
 
 #########################################################################
 # INIT
