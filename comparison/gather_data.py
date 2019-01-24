@@ -18,6 +18,11 @@ import netCDF4
 import matplotlib.pyplot as plt
 
 hydroset = 'all_hydro'
+#hydroset = 'only_liquid'
+#hydroset = 'only_graupel_hail'
+#hydroset = 'only_snow'
+#hydroset = 'only_ice'
+
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/tripex-pol/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
 
@@ -61,6 +66,7 @@ for i, date in enumerate(available_dates):
   P = icon_data['P'][:].T
   T = icon_data['T'][:].T
   RH = icon_data['REL_HUM'][:].T
+  Hgt = np.tile(np.tile(icon_heights.T,[1,1]).T,[1,P.shape[1]])
   
   DF = pd.DataFrame()
   DF['Z10'] = Z10.flatten()
@@ -75,6 +81,7 @@ for i, date in enumerate(available_dates):
   DF['V94'] = V94.flatten()
   DF['W94'] = W94.flatten()
   DF['S94'] = S94.flatten()
+  DF['Hgt'] = Hgt.flatten()
   DF['P'] = P.flatten()
   DF['T'] = T.flatten()
   DF['RH'] = RH.flatten()
@@ -91,7 +98,7 @@ for i, date in enumerate(available_dates):
   DF['QC'] = icon_data['QC'][:].T.flatten()
   DF['QR'] = icon_data['QR'][:].T.flatten()
   
-  DF.to_hdf('data_pamtra_icon.h5',key='stat',mode='a',append=True)
+  DF.to_hdf(hydroset + 'data_pamtra_icon.h5',key='stat',mode='a',append=True)
   
 f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))
 mesh1 = ax1.pcolormesh(icon_time, icon_heights, P)

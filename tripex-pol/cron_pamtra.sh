@@ -25,7 +25,7 @@ until [[ ${DAY} > ${TODAY} ]]; do
 		if [ -f ${DATA_PATH}${DAY}hatpro.nc ]; then
 			echo "passive "${DAY}" already done"
 		else
-			python run_pamtra_hatpro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}_hatpro.out
+			python ${CODE_PATH}run_pamtra_hatpro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}_hatpro.out
 			newpassive=1
 		fi
 		if [ "$newpassive" -eq "1" ]; then

@@ -31,6 +31,8 @@ def hist_and_plot(data, title):
   ax.set_ylim([-5,20])
   plt.colorbar(mesh, ax=ax, extend='max', label='counts')
   ax.set_title(title)
+  ax.set_xlabel('DWR Ka W   [dB]')
+  ax.set_ylabel('DWR X Ka   [dB]')
   ax.grid()
   fig.savefig('triple_frequency/' + '_'.join(title.split()) + '.png')
   return hst, xcenter, ycenter
@@ -65,51 +67,18 @@ add_one_contour(None, dataZ, [None, None], 'k')
 add_one_contour(None, dataZ, [None, 0], 'k')
 add_one_contour(ax, dataZ, [0, None], 'C1')
 add_one_contour(ax, dataZ, [-5, 0], 'C2')
-#Tmin, Tmax = -5, 0
-#Tstr = str(Tmin)+' < T < '+str(Tmax)
-#h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-#                      Tstr)
-#CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C2')
-#CS.collections[0].set_label(Tstr)
+add_one_contour(ax, dataZ, [-10, -5], 'C3')
+add_one_contour(ax, dataZ, [-15, -10], 'C4')
+add_one_contour(ax, dataZ, [-20, -15], 'C5')
+add_one_contour(ax, dataZ, [-25, -20], 'C6')
+add_one_contour(ax, dataZ, [-30, -25], 'C7')
 
-Tmin, Tmax = -10, -5
-Tstr = str(Tmin)+' < T < '+str(Tmax)
-h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-                      Tstr)
-CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C3')
-CS.collections[0].set_label(Tstr)
-
-Tmin, Tmax = -15, -10
-Tstr = str(Tmin)+' < T < '+str(Tmax)
-h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-                      Tstr)
-CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C4')
-CS.collections[0].set_label(Tstr)
-
-Tmin, Tmax = -20, -15
-Tstr = str(Tmin)+' < T < '+str(Tmax)
-h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-                      Tstr)
-CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C5')
-CS.collections[0].set_label(Tstr)
-
-Tmin, Tmax = -25, -20
-Tstr = str(Tmin)+' < T < '+str(Tmax)
-h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-                      Tstr)
-CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C6')
-CS.collections[0].set_label(Tstr)
-
-Tmin, Tmax = -30, -25
-Tstr = str(Tmin)+' < T < '+str(Tmax)
-h,x,y = hist_and_plot(dataZ[(dataZ['T'] <= Tmax+T0)*(dataZ['T'] > Tmin+T0)],
-                      Tstr)
-CS = ax.contour(x, y, np.log10(h[:]), 1, colors='C7')
-CS.collections[0].set_label(Tstr)
 
 ax.set_xlim([-5,15])
 ax.set_ylim([-5,15])
 ax.set_title(title)
+ax.set_xlabel('DWR Ka W   [dB]')
+ax.set_ylabel('DWR X Ka   [dB]')
 ax.grid()
 ax.legend()
 fig.savefig('triple_frequency/' + '_'.join(title.split()) + '.png')
