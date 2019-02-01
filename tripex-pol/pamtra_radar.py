@@ -72,7 +72,7 @@ def set_radar_properties(pam,radarlib,radar):
 def run_radar_simulation(pam, radarname, hydroconf):
 	pam, frequency = set_radar_properties(pam, radarlib, radarname)
 	pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
+	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+hydroconf+'/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
 	return pam
 
 # RUN PAMTRA

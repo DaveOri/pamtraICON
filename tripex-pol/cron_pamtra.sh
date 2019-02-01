@@ -41,7 +41,7 @@ until [[ ${DAY} > ${TODAY} ]]; do
 		fi
 		for hydro in "${hydro_combo[@]}"; do
 			for radar in "${radar_names[@]}"; do
-				if [ -f ${DATA_PATH}${DAY}${hydro}_mom_${radar}.nc  ]; then
+				if [ -f ${DATA_PATH}${hydro}/${DAY}${hydro}_mom_${radar}.nc  ]; then
 					echo "Already processed " ${DAY} ${hydro} ${radar}
 				else
 					echo "Running "${DAY} ${hydro} ${radar}
@@ -54,7 +54,7 @@ until [[ ${DAY} > ${TODAY} ]]; do
 				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 				newactive=0
 			fi
-			if [ -f ${PLOT_PATH}${DAY}${hydro}_Ze.png ]; then
+			if [ -f ${PLOT_PATH}${hydro}/${DAY}${hydro}_Ze.png ]; then
 				echo "Already plotted " ${DAY} ${hydro}
 			else
 				echo "found no plot ... plotting"
