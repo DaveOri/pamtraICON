@@ -4,34 +4,9 @@ import numpy as np
 import argparse
 from radar_settings import radarlib, hydrodict
 
-parser =  argparse.ArgumentParser(description='do plots for QuickLookBrowser')
-parser.add_argument('-d','--date', nargs=1,
-	                help='gimme datestring in the format YYYYMMDD')
-parser.add_argument('-r','--radarset', nargs=1,
-	                help='gimme radar name',
-	                choices=radarlib.keys())
-parser.add_argument('-hy','--hydroset', nargs=1,
-	                help='gimme hydrosettings',
-	                choices=hydrodict.keys())
-parser.print_help()
-args = parser.parse_args()
-datestr = args.date[0]
-radarstr = args.radarset[0]
-hydrostr = args.hydroset[0]
-print datestr, radarstr, hydrostr
-
-cores = 8 # number of parallel cores
-
-
-# PATHS
-# Directory where all the .nc meteograms are stored
-ICON_folder = '/data/inscape/icon/experiments/juelich/testbed/testbed_' + datestr + '/'
-
-# Folder where your descriptor files are stored (you can use mine, Mario's or the default pamtra)
-# descriptor_folder = '/home/dori/descriptorfiles/'
+cores = 6 # number of parallel cores
 
 # INIT
-#descriptor_filename = 'descriptor_file_2m_ssrgNEWpowerLaw.txt'
 descriptorFile = np.array([
       #['hydro_name' 'as_ratio' 'liq_ice' 'rho_ms' 'a_ms' 'b_ms' 'alpha_as' 'beta_as' 'moment_in' 'nbin' 'dist_name' 'p_1' 'p_2' 'p_3' 'p_4' 'd_1' 'd_2' 'scat_name' 'vel_size_mod' 'canting']
        ('cwc_q', 1.0,  1, -99.0,   -99.0, -99.0,  -99.0, -99.0, 13, 100, 'mgamma', -99.0, -99.0,   2.0,    1.0,   2.0e-6,   8.0e-5,       'mie-sphere',     'khvorostyanov01_drops', -99.0),
@@ -44,7 +19,8 @@ descriptorFile = np.array([
       )
 
 # Meteogram
-ICON_filename = ICON_folder + 'METEOGRAM_patch001_' + datestr + '_joyce.nc'
+hydrostr = 'all_hydro'
+ICON_filename = '/data/inscape/icon/experiments/fronts_postproc/METEOGRAM_patch004_joyce.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 											  descriptorFile,
 											  timeidx=None,#np.arange(1200,2400),
@@ -53,7 +29,7 @@ pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 
 # SETTINGS
 pam.nmlSet['active'] = True
-pam.nmlSet["radar_mode"] = "moments"
+pam.nmlSet["radar_mode"] = "simple"
 pam.nmlSet['passive'] = False # Passive is time consuming
 pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
@@ -62,18 +38,6 @@ pam.nmlSet['radar_airmotion'] = True
 pam.nmlSet['radar_airmotion_vmin'] = 0.0 # workaround to potential bug in radar_spectrum
 pam.nmlSet['radar_airmotion_model'] = 'constant'
 
-def set_radar_properties(pam,radarlib,radar):
-	radarbook = radarlib[radar]
-	for k in radarbook.keys():
-		if 'radar' in k: # avoid to set frequency in the nmlSet
-			pam.nmlSet[k] = radarbook[k]
-	return pam, radarbook['frequency']
-
-def run_radar_simulation(pam, radarname, hydroconf):
-	pam, frequency = set_radar_properties(pam, radarlib, radarname)
-	pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+hydroconf+'/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
-	return pam
-
-# RUN PAMTRA
-pam = run_radar_simulation(pam, radarstr, hydrostr)
+frequency = [9.6,13.6,35.6,94,220]
+pam.runParallelPamtra(np.array(frequency), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
+pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/fronts_pp/METEOGRAM_patch004_joyce.nc')
