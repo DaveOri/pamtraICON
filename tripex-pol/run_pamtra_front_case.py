@@ -20,7 +20,7 @@ descriptorFile = np.array([
 
 # Meteogram
 hydrostr = 'all_hydro'
-ICON_filename = '/data/inscape/icon/experiments/fronts_postproc/METEOGRAM_patch004_joyce.nc'
+ICON_filename = '/data/inscape/icon/experiments/fronts_postproc/METEOGRAM_patch004_joyce_26only.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 											  descriptorFile,
 											  timeidx=None,#np.arange(1200,2400),
@@ -40,4 +40,4 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 
 frequency = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequency), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/fronts_pp/METEOGRAM_patch004_joyce.nc')
+pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/fronts_pp/METEOGRAM_patch004_joyce26only.nc')

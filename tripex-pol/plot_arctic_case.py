@@ -11,6 +11,11 @@ import os
 iconfile = '/data/inscape/icon/experiments/nyalesund/iconforcing_23062017/METEOGRAM_patch004_awipev.nc'
 datafile = '/data/optimice/pamtra_runs/nyalesund/iconforcing_23062017_METEOGRAM_patch004_awipev.nc'
 plotpath = '/data/optimice/pamtra_runs/nyalesund/'
+
+iconfile = '/data/inscape/icon/experiments/fronts_postproc/METEOGRAM_patch004_joyce_26only.nc'
+datafile = '/data/optimice/pamtra_runs/fronts_pp/METEOGRAM_patch004_joyce26only.nc'
+plotpath = '/data/optimice/pamtra_runs/fronts_pp/'
+
 figsize21 = (18,12)
 figsize31 = (18,18)
 figsize41 = (18,24)
@@ -20,7 +25,7 @@ versus = -1 # Top Down
 versus =  1 # Bottom Up
 xfmt = md.DateFormatter('%m-%d %H')
 ylim=(0,8000)
-xDataLim = -1
+xDataLim = -2
 
 def plot_variable(x,y,v,axes,
                   xlab=None,ylab=None,vlab=None,title=None,

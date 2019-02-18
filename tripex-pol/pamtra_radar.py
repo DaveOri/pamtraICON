@@ -65,7 +65,9 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 def set_radar_properties(pam,radarlib,radar):
 	radarbook = radarlib[radar]
 	for k in radarbook.keys():
+		print k
 		if 'radar' in k: # avoid to set frequency in the nmlSet
+			print k, radarbook[k]
 			pam.nmlSet[k] = radarbook[k]
 	return pam, radarbook['frequency']
 

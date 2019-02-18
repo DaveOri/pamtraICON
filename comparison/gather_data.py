@@ -10,7 +10,6 @@ import time
 start = time.time()
 
 import numpy as np
-import xarray as xr
 import pandas as pd
 
 from glob import glob
@@ -19,23 +18,18 @@ import matplotlib.pyplot as plt
 
 hydroset = 'all_hydro'
 hydroset = 'only_liquid'
-hydroset = 'only_graupel_hail'
-hydroset = 'only_snow'
-hydroset = 'only_ice'
+#hydroset = 'only_graupel_hail'
+#hydroset = 'only_snow'
+#hydroset = 'only_ice'
 
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/tripex-pol/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
 
-J10files = sorted(glob(pamtra_radar_data_path + '????????' + hydroset + '_mom_Joyrad10.nc'))
-J35files = sorted(glob(pamtra_radar_data_path + '????????' + hydroset + '_mom_Joyrad35.nc'))
-G94files = sorted(glob(pamtra_radar_data_path + '????????' + hydroset + '_mom_Grarad94.nc'))
+J10files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Joyrad10.nc'))
+J35files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Joyrad35.nc'))
+G94files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Grarad94.nc'))
 
-available_dates = sorted([i[43:51] for i in J10files])
-
-def plot_timeheight(variables, timename, heightname, varname):
-  time = netCDF4.num2date(variables[timename][:], variables[timename].units)
-  heights = variables[heightname][:]
-  var = variables[varname][:].T
+available_dates = sorted([i.split('/')[-1][:8] for i in J10files])
 
 def swap_gridx_datatime(dataarray):
   dt = dataarray.rename({'grid_x':'datetime'})
@@ -47,7 +41,8 @@ def get_moments(R):
   V = R['Radar_MeanDopplerVel'][:,0,::-1,0,0,0].T
   W = R['Radar_SpectrumWidth'][:,0,::-1,0,0,0].T
   S = R['Radar_Skewness'][:,0,::-1,0,0,0].T
-  return Z, V, W, S
+  N = R['Radar_SNR'][:,0,::-1,0,0,0].T
+  return Z, V, W, S, N
 
 for i, date in enumerate(available_dates[:]):
   print(i, date, J10files[i].split('/')[-1],
@@ -55,9 +50,9 @@ for i, date in enumerate(available_dates[:]):
   J10 = netCDF4.Dataset(J10files[i], mode='r').variables
   J35 = netCDF4.Dataset(J35files[i], mode='r').variables
   G94 = netCDF4.Dataset(G94files[i], mode='r').variables
-  Z10, V10, W10, S10 = get_moments(J10)
-  Z35, V35, W35, S35 = get_moments(J35)
-  Z94, V94, W94, S94 = get_moments(G94)
+  Z10, V10, W10, S10, N10 = get_moments(J10)
+  Z35, V35, W35, S35, N35 = get_moments(J35)
+  Z94, V94, W94, S94, N94 = get_moments(G94)
   
   iconfile = icon_data_path + date + '/METEOGRAM_patch001_' + date + '_joyce.nc'
   icon_data = netCDF4.Dataset(iconfile).variables
@@ -78,18 +73,25 @@ for i, date in enumerate(available_dates[:]):
   DF['V10'] = V10.flatten()
   DF['W10'] = W10.flatten()
   DF['S10'] = S10.flatten()
+  DF['N10'] = N10.flatten()
+  
   DF['Z35'] = Z35.flatten()
   DF['V35'] = V35.flatten()
   DF['W35'] = W35.flatten()
   DF['S35'] = S35.flatten()
+  DF['N35'] = N35.flatten()
+  
   DF['Z94'] = Z94.flatten()
   DF['V94'] = V94.flatten()
   DF['W94'] = W94.flatten()
   DF['S94'] = S94.flatten()
+  DF['N94'] = N94.flatten()
+  
   DF['Hgt'] = Hgt.flatten()
   DF['P'] = P.flatten()
   DF['T'] = T.flatten()
   DF['RH'] = RH.flatten()
+  
   DF['QNI'] = icon_data['QNI'][:].T.flatten()
   DF['QNS'] = icon_data['QNS'][:].T.flatten()
   DF['QNG'] = icon_data['QNG'][:].T.flatten()

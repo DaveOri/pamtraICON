@@ -7,6 +7,7 @@ Joyrad10nml = {'radar_fwhr_beamwidth_deg':1.0,
                'radar_nfft':4096,
                'radar_no_ave':10,
                'radar_pnoise0':-48.0,
+#               'radar_noise_distance_factor':10.0,
                'frequency':9.6}
 
 Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,

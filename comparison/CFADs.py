@@ -88,29 +88,3 @@ h,x,y = hist_and_plot(data, 'CFAD  W-band  SW [m/s]', 'T', 'W94',
                       xlim=[0, 3], ylim=[-60, 20], inverty=True,
                       savename='CFAD/CFAD_widW_temp' + addlabel +'.png',
                       lognorm=lognorm)
-#%%############################################################################
-#lognorm=True
-#h,x,y = hist_and_plot(data, 'CFAD  X-band  Ze', 'Hgt', 'Z10',
-#                      'Z X-band [dBZ]', 'Height   [m]',
-#                      xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-#                      savename='CFAD/CFAD_X_Hgt' + addlabel +'.png',lognorm=lognorm)
-#
-#h,x,y = hist_and_plot(data, 'CFAD  Ka-band  Ze', 'Hgt', 'Z35',
-#                      'Z Ka-band [dBZ]', 'Height   [m]',
-#                      xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-#                      savename='CFAD/CFAD_Ka_Hgt' + addlabel +'.png', lognorm=lognorm)
-#
-#h,x,y = hist_and_plot(data, 'CFAD  W-band  Ze', 'Hgt', 'Z94',
-#                      'Z W-band [dBZ]', 'Height   [m]',
-#                      xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-#                      savename='CFAD/CFAD_W_Hgt' + addlabel +'.png',lognorm=lognorm)
-#
-#h,x,y = hist_and_plot(data, 'CFAD  DWRxk', 'Hgt', 'DWRxk',
-#                      'DWR X-Ka [dB]', 'Height   [m]',
-#                      xlim=[-10, 20], ylim=[0, 10000], inverty=False,
-#                      savename='CFAD/CFAD_DWRxk_Hgt' + addlabel +'.png', lognorm=lognorm)
-#
-#h,x,y = hist_and_plot(data, 'CFAD  DWRkw', 'Hgt', 'DWRkw',
-#                      'DWR Ka-W [dB]', 'Height   [m]',
-#                      xlim=[-10, 20], ylim=[0, 10000], inverty=False,
-#                      savename='CFAD/CFAD_DWRkw_Hgt' + addlabel +'.png', lognorm=lognorm)
