@@ -72,6 +72,12 @@ ax.plot(noiseCurve(xHgt, *p94), xHgt)
 plt.savefig('CFAD/CFAD_PnoiseW_Hgt' + addlabel +'.png')
 
 #%%############################################################################
+def joseFit(x,a,b):
+    return a*np.log10(b*x)
+
+coeff = {'Joyrad35':[19.785, 3.44e-7],
+         'Joyrad10':[19.678, 2.55e-6],
+         'Grarad94':[20.394, 1.294e-6] }
 
 h,x,y = hist_and_plot(data, 'CFAD  X-band  Ze', 'Hgt', 'Z10',
                       'Z X-band [dBZ]', 'Height   [m]',
@@ -79,6 +85,7 @@ h,x,y = hist_and_plot(data, 'CFAD  X-band  Ze', 'Hgt', 'Z10',
                       savename='CFAD/CFAD_X_Hgt' + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p10), xHgt)
+ax.plot(joseFit(xHgt, *coeff['Joyrad10']), xHgt, '--', c='k')
 plt.savefig('CFAD/CFAD_X_Hgt' + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  Ka-band  Ze', 'Hgt', 'Z35',
@@ -87,6 +94,7 @@ h,x,y = hist_and_plot(data, 'CFAD  Ka-band  Ze', 'Hgt', 'Z35',
                       savename='CFAD/CFAD_Ka_Hgt' + addlabel +'.png', lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p35), xHgt)
+ax.plot(joseFit(xHgt, *coeff['Joyrad35']), xHgt, '--', c='k')
 plt.savefig('CFAD/CFAD_Ka_Hgt' + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  W-band  Ze', 'Hgt', 'Z94',
@@ -94,7 +102,9 @@ h,x,y = hist_and_plot(data, 'CFAD  W-band  Ze', 'Hgt', 'Z94',
                       xlim=[-70, 50], ylim=[0, 10000], inverty=False,
                       savename='CFAD/CFAD_W_Hgt' + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
-ax.plot(noiseCurve(xHgt, *p94), xHgt)
+ax.plot(noiseCurve(xHgt, *p94), xHgt, label='Noise level')
+ax.plot(joseFit(xHgt, *coeff['Grarad94']), xHgt, '--', c='k', label='data fits')
+ax.legend()
 plt.savefig('CFAD/CFAD_W_Hgt' + addlabel +'.png')
 
 #h,x,y = hist_and_plot(data, 'CFAD  DWRxk', 'Hgt', 'DWRxk',

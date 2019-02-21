@@ -22,18 +22,41 @@ descriptorFile = np.array([
        ('hwc_q', 1.0, -1, -99.0,  392.33,   3.0,  -99.0, -99.0, 13, 100, 'mgamma', -99.0, -99.0,   5.0,    1.0,  1.87e-4,   1.1e-2,       'mie-sphere',   'khvorostyanov01_spheres', -99.0)],
       dtype=[('hydro_name', 'S15'), ('as_ratio', '<f8'), ('liq_ice', '<i8'), ('rho_ms', '<f8'), ('a_ms', '<f8'), ('b_ms', '<f8'), ('alpha_as', '<f8'), ('beta_as', '<f8'), ('moment_in', '<i8'), ('nbin', '<i8'), ('dist_name', 'S15'), ('p_1', '<f8'), ('p_2', '<f8'), ('p_3', '<f8'), ('p_4', '<f8'), ('d_1', '<f8'), ('d_2', '<f8'), ('scat_name', 'S20'), ('vel_size_mod', 'S30'), ('canting', '<f8')]
       )
+filepath = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
+datestr = '20181124'
+datestr = '20181219'
+filename = filepath + datestr +'/METEOGRAM_patch001_'+datestr+'_joyce.nc'
 
-pam = pyPamtra.importer.readIcon2momMeteogram('/data/inscape/icon/experiments/juelich/testbed/testbed_20181124/METEOGRAM_patch001_20181124_joyce.nc',
+pam = pyPamtra.importer.readIcon2momMeteogram(filename,
                                               descriptorFile=descriptorFile,
-                                              timeidx=[2400], 
+                                              timeidx=[4800], 
                                               hydro_content=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
-pam.p['hydro_q'][:] = 0.0
-pam.p['hydro_n'][:] = 0.0
-pam.p['hydro_q'][0,0,:,2] = 1.0e-8
-pam.p['hydro_n'][0,0,:,2] = 1.0e2
+def joseFit(x,a,b):
+    return a*np.log10(b*x)
 
-radar = radarlib['Joyrad35']
+coeff = {'Joyrad35':[19.785, 3.44e-7],
+         'Joyrad10':[19.678, 2.55e-6],
+         'Grarad94':[20.394, 1.294e-6] }
+
+
+#pam.p['hydro_q'][:] = 0.0
+#pam.p['hydro_n'][:] = 0.0
+#pam.p['hydro_q'][0,0,:,2] = 1.0e-8
+#pam.p['hydro_n'][0,0,:,2] = 1.0e2
+
+
+
+
+radarname = 'Joyrad35'
+radarname = 'Joyrad10'
+#radarname = 'Grarad94'
+
+radar = radarlib[radarname]
+
+
+
+
 for k in radar.keys():
     if 'radar' in k:
         pam.nmlSet[k] = radar[k]
@@ -50,11 +73,11 @@ pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 0 # change to 0 if you do not want to see job progress number
 pam.p['turb_edr'][:] = 1.0e-4
 pam.nmlSet['radar_airmotion'] = True
-pam.nmlSet['radar_airmotion_vmin'] = 0.0 # workaround to potential bug in radar_spectrum
+#pam.nmlSet['radar_airmotion_vmin'] = 0.0 # workaround to potential bug in radar_spectrum
 pam.nmlSet['radar_airmotion_model'] = 'constant'
 #pam.nmlSet['radar_save_noise_corrected_spectra'] = True
 #pam.nmlSet['radar_noise_distance_factor'] = 10.0
-pam.nmlSet['radar_peak_min_snr'] = 0.0
+#pam.nmlSet['radar_peak_min_snr'] = 0.0
 
 #pam.runPamtra(radar['frequency'])
 pam2 = copy.deepcopy(pam)
@@ -83,8 +106,10 @@ Noise = Ze - SNR
 plt.plot(Noise,H,lw=4,label='Ze simple - SNR moments')
 
 Ncomp = pam.nmlSet['radar_pnoise0'] + 20.0*np.log10(H*0.001)
+Njose = joseFit(H,*coeff[radarname])
 plt.plot(Ncomp,H,'--',label='p0 + dB(Hgt)')
-
+plt.plot(Njose,H,'.', label="jose' fit ")
+plt.ylim([0,10000])
 plt.grid()
 plt.xlabel('dB')
 plt.ylabel('height [m]')
@@ -104,11 +129,12 @@ plt.colorbar()
 plt.savefig('spectrogram.png')
 
 plt.figure()
-hgtidx = 84
+hgtidx = 64
 noiselvl = dopplervel*0.0
 noiselvl[:] = pam.nmlSet['radar_pnoise0'] + 20.0*np.log10(H[hgtidx]*0.001) -10.0*np.log10(pam.nmlSet['radar_nfft'])
 plt.plot(dopplervel,spectrogram[hgtidx,:])
 plt.plot(dopplervel, noiselvl)
 plt.plot(dopplervel, noiselvl+3)
+plt.xlim([-10,10])
 plt.title(str(H[hgtidx]))
 plt.savefig('spectrum.png')
