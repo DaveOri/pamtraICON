@@ -13,13 +13,18 @@ import argparse
 parser =  argparse.ArgumentParser(description='do plots for QuickLookBrowser')
 parser.add_argument('-d','--date', nargs=1,
                     help='gimme datestring in the format YYYYMMDD')
+parser.add_argument('--rootpath', nargs=1, help='gimme full path for saving output')
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
 print(datestr)
 
-runFld = '/data/optimice/pamtra_runs/tripex-pol/data/'
-plotFld = '/data/optimice/pamtra_runs/tripex-pol/plots/'
+rootpath = '/data/optimice/pamtra_runs/tripex-pol/'
+if args.rootpath is not None:
+    rootpath = args.rootpath[0]
+runFld = rootpath + 'data/'
+plotFld = rootpath + 'plots/'
+
 ICON = '/data/inscape/icon/experiments/juelich/testbed/testbed_' + datestr +'/METEOGRAM_patch001_' + datestr + '_joyce.nc'
 
 xfmt = md.DateFormatter('%H')

@@ -2,10 +2,11 @@
 
 source /home/dori/.bashrc
 
-ICON_PATH='/data/inscape/icon/experiments/juelich/testbed/testbed_'
-DATA_PATH='/data/optimice/pamtra_runs/tripex-pol/data/'
-PLOT_PATH='/data/optimice/pamtra_runs/tripex-pol/plots/'
-CODE_PATH='/net/ora/develop/pamtraICON/tripex-pol/'
+ICON_PATH=/data/inscape/icon/experiments/juelich/testbed/testbed_
+ROOT_PATH=/data/optimice/pamtra_runs/tripex-pol/
+DATA_PATH=${ROOT_PATH}data/
+PLOT_PATH=${ROOT_PATH}plots/
+CODE_PATH=/net/ora/develop/pamtraICON/tripex-pol/
 
 FIRST_DAY='20181101'
 TODAY=`date +%Y%m%d`
@@ -25,19 +26,19 @@ until [[ ${DAY} > ${TODAY} ]]; do
 		if [ -f ${DATA_PATH}${DAY}hatpro.nc ]; then
 			echo "passive "${DAY}" already done"
 		else
-			python ${CODE_PATH}run_pamtra_hatpro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}_hatpro.out
+			python ${CODE_PATH}run_pamtra_hatpro.py --date ${DAY} --datapath ${DATA_PATH} > ${CODE_PATH}pamtra${DAY}_hatpro.out
 			newpassive=1
 		fi
 		if [ "$newpassive" -eq "1" ]; then
 			echo "New passive data ... plotting"
-			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_hatpro.out
 			newpassive=0
 		fi
 		if [ -f ${PLOT_PATH}${DAY}hatpro.png ]; then
 			echo "Already plotted passive " ${DAY}
 		else
 			echo "Found no passive plot ... plotting"
-			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_hatpro.out
 		fi
 		for hydro in "${hydro_combo[@]}"; do
 			for radar in "${radar_names[@]}"; do
@@ -45,20 +46,20 @@ until [[ ${DAY} > ${TODAY} ]]; do
 					echo "Already processed " ${DAY} ${hydro} ${radar}
 				else
 					echo "Running "${DAY} ${hydro} ${radar}
-					python ${CODE_PATH}pamtra_radar.py --date ${DAY} --hydroset ${hydro} --radarset ${radar} > ${CODE_PATH}pamtra${DAY}_${hydro}_${radar}.out
+					python ${CODE_PATH}pamtra_radar.py --date ${DAY} --hydroset ${hydro} --radarset ${radar} --datapath ${DATA_PATH} > ${CODE_PATH}pamtra${DAY}_${hydro}_${radar}.out
 					newactive=1
 				fi
 			done
 			if [ "$newactive" -eq "1" ]; then
 				echo "Newdata active ... plotting"
-				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 				newactive=0
 			fi
 			if [ -f ${PLOT_PATH}${hydro}/${DAY}${hydro}_Ze.png ]; then
 				echo "Already plotted " ${DAY} ${hydro}
 			else
 				echo "found no plot ... plotting"
-				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 			fi
 		done
 	else
@@ -70,10 +71,11 @@ done
 
 # NOW DO THE SAME FOR OLD TRIPEX
 
-ICON_PATH='/data/inscape/icon/experiments/juelich/testbed/testbed_'
-DATA_PATH='/data/optimice/pamtra_runs/tripex/data/'
-PLOT_PATH='/data/optimice/pamtra_runs/tripex/plots/'
-CODE_PATH='/net/ora/develop/pamtraICON/tripex-pol/'
+ICON_PATH=/data/inscape/icon/experiments/juelich/testbed/testbed_
+ROOT_PATH=/data/optimice/pamtra_runs/tripex/
+DATA_PATH=${ROOT_PATH}data/
+PLOT_PATH=${ROOT_PATH}plots/
+CODE_PATH=/net/ora/develop/pamtraICON/tripex-pol/
 
 FIRST_DAY='20151111'
 LAST_DAY='20160105'
@@ -93,19 +95,19 @@ until [[ ${DAY} > ${LAST_DAY} ]]; do
 		if [ -f ${DATA_PATH}${DAY}hatpro.nc ]; then
 			echo "passive "${DAY}" already done"
 		else
-			python ${CODE_PATH}run_pamtra_hatpro.py --date ${DAY} > ${CODE_PATH}pamtra${DAY}_hatpro.out
+			python ${CODE_PATH}run_pamtra_hatpro.py --date ${DAY} --datapath ${DATA_PATH} > ${CODE_PATH}pamtra${DAY}_hatpro.out
 			newpassive=1
 		fi
 		if [ "$newpassive" -eq "1" ]; then
 			echo "New passive data ... plotting"
-			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_hatpro.out
 			newpassive=0
 		fi
 		if [ -f ${PLOT_PATH}${DAY}hatpro.png ]; then
 			echo "Already plotted passive " ${DAY}
 		else
 			echo "Found no passive plot ... plotting"
-			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} >> ${CODE_PATH}plot${DAY}_hatpro.out
+			python ${CODE_PATH}plot_pamtra_hatpro.py --date ${DAY} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_hatpro.out
 		fi
 		for hydro in "${hydro_combo[@]}"; do
 			for radar in "${radar_names[@]}"; do
@@ -113,20 +115,20 @@ until [[ ${DAY} > ${LAST_DAY} ]]; do
 					echo "Already processed " ${DAY} ${hydro} ${radar}
 				else
 					echo "Running "${DAY} ${hydro} ${radar}
-					python ${CODE_PATH}pamtra_radar.py --date ${DAY} --hydroset ${hydro} --radarset ${radar} > ${CODE_PATH}pamtra${DAY}_${hydro}_${radar}.out
+					python ${CODE_PATH}pamtra_radar.py --date ${DAY} --hydroset ${hydro} --radarset ${radar} --datapath ${DATA_PATH} > ${CODE_PATH}pamtra${DAY}_${hydro}_${radar}.out
 					newactive=1
 				fi
 			done
 			if [ "$newactive" -eq "1" ]; then
 				echo "Newdata active ... plotting"
-				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 				newactive=0
 			fi
 			if [ -f ${PLOT_PATH}${hydro}/${DAY}${hydro}_Ze.png ]; then
 				echo "Already plotted " ${DAY} ${hydro}
 			else
 				echo "found no plot ... plotting"
-				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} >> ${CODE_PATH}plot${DAY}_${hydro}.out
+				python ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH} >> ${CODE_PATH}plot${DAY}_${hydro}.out
 			fi
 		done
 	else

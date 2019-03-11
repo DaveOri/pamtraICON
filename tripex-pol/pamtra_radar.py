@@ -13,6 +13,8 @@ parser.add_argument('-r','--radarset', nargs=1,
 parser.add_argument('-hy','--hydroset', nargs=1,
 	                help='gimme hydrosettings',
 	                choices=hydrodict.keys())
+parser.add_argument('--datapath', nargs=1,
+	                help='gimme fulldatapath for saving output')
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
@@ -24,6 +26,9 @@ cores = 8 # number of parallel cores
 
 
 # PATHS
+datapath = '/data/optimice/pamtra_runs/tripex-pol/data/'
+if args.datapath is not None:
+	datapath = args.datapath[0]
 # Directory where all the .nc meteograms are stored
 ICON_folder = '/data/inscape/icon/experiments/juelich/testbed/testbed_' + datestr + '/'
 
@@ -74,7 +79,7 @@ def set_radar_properties(pam,radarlib,radar):
 def run_radar_simulation(pam, radarname, hydroconf):
 	pam, frequency = set_radar_properties(pam, radarlib, radarname)
 	pam.runParallelPamtra(np.array([frequency]), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-	pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/tripex-pol/data/'+hydroconf+'/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
+	pam.writeResultsToNetCDF(datapath+hydroconf+'/'+datestr+hydroconf+'_'+pam.nmlSet["radar_mode"][:3]+'_'+radarname+'.nc')
 	return pam
 
 # RUN PAMTRA

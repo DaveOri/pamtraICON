@@ -22,6 +22,7 @@ parser.add_argument('-d','--date', nargs=1,
 parser.add_argument('-hy','--hydroset', nargs=1,
                     help='gimme hydrosettings',
                     choices=hydrodict.keys())
+parser.add_argument('--rootpath', nargs=1, help='gimme full path for saving output')
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
@@ -30,8 +31,11 @@ print datestr, hydrostr
 
 plt.close('all')
 
-runFld = '/data/optimice/pamtra_runs/tripex-pol/data/'
-plotFld = '/data/optimice/pamtra_runs/tripex-pol/plots/'
+rootpath = '/data/optimice/pamtra_runs/tripex-pol/'
+if args.rootpath is not None:
+    rootpath = args.rootpath[0]
+runFld = rootpath + 'data/'
+plotFld = rootpath + 'plots/'
 
 runs = ['all_hydro', 'no_snow', 'only_ice', 'only_liquid', 'only_snow', 'only_graupel_hail']
 titles = ['all Hydrometeors', 'No Snow', 'Only Ice', 'Only liquid (cloud drops and rain)', 'only Snow', 'only Graupel and Hail']
@@ -67,6 +71,13 @@ figsize21=(18,12)
 runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad10.nc'
 runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
 runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Grarad94.nc'
+
+if int(datestr) < 20180930:
+    runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'KiXPol.nc'
+    #runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
+    runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad94.nc'
+
+
 print runFile10
 print runFile35
 print runFile94
