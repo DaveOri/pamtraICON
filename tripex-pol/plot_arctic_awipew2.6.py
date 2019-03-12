@@ -8,13 +8,15 @@ import pandas as pd
 from glob import glob
 import os
 
-iconfile = '/net/junta/schemann/ac3prop/default/METEOGRAM_patch003_awipev.nc'
-datafile = '/data/optimice/pamtra_runs/nyalesund/METEOGRAM_02062017_awipev_icecosmo.nc'
-plotpath = '/data/optimice/pamtra_runs/nyalesund/20170602icecosmo'
+patch = '002'
 
-iconfile = '/net/junta/schemann/ac3prop/icehex/METEOGRAM_patch003_awipev.nc'
-datafile = '/data/optimice/pamtra_runs/nyalesund/METEOGRAM_02062017_awipev_icehex.nc'
-plotpath = '/data/optimice/pamtra_runs/nyalesund/20170602icehex'
+iconfile = '/net/junta/schemann/ac3prop/default/METEOGRAM_patch'+patch+'_awipev.nc'
+datafile = '/data/optimice/pamtra_runs/nyalesund/20170602/METEOGRAM_02062017_awipev_patch'+patch+'_icecosmo.nc'
+plotpath = '/data/optimice/pamtra_runs/nyalesund/20170602/20170602icecosmo_P'+patch+'_'
+
+#iconfile = '/net/junta/schemann/ac3prop/icehex/METEOGRAM_patch'+patch+'_awipev.nc'
+#datafile = '/data/optimice/pamtra_runs/nyalesund/20170602/METEOGRAM_02062017_awipev_patch'+patch+'_icehex.nc'
+#plotpath = '/data/optimice/pamtra_runs/nyalesund/20170602/20170602icehex_P'+patch+'_'
 
 figsize21 = (18,12)
 figsize31 = (18,18)
@@ -218,5 +220,32 @@ MDVw = -runVars['Radar_MeanDopplerVel'][:,0,:,1,0,0][:xDataLim,:]
 SWa = runVars['Radar_SpectrumWidth'][:,0,:,0,0,0][:xDataLim,:]
 SWw = runVars['Radar_SpectrumWidth'][:,0,:,1,0,0][:xDataLim,:]
 #SWg = runVars['Radar_SpectrumWidth'][:,0,:,4,0,0][:xDataLim,:]
+
+# Plot MDV
+f,((ax1,ax2)) = plt.subplots(2, 1, sharex=False, figsize=figsize21)
+plot_variable(tt,H,MDVa,ax1,None,'height [km]','m/s','Ka-band Mean Doppler Velocity',0,2,ylim=ylim)
+plot_variable(tt,H,MDVw,ax2,'time','height [km]','m/s', 'W-band Mean Doppler Velocity',0,2,ylim=ylim)
+ax1.set_title('Ka-band')
+ax2.set_title('W-band')
+ax1.xaxis.set_major_formatter(xfmt)
+ax2.xaxis.set_major_formatter(xfmt)
+ax1.grid(color='k')
+ax2.grid(color='k')
+f.tight_layout(pad=0)
+f.savefig(plotpath+'MDV'+'.png', dpi=200, bbox_inches='tight')
+
+# Plot SW
+f,((ax1,ax2)) = plt.subplots(2, 1, sharex=False, figsize=figsize21)
+plot_variable(tt,H,SWa,ax1,None,'height [km]','m/s','Ka-band Spectrum Width',0,2,ylim=ylim,cmap='nipy_spectral')
+plot_variable(tt,H,SWw,ax2,'time','height [km]','m/s', 'W-band Spectrum Width',0,2,ylim=ylim,cmap='nipy_spectral')
+ax1.set_title('Ka-band')
+ax2.set_title('W-band')
+ax1.xaxis.set_major_formatter(xfmt)
+ax2.xaxis.set_major_formatter(xfmt)
+ax1.grid(color='k')
+ax2.grid(color='k')
+f.tight_layout(pad=0)
+f.savefig(plotpath+'SW'+'.png', dpi=200, bbox_inches='tight')
+
 
 plt.close('all')

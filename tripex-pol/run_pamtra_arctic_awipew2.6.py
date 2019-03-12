@@ -4,7 +4,8 @@ import numpy as np
 import argparse
 from radar_settings import radarlib, hydrodict
 
-cores = 4 # number of parallel cores
+cores = 8 # number of parallel cores
+patch = '002'
 
 # INIT
 descriptorFile = np.array([
@@ -19,7 +20,7 @@ descriptorFile = np.array([
       )
 # Meteogram
 hydrostr = 'all_hydro'
-ICON_filename = '/net/junta/schemann/ac3prop/default/METEOGRAM_patch003_awipev.nc'
+ICON_filename = '/net/junta/schemann/ac3prop/default/METEOGRAM_patch'+patch+'_awipev.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
                                               descriptorFile,
                                               timeidx=None,#np.arange(1200,2400),
@@ -39,7 +40,7 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 
 frequency = [35.6,94]
 pam.runParallelPamtra(np.array(frequency), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/nyalesund/METEOGRAM_02062017_awipev_icecosmo.nc')
+pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/nyalesund/20170602/METEOGRAM_02062017_awipev_patch'+patch+'_icecosmo.nc')
 
 # INIT with Hex-plates ice properties
 descriptorFile = np.array([
@@ -54,7 +55,7 @@ descriptorFile = np.array([
       )
 # Meteogram
 hydrostr = 'all_hydro'
-ICON_filename = '/net/junta/schemann/ac3prop/icehex/METEOGRAM_patch003_awipev.nc'
+ICON_filename = '/net/junta/schemann/ac3prop/icehex/METEOGRAM_patch'+patch+'_awipev.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
                                               descriptorFile,
                                               timeidx=None,#np.arange(1200,2400),
@@ -74,4 +75,4 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 
 frequency = [35.6,94]
 pam.runParallelPamtra(np.array(frequency), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/nyalesund/METEOGRAM_02062017_awipev_icehex.nc')
+pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/nyalesund/20170602/METEOGRAM_02062017_awipev_patch'+patch+'_icehex.nc')
