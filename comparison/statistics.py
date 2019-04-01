@@ -12,17 +12,12 @@ import matplotlib.colors as colors
 from READ import read_prepare
 plt.close('all')
 
-addlabel = ''
-addlabel = 'run'
-#addlabel = 'spin'
-hydroset='all_hydro'
-data = read_prepare(hydroset, maxhour=46.0, minhour=9.0)
-
 def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
                   xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
                   xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
-                  savename='auto3f', inverty=False, figax=None):
-  hst, xedge, yedge = np.histogram2d(data[xvar], data[yvar], bins=100)
+                  savename='auto3f', inverty=False, figax=None,
+                  bins=100):
+  hst, xedge, yedge = np.histogram2d(data[xvar], data[yvar], bins=bins)
   hst = hst.T
   xcenter = (xedge[:-1] + xedge[1:])*0.5
   ycenter = (yedge[:-1] + yedge[1:])*0.5
@@ -48,7 +43,7 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
   if inverty:
     ax.invert_yaxis()
   if savename is 'auto3f':
-    fig.savefig('triple_frequency/' + '_'.join(title.split()) + addlabel + '.png')
+    fig.savefig('triple_frequency/'+'_'.join(title.split())+addlabel+'.png')
   elif savename is None:
     pass
   else:
@@ -115,23 +110,31 @@ def make6panel_temperature(data, yvar, xvar, xlim, ylim, lognorm, xlab, ylab, sa
                         savename=None, lognorm=lognorm)
   fig.savefig(savename)
 
-title = 'contour_log'
-fig, ax = plt.subplots(1,1)
-add_one_contour(None, data, [None, None], 'k')
-add_one_contour(None, data, [None, 0], 'k')
-add_one_contour(ax, data, [0, None], 'C1')
-add_one_contour(ax, data, [-5, 0], 'C2')
-add_one_contour(ax, data, [-10, -5], 'C3')
-add_one_contour(ax, data, [-15, -10], 'C4')
-add_one_contour(ax, data, [-20, -15], 'C5')
-add_one_contour(ax, data, [-25, -20], 'C6')
-add_one_contour(ax, data, [-30, -25], 'C7')
-
-ax.set_xlim([-5,15])
-ax.set_ylim([-5,15])
-ax.set_title(title)
-ax.set_xlabel('DWR Ka W   [dB]')
-ax.set_ylabel('DWR X Ka   [dB]')
-ax.grid()
-ax.legend()
-fig.savefig('triple_frequency/' + '_'.join(title.split()) + addlabel + '.png')
+if __name__ == '__main__':
+  addlabel = ''
+  addlabel = 'run'
+  #addlabel = 'spin'
+  campaign = 'tripex'
+  hydroset = campaign + '_all_hydro_'
+  data = read_prepare(hydroset, maxhour=46.0, minhour=9.0)
+  
+  title = 'contour_log'
+  fig, ax = plt.subplots(1,1)
+  add_one_contour(None, data, [None, None], 'k')
+  add_one_contour(None, data, [None, 0], 'k')
+  add_one_contour(ax, data, [0, None], 'C1')
+  add_one_contour(ax, data, [-5, 0], 'C2')
+  add_one_contour(ax, data, [-10, -5], 'C3')
+  add_one_contour(ax, data, [-15, -10], 'C4')
+  add_one_contour(ax, data, [-20, -15], 'C5')
+  add_one_contour(ax, data, [-25, -20], 'C6')
+  add_one_contour(ax, data, [-30, -25], 'C7')
+  
+  ax.set_xlim([-5,15])
+  ax.set_ylim([-5,15])
+  ax.set_title(title)
+  ax.set_xlabel('DWR Ka W   [dB]')
+  ax.set_ylabel('DWR X Ka   [dB]')
+  ax.grid()
+  ax.legend()
+  fig.savefig('triple_frequency/' + hydroset + '_'.join(title.split()) + addlabel + '.png')

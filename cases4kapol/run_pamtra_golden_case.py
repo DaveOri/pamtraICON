@@ -20,16 +20,16 @@ descriptorFile = np.array([
 
 # Meteogram
 hydrostr = 'all_hydro'
-ICON_filename = '/data/inscape/icon/experiments/nyalesund/iconforcing_23062017/METEOGRAM_patch004_awipev.nc'
+ICON_filename = '/data/inscape/icon/experiments/tripex_220km/newicon/METEOGRAM_patch001_joyce.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
-											  descriptorFile,
-											  timeidx=None,#np.arange(1200,2400),
-											  verbosity=1,
-											  hydro_content=hydrodict[hydrostr])
+							    descriptorFile,
+							    timeidx=None,#np.arange(1200,2400),
+							    verbosity=1,
+							    hydro_content=hydrodict[hydrostr])
 
 # SETTINGS
 pam.nmlSet['active'] = True
-pam.nmlSet["radar_mode"] = "simple"
+pam.nmlSet["radar_mode"] = "spectrum"
 pam.nmlSet['passive'] = False # Passive is time consuming
 pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
@@ -40,4 +40,4 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 
 frequency = [9.6,13.6,35.6,94,220]
 pam.runParallelPamtra(np.array(frequency), pp_deltaX=1, pp_deltaY=1, pp_deltaF=1, pp_local_workers=cores)
-pam.writeResultsToNetCDF('/data/optimice/pamtra_runs/nyalesund/iconforcing_23062017_METEOGRAM_patch004_awipev.nc')
+pam.writeResultsToNetCDF('./newicon2411tripexMETEOGRAM_patch001_joyce.nc')

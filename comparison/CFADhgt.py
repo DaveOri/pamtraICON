@@ -15,24 +15,25 @@ plt.close('all')
 addlabel = ''
 addlabel = 'run'
 #addlabel = 'spin'
-hydroset='all_hydro'
+campaign = 'tripex'
+hydroset = campaign + '_all_hydro_'
 data = read_prepare(hydroset, maxhour=46.0, minhour=6.0)
 lognorm=True
 
 h,x,y = hist_and_plot(data, 'CFAD  X-band  SNR', 'Hgt', 'N10',
                       'SNR X-band [dBZ]', 'Height   [m]',
                       xlim=[-15, 70], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_snrX_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_snrX_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 
 h,x,y = hist_and_plot(data, 'CFAD  Ka-band  SNR', 'Hgt', 'N35',
                       'SNR Ka-band [dB]', 'Height   [m]',
                       xlim=[-15, 70], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_snrKa_Hgt' + addlabel +'.png', lognorm=lognorm)
+                      savename='CFAD/CFAD_snrKa_Hgt' + campaign + addlabel +'.png', lognorm=lognorm)
 
 h,x,y = hist_and_plot(data, 'CFAD  W-band  SNR', 'Hgt', 'N94',
                       'SNR W-band [dB]', 'Height   [m]',
                       xlim=[-15, 70], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_snrW_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_snrW_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 
 #%%############################################################################
 data['PN10'] = data['Z10']-data['N10']
@@ -50,26 +51,26 @@ xHgt = np.linspace(100.0,14000.0,1000)
 h,x,y = hist_and_plot(data, 'CFAD  X-band  Pnoise', 'Hgt', 'PN10',
                       'Pnoise X-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 0], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_PnoiseX_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_PnoiseX_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p10), xHgt)
-plt.savefig('CFAD/CFAD_PnoiseX_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_PnoiseX_Hgt' + campaign + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  Ka-band  Pnoise', 'Hgt', 'PN35',
                       'Pnoise Ka-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 0], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_PnoiseKa_Hgt' + addlabel +'.png', lognorm=lognorm)
+                      savename='CFAD/CFAD_PnoiseKa_Hgt' + campaign + addlabel +'.png', lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p35), xHgt)
-plt.savefig('CFAD/CFAD_PnoiseKa_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_PnoiseKa_Hgt' + campaign + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  W-band  Pnoise', 'Hgt', 'PN94',
                       'Pnoise W-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 0], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_PnoiseW_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_PnoiseW_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p94), xHgt)
-plt.savefig('CFAD/CFAD_PnoiseW_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_PnoiseW_Hgt' + campaign + addlabel +'.png')
 
 #%%############################################################################
 def joseFit(x,a,b):
@@ -82,30 +83,30 @@ coeff = {'Joyrad35':[19.785, 3.44e-7],
 h,x,y = hist_and_plot(data, 'CFAD  X-band  Ze', 'Hgt', 'Z10',
                       'Z X-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_X_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_X_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p10), xHgt)
 ax.plot(joseFit(xHgt, *coeff['Joyrad10']), xHgt, '--', c='k')
-plt.savefig('CFAD/CFAD_X_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_X_Hgt' + campaign + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  Ka-band  Ze', 'Hgt', 'Z35',
                       'Z Ka-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_Ka_Hgt' + addlabel +'.png', lognorm=lognorm)
+                      savename='CFAD/CFAD_Ka_Hgt' + campaign + addlabel +'.png', lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p35), xHgt)
 ax.plot(joseFit(xHgt, *coeff['Joyrad35']), xHgt, '--', c='k')
-plt.savefig('CFAD/CFAD_Ka_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_Ka_Hgt' + campaign + addlabel +'.png')
 
 h,x,y = hist_and_plot(data, 'CFAD  W-band  Ze', 'Hgt', 'Z94',
                       'Z W-band [dBZ]', 'Height   [m]',
                       xlim=[-70, 50], ylim=[0, 10000], inverty=False,
-                      savename='CFAD/CFAD_W_Hgt' + addlabel +'.png',lognorm=lognorm)
+                      savename='CFAD/CFAD_W_Hgt' + campaign + addlabel +'.png',lognorm=lognorm)
 ax = plt.gca()
 ax.plot(noiseCurve(xHgt, *p94), xHgt, label='Noise level')
 ax.plot(joseFit(xHgt, *coeff['Grarad94']), xHgt, '--', c='k', label='data fits')
 ax.legend()
-plt.savefig('CFAD/CFAD_W_Hgt' + addlabel +'.png')
+plt.savefig('CFAD/CFAD_W_Hgt' + campaign + addlabel +'.png')
 
 #h,x,y = hist_and_plot(data, 'CFAD  DWRxk', 'Hgt', 'DWRxk',
 #                      'DWR X-Ka [dB]', 'Height   [m]',
