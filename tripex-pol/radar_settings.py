@@ -4,14 +4,14 @@ KiXPolnml = {'radar_fwhr_beamwidth_deg':1.3,
              'radar_k2':0.93,
              'radar_max_v':9.0,
              'radar_min_v':-9.0,
-             'radar_nfft':256,
-             #'radar_no_ave':None,
+             'radar_nfft':1200,
+             'radar_no_ave':1,
              'radar_pnoise0':-30.0,
              'frequency':9.4}
 
 Joyrad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_integration_time':1.0,
-               'radar_k2':0.74,
+               'radar_k2':0.93,
                'radar_max_v':6.8,
                'radar_min_v':-6.8,
                'radar_nfft':512,
@@ -36,13 +36,13 @@ Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,
                'radar_max_v':10.56824,
                'radar_min_v':-10.56824,
                'radar_nfft':512,
-               'radar_no_ave':38,
+               'radar_no_ave':20,
                'radar_pnoise0':-64.0,
                'frequency':35.5}
 
 Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_integration_time':1.0,
-               'radar_k2':0.74,
+               'radar_k2':0.93,
                'radar_max_v':6.8,
                'radar_min_v':-6.8,
                'radar_nfft':512,
@@ -53,7 +53,8 @@ Default = {}
 
 radarlib = {'Joyrad10':Joyrad10nml, 'Joyrad35':Joyrad35nml, \
             'Grarad94':Grarad94nml, 'KiXPol':KiXPolnml, \
-            'Joyrad94':Joyrad94nml, 'Default':Default}
+            'Joyrad94':Joyrad94nml, 'Default':Default, \
+            'hatpro':Default}
 
 # DEFINE DICTIONARY OF HYDROMETOR CONTENT COMBINATIONS
 hydrodict = {'all_hydro'        :[1.,1.,1.,1.,1.,1.],
