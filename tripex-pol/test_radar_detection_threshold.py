@@ -12,6 +12,26 @@ import copy
 
 from radar_settings import radarlib
 plt.close('all')
+
+def hildebrand_sekhon(spectrum, nAvg):
+  
+  N = len(spectrum) - 1 # index of the last element
+  sortSpec = np.sort(spectrum)
+  sortSpec[~np.isfinite(sortSpec)] = 0.0
+  sum2 = sortSpec[0:-1].cumsum()**2
+  sumSquares= (sortSpec[0:-1]**2).cumsum()
+  nPts=np.arange(N)+1.0
+  sigma = nAvg*(nPts*sumSquares-sum2)
+  a=int(max(nPts[sigma < sum2]))
+
+  if(a < 10):
+    peak_noise=max(spectrum)
+  else:
+    peak_noise=sortSpec[a-1]
+  signal_detected=1.0*spectrum
+  signal_detected[spectrum < peak_noise] = np.nan
+  return peak_noise, signal_detected
+
 descriptorFile = np.array([
       #['hydro_name' 'as_ratio' 'liq_ice' 'rho_ms' 'a_ms' 'b_ms' 'alpha_as' 'beta_as' 'moment_in' 'nbin' 'dist_name' 'p_1' 'p_2' 'p_3' 'p_4' 'd_1' 'd_2' 'scat_name' 'vel_size_mod' 'canting']
        ('cwc_q', 1.0,  1, -99.0,   -99.0, -99.0,  -99.0, -99.0, 13, 100, 'mgamma', -99.0, -99.0,   2.0,    1.0,   2.0e-6,   8.0e-5,       'mie-sphere',     'khvorostyanov01_drops', -99.0),
@@ -32,11 +52,12 @@ pam = pyPamtra.importer.readIcon2momMeteogram(filename,
                                               timeidx=[4800], 
                                               hydro_content=[1.0, 1.0, 1.0, 1.0, 1.0, 1.0])
 
-def joseFit(x,a,b):
-    return a*np.log10(b*x)
+def joseFit(x,a,b, c0=0.0):
+    return c0 + a*np.log10(b*x)
 
 coeff = {'Joyrad35':[19.785, 3.44e-7],
          'Joyrad10':[19.678, 2.55e-6],
+         'KiXPol':[10.0, 2.19, -92.04],
          'Grarad94':[20.394, 1.294e-6] }
 
 
@@ -49,13 +70,11 @@ coeff = {'Joyrad35':[19.785, 3.44e-7],
 
 
 radarname = 'Joyrad35'
-radarname = 'Joyrad10'
+#radarname = 'Joyrad10'
 #radarname = 'Grarad94'
+#radarname = 'KiXPol'
 
 radar = radarlib[radarname]
-
-
-
 
 for k in radar.keys():
     if 'radar' in k:
@@ -78,6 +97,7 @@ pam.nmlSet['radar_airmotion_model'] = 'constant'
 #pam.nmlSet['radar_save_noise_corrected_spectra'] = True
 #pam.nmlSet['radar_noise_distance_factor'] = 10.0
 #pam.nmlSet['radar_peak_min_snr'] = 0.0
+pam.nmlSet['radar_no_ave'] = 20
 
 #pam.runPamtra(radar['frequency'])
 pam2 = copy.deepcopy(pam)
@@ -99,7 +119,15 @@ pam2.runParallelPamtra(radar['frequency'])
 
 Ze = pam2.r['Ze'][0,0,:,0,0,0]
 Ze[Ze == -9999.] = np.nan
-plt.plot(Ze,H, label='Ze simple')
+dopplervel = pam.r['radar_vel'][0,:]
+dv = 1.0#(dopplervel[1:]-dopplervel[0:-1])[0]
+spectrogram = pam.r['radar_spectra'][0,0,:,0,0,:]
+spectrogram[spectrogram == -9999.0] = np.nan
+linspectrogram = 10.0**(0.1*spectrogram)
+linspectrogram[~np.isfinite(linspectrogram)] = 0.0
+Ze_spec = 10.0*np.log10(dv*linspectrogram.sum(axis=1))
+
+plt.plot(Ze,H, marker='x', label='Ze simple')
 pam2.writeResultsToNetCDF('test_simple.nc')
 
 Noise = Ze - SNR
@@ -109,32 +137,39 @@ Ncomp = pam.nmlSet['radar_pnoise0'] + 20.0*np.log10(H*0.001)
 Njose = joseFit(H,*coeff[radarname])
 plt.plot(Ncomp,H,'--',label='p0 + dB(Hgt)')
 plt.plot(Njose,H,'.', label="jose' fit ")
-plt.ylim([0,10000])
+plt.plot(Ze_spec,H,label="Spectrum integral")
+plt.ylim([0,12000])
 plt.grid()
 plt.xlabel('dB')
 plt.ylabel('height [m]')
 plt.legend()
-plt.savefig('test_reflectivity_threshold.png')
+plt.savefig(radarname + 'test_reflectivity_threshold.png')
 
 print np.nanmax(Noise-Z)
 
-spectrogram = pam.r['radar_spectra'][0,0,:,0,0,:]
-spectrogram[spectrogram == -9999.0] = np.nan
-dopplervel = pam.r['radar_vel'][0,:]
-
 plt.figure()
 plt.pcolormesh(dopplervel,H,spectrogram, vmin=-70, vmax=-30, cmap='jet')
-plt.ylim([0,10000])
+plt.ylim([0,12000])
 plt.colorbar()
 plt.savefig('spectrogram.png')
 
-plt.figure()
 hgtidx = 64
+plt.figure()
 noiselvl = dopplervel*0.0
 noiselvl[:] = pam.nmlSet['radar_pnoise0'] + 20.0*np.log10(H[hgtidx]*0.001) -10.0*np.log10(pam.nmlSet['radar_nfft'])
-plt.plot(dopplervel,spectrogram[hgtidx,:])
-plt.plot(dopplervel, noiselvl)
-plt.plot(dopplervel, noiselvl+3)
+spectrum = spectrogram[hgtidx,:]
+linspectrum = 10.0**(0.1*spectrum)
+peaknoise, detectedSpectrum = hildebrand_sekhon(linspectrum, pam.nmlSet['radar_no_ave'])
+plt.plot(dopplervel,spectrogram[hgtidx,:], label='pamtra spectrum')
+plt.plot(dopplervel, noiselvl, label = 'noise level pamtra')
+plt.plot(dopplervel, noiselvl*0.0+10.0*np.log10(peaknoise), label='peak Noise HS')
+plt.plot(dopplervel, 10.0*np.log10(detectedSpectrum),marker='x', label='detected Spectrum HS')
 plt.xlim([-10,10])
-plt.title(str(H[hgtidx]))
-plt.savefig('spectrum.png')
+plt.title('Hgt= ' + str(H[hgtidx])[:8])
+plt.xlabel('Doppler velocity [m/s]')
+plt.ylabel('Spectral power [dB]')
+ZeHS = 10.0*np.log10(dv*detectedSpectrum[np.isfinite(detectedSpectrum)].sum())
+
+plt.legend(title='ZeHS= '+str(ZeHS)[:6]+' ZeP= '+str(Ze[hgtidx])[:6])
+plt.savefig(radarname + 'spectrum.png')
+

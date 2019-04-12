@@ -54,24 +54,25 @@ pamtra = read_prepare(hydroset=campaign + '_all_hydro_', minhour=minhour)
 pamtraTl0 = slice_data(pamtra, 'T', maxvalue=0)
 
 #%% CFAD Sensitivity
-
+xlim = [-60, 50]
+ylim = [0, 12000]
 hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon100heights[::-1]))
 
 hist_and_plot(pamtra, 'sensitivity cone Ka', yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zk_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon100heights[::-1]))
 
 hist_and_plot(pamtra, 'sensitivity cone W', yvar='Hgt', xvar='Z94',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zw_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon100heights[::-1]))
@@ -85,7 +86,7 @@ Hr_b[-1] = Hrad[-1] + 15.
 hist_and_plot(radar.dropna(subset=['Z35']), 'sensitivity cone Ka',
               yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/radarCFAD_Zk_Hgt.png',
               inverty=False, figax=None,
               bins=(100,Hr_b))
@@ -118,7 +119,7 @@ radar = slice_data(radar, 'quality_x', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['Z10']), 'sensitivity cone X',
               yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=[-60, 50], ylim=ylim, lognorm=True,
               savename='tripex/3f/radarCFAD_Zx_Hgt.png',
               inverty=False, figax=None,
               bins=(100,Hr_b))
@@ -129,7 +130,7 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['Z94']), 'sensitivity cone W',
               yvar='Hgt', xvar='Z94',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=[0, 10000], lognorm=True,
+              xlim=[-60, 50], ylim=ylim, lognorm=True,
               savename='tripex/3f/radarCFAD_Zw_Hgt.png',
               inverty=False, figax=None,
               bins=(100,Hr_b))
