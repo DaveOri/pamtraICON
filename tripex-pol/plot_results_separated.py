@@ -74,7 +74,7 @@ runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Grarad94.nc'
 
 if int(datestr) < 20180930:
     runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'KiXPol.nc'
-    #runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
+    runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
     runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad94.nc'
 
 

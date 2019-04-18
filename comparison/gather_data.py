@@ -23,6 +23,7 @@ hydroset = 'only_liquid'
 hydroset = 'only_graupel_hail'
 hydroset = 'only_snow'
 hydroset = 'only_ice'
+hydroset = 'no_snow'
 
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'

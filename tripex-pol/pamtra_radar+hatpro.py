@@ -58,7 +58,7 @@ pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 
 # SETTINGS
 pam.nmlSet['active'] = True
-pam.nmlSet["radar_mode"] = "spectrum"
+pam.nmlSet["radar_mode"] = 'moments'#"spectrum"
 pam.nmlSet['passive'] = False # Passive is time consuming
 pam.set['verbose'] = 0 # set verbosity levels
 pam.set['pyVerbose'] = 1 # change to 0 if you do not want to see job progress number
