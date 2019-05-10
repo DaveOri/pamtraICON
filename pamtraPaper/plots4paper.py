@@ -11,6 +11,10 @@ import matplotlib.dates as md
 import pandas as pd
 import numpy as np
 import netCDF4 as nc
+
+import matplotlib
+matplotlib.rcParams.update({'font.size':6})
+
 pamX = nc.Dataset('all_hydro/20151119all_hydro_spe_KiXPol.nc')
 pamK = nc.Dataset('all_hydro/20151119all_hydro_spe_Joyrad35.nc')
 pamW = nc.Dataset('all_hydro/20151119all_hydro_spe_Joyrad94.nc')
@@ -91,9 +95,9 @@ ax14 = plt.subplot2grid((5, 6), (4, 4), colspan=2)
 axs = [ax1, ax2, ax3, ax4, ax5, ax6 ,ax7, ax8, ax9, ax10, ax11, ax12, ax13, ax14]
 
 hlim = [0, 10]
-TlimK = [0, 200]
+TlimK = [0, 150]
 TlimV = [100, 300]
-vlim = [-1, 5]
+vlim = [-1, 8]
 Zmin, Zmax = -35, 25
 Vmin, Vmax = -1, 5
 Dmin, Dmax = -5, 20
@@ -117,17 +121,22 @@ mesh3 = ax3.pcolormesh(getTime(pamK, 'datatime'),
                        (Zea-Aa-Zew+Aw).T, cmap='nipy_spectral', vmin=Dmin, vmax=Dmax)
 ax3.set_ylim(hlim)
 ax3.set_ylabel('Height    [km]')
+ax3.set_xlabel('time')
+
 
 ax4.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,:7,0]) # downwelling at 0 meters)
 ax4.legend(f2labels(pamP.variables['frequency'][:7]))
 ax4.set_ylim(TlimK)
+ax4.set_xlim(ax1.get_xlim())
 ax4.get_xaxis().set_ticks([])
 ax4.set_ylabel('T$_b$   [K]')
 
 ax5.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,7:,0]) # downwelling at 0 meters)
 ax5.legend(f2labels(pamP.variables['frequency'][7:]))
 ax5.set_ylim(TlimV)
+ax5.set_xlim(ax1.get_xlim())
 ax5.set_ylabel('T$_b$   [K]')
+ax5.set_xlabel('time')
 
 mesh6 = ax6.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
@@ -152,22 +161,28 @@ mesh8 = ax8.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['dbz_ka'][:].T-rad3.variables['dbz_w'][:].T,
                        cmap='nipy_spectral', vmin=Dmin, vmax=Dmax)
 ax8.set_ylim(hlim)
+ax8.set_xlim(ax1.get_xlim())
 ax8.get_yaxis().set_ticks([])
+ax8.set_xlabel('time')
 plt.colorbar(mesh8, ax=ax8)
 
 ele = hatp.variables['ele'][:]
 elemask = np.abs(ele-90.) < 1.
 ax9.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, :7])
 ax9.set_ylim(TlimK)
+ax9.set_xlim(ax1.get_xlim())
 ax9.get_xaxis().set_ticks([])
 ax9.get_yaxis().set_ticks([])
 
 ax10.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, 7:])
 ax10.set_ylim(TlimV)
+ax10.set_xlim(ax1.get_xlim())
 ax10.get_yaxis().set_ticks([])
+ax10.set_xlabel('time')
 
-tidx = 4800
-hidx = 70
+
+tidx = 6572#4800
+hidx = 29#70
 selTime = tta[tidx, hidx]
 selTS = pd.to_datetime(selTime)
 selHeight = Ha[tidx, hidx]
@@ -177,6 +192,35 @@ rad94file = '/data/hatpro/jue/data/joyrad94/l0/' + str(selTS.year) \
             + str(selTS.year) + str(selTS.month) + str(selTS.day) \
             + str(selTS.hour) + '.nc'
 radar94 = nc.Dataset(rad94file)
+rad94var = radar94.variables
+t94 = nc.num2date(rad94var['time'][:], 'seconds since 2001-01-01')
+t94idx = np.argmin(np.abs(t94 - selTS))
+h94idx = np.argmin(np.abs(rad94var['range'][:] - selHeight))
+spec94 = rad94var['spec'][t94idx,:,:]
+spec94[spec94 == -999] = np.nan
+chirp_idx = list(rad94var['range_offsets'][:] - 1)
+chirp_idx.append(spec94.shape[0])
+v94 = np.zeros(spec94.shape)
+for i,j in enumerate(chirp_idx[:-1]):
+  v94[j:chirp_idx[i+1],:] = np.tile(rad94var['velocity'][i,:], [chirp_idx[i+1]-j,1])
+r94 = np.tile(rad94var['range'][:][:, np.newaxis], spec94.shape[1])
+
+rad35file = '/net/ora/20151119mira36spectra.nc'
+radar35 = nc.Dataset(rad35file)
+rad35var = radar35.variables
+t35 = nc.num2date(rad35var['time'][:], 'seconds since 1970-01-01 00:00 UTC')
+t35idx = 50#np.argmin(np.abs(t35 - selTS))
+r35 = rad35var['range'][:]
+h35idx = np.argmin(np.abs(r35 - selHeight))
+
+SNRCorFaCo = rad35var['SNRCorFaCo'][t35idx,:]
+radConst = rad35var['RadarConst'][t35idx]
+npw = rad35var['npw1'][t35idx]
+cal = radConst*SNRCorFaCo*(r35/5000.)**2/npw
+spec35 = 10.*np.log10(rad35var['SPCco'][t35idx,:,:]*cal[:, np.newaxis])
+
+
+v35 = rad35var['doppler'][:]
 
 mesh11 = ax11.pcolormesh(pamK.variables['Radar_Velocity'][:].squeeze(),
                          pamK.variables['height'][tidx,0,:]*0.001,
@@ -189,7 +233,9 @@ ax11.set_ylabel('Height   [km]')
 ax12.set_xlim(vlim)
 ax12.set_ylim(hlim)
 ax12.set_xlabel('Doppler Velocity   [m/s]')
-plt.colorbar(mesh11, ax=ax12)
+mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35)
+plt.colorbar(mesh11, ax=ax11, label='Spectral Power   [dB]')
+plt.colorbar(mesh12, ax=ax12, label='Spectral Power   [dB]')
 
 ax13.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
           pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
@@ -208,12 +254,10 @@ ax13.get_xaxis().set_ticks([])
 #ax14.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
 #          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
 #          label='X band', c='xkcd:pale red')
-#ax14.plot(pamK.variables['Radar_Velocity'][:].squeeze(),
-#          pamK.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
-#          label='Ka band', c='xkcd:medium green')
-#ax14.plot(pamW.variables['Radar_Velocity'][:].squeeze(),
-#          pamW.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
-#          label = 'W band', 'xkcd:denim blue')
+ax14.plot(v35, spec35[h35idx, :],
+          label='Ka band', c='xkcd:medium green')
+ax14.plot(v94[h94idx,:], spec94[h94idx,:],
+          label = 'W band', c='xkcd:denim blue')
 ax14.set_xlim(vlim)
 ax14.set_ylabel('Spectral Power   [dB]')
 ax14.set_xlabel('Doppler Velocity   [m/s]')
@@ -221,5 +265,6 @@ ax14.set_xlabel('Doppler Velocity   [m/s]')
 for ax in axs[0:10]:
   ax.xaxis.set_major_formatter(xfmt)
 
+plt.tight_layout()
 fig.savefig('tripex_plots.png', dpi=600)
 #fig.savefig('tripex_plots.pdf', dpi=600)

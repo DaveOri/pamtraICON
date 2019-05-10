@@ -16,12 +16,19 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
                   xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
                   xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
                   savename='auto3f', inverty=False, figax=None,
-                  bins=100):
-  hst, xedge, yedge = np.histogram2d(data[xvar], data[yvar], bins=bins)
+                  bins=100, density=False, CFAD=False):
+  dataclean = data[[xvar, yvar]].dropna()
+  hst, xedge, yedge = np.histogram2d(dataclean[xvar], dataclean[yvar], bins=bins)
   hst = hst.T
+  hst[hst==0] = np.nan
+  if density:
+    xBinW = xedge[1:]-xedge[:-1]
+    yBinW = yedge[1:]-yedge[:-1]
+    hst = hst/xBinW/yBinW[:,np.newaxis]
+  if CFAD:
+    hst = hst/np.nansum(hst,axis=1)[:,np.newaxis]
   xcenter = (xedge[:-1] + xedge[1:])*0.5
   ycenter = (yedge[:-1] + yedge[1:])*0.5
-  hst[hst < 1] = np.nan
   if figax is None:
     fig, ax = plt.subplots(1,1)
   else:

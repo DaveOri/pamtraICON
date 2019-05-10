@@ -19,11 +19,11 @@ import matplotlib.pyplot as plt
 campaign = 'tripex'
 
 hydroset = 'all_hydro'
-hydroset = 'only_liquid'
-hydroset = 'only_graupel_hail'
-hydroset = 'only_snow'
-hydroset = 'only_ice'
-hydroset = 'no_snow'
+#hydroset = 'only_liquid'
+#hydroset = 'only_graupel_hail'
+#hydroset = 'only_snow'
+# hydroset = 'only_ice'
+# hydroset = 'no_snow'
 
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
@@ -37,7 +37,7 @@ elif campaign == 'tripex-pol':
   J35files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Joyrad35.nc'))
   G94files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Grarad94.nc'))
 
-available_dates = sorted([i.split('/')[-1][:8] for i in J10files])
+available_dates = sorted([i.split('/')[-1][:8] for i in J35files])
 
 def swap_gridx_datatime(dataarray):
   dt = dataarray.rename({'grid_x':'datetime'})

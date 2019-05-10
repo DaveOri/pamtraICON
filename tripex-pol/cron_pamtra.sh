@@ -79,6 +79,7 @@ CODE_PATH=/net/ora/develop/pamtraICON/tripex-pol/
 
 FIRST_DAY='20151111'
 LAST_DAY='20160105'
+#LAST_DAY='20151215'
 
 declare -a hydro_combo=("all_hydro" "no_snow" "only_snow" "only_liquid" "only_ice" "only_graupel_hail")
 #declare -a hydro_combo=("only_ice" "no_snow" "only_liquid" "only_graupel_hail")

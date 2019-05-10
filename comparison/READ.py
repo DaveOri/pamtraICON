@@ -18,7 +18,7 @@ def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9):
   data['V35'] = -1.0*data['V35']
   data['V94'] = -1.0*data['V94']
   data[data==-9999] = np.nan
-  data.dropna(inplace=True)
+  #data.dropna(inplace=True)
   data['DWRxk'] = data['Z10'] - data['Z35']
   data['DWRkw'] = data['Z35'] - data['Z94']
   #data = data[(data['runtime']>3600.*minhour)*(data['runtime']<3600.*maxhour)]
@@ -43,7 +43,7 @@ def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9):
 def slice_data(data, varname, minvalue=-np.inf, maxvalue=np.inf):
   return data[(data[varname]>minvalue)*(data[varname]<maxvalue)]
 
-icon100heights = [21000, 20617.7923391807, 20290.2350703975, 19982.3469255595, 
+icon150heights = [21000, 20617.7923391807, 20290.2350703975, 19982.3469255595, 
     19687.435072837, 19402.3933650287, 19125.4122583281, 18855.3018784347, 
     18591.2174854262, 18332.526574574, 18078.7366066168, 17829.4523000272, 
     17584.3487582748, 17343.153708233, 17105.6352855012, 16871.5933550092, 

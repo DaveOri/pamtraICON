@@ -13,7 +13,7 @@ import netCDF4
 from READ import read_prepare
 from READ import read_radar
 from READ import slice_data
-from READ import icon100heights
+from READ import icon150heights
 from statistics import hist_and_plot
 
 data = netCDF4.Dataset('data/idealized_hydro.nc')
@@ -56,26 +56,83 @@ pamtraTl0 = slice_data(pamtra, 'T', maxvalue=0)
 #%% CFAD Sensitivity
 xlim = [-60, 50]
 ylim = [0, 12000]
+h1,x1,y1 = hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
+              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
+              xlim=xlim, ylim=ylim, lognorm=True,
+              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
+              inverty=False, figax=None,
+              bins=(100,icon150heights[::-1]),
+              density=False, CFAD=False)
+#p = pamtra[['Z10', 'Hgt']].dropna()
+#hst, xedge, yedge = np.histogram2d(p['Z10'], p['Hgt'], bins=(100,icon150heights[::-1]))
+
+xlim = [-60, 50]
+ylim = [0, 12000]
 hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
               xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
               inverty=False, figax=None,
-              bins=(100,icon100heights[::-1]))
+              bins=(100,icon150heights[::-1]),
+              density=True, CFAD=False)
+
+xlim = [-60, 50]
+ylim = [0, 12000]
+hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
+              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
+              xlim=xlim, ylim=ylim, lognorm=False,
+              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
+              inverty=False, figax=None,
+              bins=(100,icon150heights[::-1]),
+              density=True, CFAD=True)
+
+xlim = [-60, 50]
+ylim = [0, 12000]
+h2,x2,y2 = hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
+              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
+              xlim=xlim, ylim=ylim, lognorm=False,
+              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
+              inverty=False, figax=None,
+              bins=(100,icon150heights[::-1]),
+              density=False, CFAD=True)
 
 hist_and_plot(pamtra, 'sensitivity cone Ka', yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
               xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zk_Hgt.png',
               inverty=False, figax=None,
-              bins=(100,icon100heights[::-1]))
+              bins=(100,icon150heights[::-1]))
 
 hist_and_plot(pamtra, 'sensitivity cone W', yvar='Hgt', xvar='Z94',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
               xlim=xlim, ylim=ylim, lognorm=True,
               savename='tripex/3f/pamtraCFAD_Zw_Hgt.png',
               inverty=False, figax=None,
-              bins=(100,icon100heights[::-1]))
+              bins=(100,icon150heights[::-1]))
+
+hist_and_plot(pamtra, 'MDV Ka',
+              yvar='T', xvar='V35',
+              xlabel='MDV Ka   [m/s]', ylabel='T   [K]',
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              savename='tripex/3f/pamtraCFAD_V35_T.png',
+              inverty=True, figax=None,
+              bins=(100,150))
+
+hist_and_plot(pamtra, 'MDV X',
+              yvar='T', xvar='V10',
+              xlabel='MDV X   [m/s]', ylabel='T   [K]',
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              savename='tripex/3f/pamtraCFAD_V10_T.png',
+              inverty=True, figax=None,
+              bins=(100,150))
+
+hist_and_plot(pamtra, 'MDV W',
+              yvar='T', xvar='V94',
+              xlabel='MDV W   [m/s]', ylabel='T   [K]',
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              savename='tripex/3f/pamtraCFAD_V94_T.png',
+              inverty=True, figax=None,
+              bins=(100,150))
 
 radar = read_radar(campaign=campaign, minhour=minhour)
 Hrad = np.array(sorted(radar['Hgt'].drop_duplicates().values))
@@ -94,7 +151,7 @@ hist_and_plot(radar.dropna(subset=['Z35']), 'sensitivity cone Ka',
 hist_and_plot(radar.dropna(subset=['V35']), 'MDV Ka',
               yvar='T', xvar='V35',
               xlabel='MDV Ka   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=True,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
               savename='tripex/3f/radarCFAD_V35_T.png',
               inverty=True, figax=None,
               bins=(300,300))
@@ -102,15 +159,15 @@ hist_and_plot(radar.dropna(subset=['V35']), 'MDV Ka',
 hist_and_plot(radar.dropna(subset=['V10']), 'MDV X',
               yvar='T', xvar='V10',
               xlabel='MDV X   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=True,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
               savename='tripex/3f/radarCFAD_V10_T.png',
               inverty=True, figax=None,
-              bins=(80,100))
+              bins=(150,200))
 
 hist_and_plot(radar.dropna(subset=['V94']), 'MDV W',
               yvar='T', xvar='V94',
               xlabel='MDV W   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=True,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
               savename='tripex/3f/radarCFAD_V94_T.png',
               inverty=True, figax=None,
               bins=(800,200))

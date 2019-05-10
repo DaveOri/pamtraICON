@@ -7,6 +7,7 @@ KiXPolnml = {'radar_fwhr_beamwidth_deg':1.3,
              'radar_nfft':1200,
              'radar_no_ave':1,
              'radar_pnoise0':-30.0,
+             'radar_peak_min_snr': 5,
              'frequency':9.4}
 
 Joyrad94nml = {'radar_fwhr_beamwidth_deg':0.5,
@@ -17,6 +18,7 @@ Joyrad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_nfft':512,
                'radar_no_ave':17,
                'radar_pnoise0':-54.0,
+               'radar_peak_min_snr': 10,
                'frequency':94.0}
 
 Joyrad10nml = {'radar_fwhr_beamwidth_deg':1.0,
@@ -36,8 +38,8 @@ Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,
                'radar_max_v':10.56824,
                'radar_min_v':-10.56824,
                'radar_nfft':512,
-               'radar_no_ave':20,
                'radar_pnoise0':-64.0,
+               'radar_peak_min_snr': 10,
                'frequency':35.5}
 
 Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,
@@ -48,6 +50,7 @@ Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_nfft':512,
                'radar_no_ave':17,
                'radar_pnoise0':-54.0,
+               'radar_peak_min_snr': 10,
                'frequency':94.0}
 Default = {}
 
