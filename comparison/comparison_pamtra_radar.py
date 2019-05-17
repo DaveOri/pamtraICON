@@ -52,13 +52,14 @@ minhour=6.0
 
 pamtra = read_prepare(hydroset=campaign + '_all_hydro_', minhour=minhour)
 pamtraTl0 = slice_data(pamtra, 'T', maxvalue=0)
+lognormrule=True
 
 #%% CFAD Sensitivity
 xlim = [-60, 50]
 ylim = [0, 12000]
 h1,x1,y1 = hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon150heights[::-1]),
@@ -66,46 +67,16 @@ h1,x1,y1 = hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
 #p = pamtra[['Z10', 'Hgt']].dropna()
 #hst, xedge, yedge = np.histogram2d(p['Z10'], p['Hgt'], bins=(100,icon150heights[::-1]))
 
-xlim = [-60, 50]
-ylim = [0, 12000]
-hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
-              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=True,
-              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
-              inverty=False, figax=None,
-              bins=(100,icon150heights[::-1]),
-              density=True, CFAD=False)
-
-xlim = [-60, 50]
-ylim = [0, 12000]
-hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
-              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=False,
-              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
-              inverty=False, figax=None,
-              bins=(100,icon150heights[::-1]),
-              density=True, CFAD=True)
-
-xlim = [-60, 50]
-ylim = [0, 12000]
-h2,x2,y2 = hist_and_plot(pamtra, 'sensitivity cone X', yvar='Hgt', xvar='Z10',
-              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=False,
-              savename='tripex/3f/pamtraCFAD_Zx_Hgt.png',
-              inverty=False, figax=None,
-              bins=(100,icon150heights[::-1]),
-              density=False, CFAD=True)
-
 hist_and_plot(pamtra, 'sensitivity cone Ka', yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_Zk_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon150heights[::-1]))
 
 hist_and_plot(pamtra, 'sensitivity cone W', yvar='Hgt', xvar='Z94',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_Zw_Hgt.png',
               inverty=False, figax=None,
               bins=(100,icon150heights[::-1]))
@@ -113,7 +84,7 @@ hist_and_plot(pamtra, 'sensitivity cone W', yvar='Hgt', xvar='Z94',
 hist_and_plot(pamtra, 'MDV Ka',
               yvar='T', xvar='V35',
               xlabel='MDV Ka   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_V35_T.png',
               inverty=True, figax=None,
               bins=(100,150))
@@ -121,7 +92,7 @@ hist_and_plot(pamtra, 'MDV Ka',
 hist_and_plot(pamtra, 'MDV X',
               yvar='T', xvar='V10',
               xlabel='MDV X   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_V10_T.png',
               inverty=True, figax=None,
               bins=(100,150))
@@ -129,7 +100,7 @@ hist_and_plot(pamtra, 'MDV X',
 hist_and_plot(pamtra, 'MDV W',
               yvar='T', xvar='V94',
               xlabel='MDV W   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_V94_T.png',
               inverty=True, figax=None,
               bins=(100,150))
@@ -143,7 +114,7 @@ Hr_b[-1] = Hrad[-1] + 15.
 hist_and_plot(radar.dropna(subset=['Z35']), 'sensitivity cone Ka',
               yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_Zk_Hgt.png',
               inverty=False, figax=None,
               bins=(100,Hr_b))
@@ -151,7 +122,7 @@ hist_and_plot(radar.dropna(subset=['Z35']), 'sensitivity cone Ka',
 hist_and_plot(radar.dropna(subset=['V35']), 'MDV Ka',
               yvar='T', xvar='V35',
               xlabel='MDV Ka   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_V35_T.png',
               inverty=True, figax=None,
               bins=(300,300))
@@ -159,7 +130,7 @@ hist_and_plot(radar.dropna(subset=['V35']), 'MDV Ka',
 hist_and_plot(radar.dropna(subset=['V10']), 'MDV X',
               yvar='T', xvar='V10',
               xlabel='MDV X   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_V10_T.png',
               inverty=True, figax=None,
               bins=(150,200))
@@ -167,7 +138,7 @@ hist_and_plot(radar.dropna(subset=['V10']), 'MDV X',
 hist_and_plot(radar.dropna(subset=['V94']), 'MDV W',
               yvar='T', xvar='V94',
               xlabel='MDV W   [m/s]', ylabel='T   [K]',
-              xlim=[-5, 2], ylim=[-30, 10], lognorm=False,
+              xlim=[-5, 2], ylim=[-30, 10], lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_V94_T.png',
               inverty=True, figax=None,
               bins=(800,200))
@@ -176,10 +147,10 @@ radar = slice_data(radar, 'quality_x', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['Z10']), 'sensitivity cone X',
               yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=ylim, lognorm=True,
+              xlim=[-60, 50], ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_Zx_Hgt.png',
               inverty=False, figax=None,
-              bins=(100,Hr_b))
+              bins=(100,Hr_b), density=False, CFAD=False)
 
 
 radar = read_radar(campaign=campaign, minhour=minhour)
@@ -187,7 +158,7 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['Z94']), 'sensitivity cone W',
               yvar='Hgt', xvar='Z94',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
-              xlim=[-60, 50], ylim=ylim, lognorm=True,
+              xlim=[-60, 50], ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_Zw_Hgt.png',
               inverty=False, figax=None,
               bins=(100,Hr_b))
@@ -200,9 +171,9 @@ plt.close('all')
 
 hist_and_plot(pamtra, '3f plot all', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-              xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
+              xlim=[-5, 20], ylim=[-5, 20], lognorm=lognormrule,
               savename='tripex/3f/pamtra3f_all.png', inverty=False, figax=None,
-              bins=100)
+              bins=100,density=True, CFAD=True)
 plt.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets')
 plt.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops')
@@ -215,16 +186,16 @@ plt.savefig('tripex/pamtra3f_all_withcurves.png')
 hist_and_plot(slice_data(pamtra, 'T', maxvalue=0),
               '3f plot T<0', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-              xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
+              xlim=[-5, 20], ylim=[-5, 20], lognorm=lognormrule,
               savename='tripex/3f/pamtra3f_T<0.png', inverty=False, figax=None,
-              bins=100)
+              bins=100,density=True, CFAD=True)
 
 hist_and_plot(radar.dropna(subset=['DWRxk', 'DWRkw']),
               '3f plot all', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-              xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
+              xlim=[-5, 20], ylim=[-5, 20], lognorm=lognormrule,
               savename='tripex/3f/radar3f_all.png', inverty=False, figax=None,
-              bins=100)
+              bins=100,density=True, CFAD=True)
 plt.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets')
 plt.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops')
@@ -236,45 +207,45 @@ plt.savefig('tripex/radar3f_all_withcurves.png')
 hist_and_plot(slice_data(radar.dropna(subset=['DWRxk', 'DWRkw']), 'T', maxvalue=0),
               '3f plot T<0', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-              xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
+              xlim=[-5, 20], ylim=[-5, 20], lognorm=lognormrule,
               savename='tripex/3f/radar3f_T<0.png', inverty=False, figax=None,
-              bins=100)
+              bins=100,density=True, CFAD=True)
 
 #%% DWR CFAD temperature
 
 hist_and_plot(pamtra, 'CFAD DWRxk', yvar='T', xvar='DWRxk',
               xlabel='DWRxk   [dB]', ylabel='T   [degC]',
-              xlim=[-10, 20], ylim=[-20, 0], lognorm=True,
+              xlim=[-10, 20], ylim=[-20, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_DWRxk_T.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(pamtra, 'CFAD DWRkw', yvar='T', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='T   [degC]',
-              xlim=[-8, 13], ylim=[-20, 0], lognorm=True,
+              xlim=[-8, 13], ylim=[-20, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraCFAD_DWRkw_T.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 radar = read_radar(campaign=campaign, minhour=minhour)
 radar = slice_data(radar, 'quality_x', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['DWRxk']),
               'CFAD DWRxk', yvar='T', xvar='DWRxk',
               xlabel='DWRxk   [dB]', ylabel='T   [degC]',
-              xlim=[-10, 20], ylim=[-20, 0], lognorm=True,
+              xlim=[-10, 20], ylim=[-20, 0], lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_DWRxk_T.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 radar = read_radar(campaign=campaign, minhour=minhour)
 radar = slice_data(radar, 'quality_w', maxvalue=8192)
 hist_and_plot(radar.dropna(subset=['DWRkw']),
               'CFAD DWRkw', yvar='T', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='T   [degC]',
-              xlim=[-8, 13], ylim=[-20, 0], lognorm=True,
+              xlim=[-8, 13], ylim=[-20, 0], lognorm=lognormrule,
               savename='tripex/3f/radarCFAD_DWRkw_T.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 plt.close('all')
 
@@ -283,102 +254,102 @@ plt.close('all')
 hist_and_plot(slice_data(pamtra, 'DWRkw', 0, 2),
               'V10 vs Z10  |  0<DWRkw<2', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_0_2.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRkw', 2, 4),
               'V10 vs Z10  |  2<DWRkw<4', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_2_4.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRxk', 4, 6),
               'V10 vs Z10  |  4<DWRkw<6', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_4_6.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRkw', 6, 8),
               'V10 vs Z10  |  6<DWRxk<8', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_6_8.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 
 hist_and_plot(slice_data(pamtraTl0, 'DWRkw', 0, 2),
               'V10 vs Z10  |  0<DWRkw<2  |  T<0', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_0_2_Tneg.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtraTl0, 'DWRkw', 2, 4),
               'V10 vs Z10  |  2<DWRkw<4  |  T<0', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_Z_DWRkw_2_4_Tneg.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 radar = read_radar(campaign=campaign, minhour=minhour)
 radar = slice_data(radar, 'quality_x', maxvalue=8192)
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','V10']), 'DWRkw', 0, 2),
               'V10 vs Z10  |  0<DWRkw<2', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_0_2.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','V10']), 'DWRkw', 2, 4),
               'V10 vs Z10  |  2<DWRkw<4', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_2_4.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','V10']), 'DWRxk', 4, 6),
               'V10 vs Z10  |  4<DWRkw<6', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_4_6.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','V10']), 'DWRkw', 6, 8),
               'V10 vs Z10  |  6<DWRxk<8', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_6_8.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 
 hist_and_plot(slice_data(radarTl0.dropna(subset=['Z10','V10']), 'DWRkw', 0, 2),
               'V10 vs Z10  |  0<DWRkw<2  |  T<0', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_0_2_Tneg.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radarTl0.dropna(subset=['Z10','V10']), 'DWRkw', 2, 4),
               'V10 vs Z10  |  2<DWRkw<4  |  T<0', yvar='V10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='MDV X [m/s]',
-              xlim=[-60, 50], ylim=[-10, 0], lognorm=True,
+              xlim=[-60, 50], ylim=[-10, 0], lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_Z_DWRkw_2_4_Tneg.png',
               inverty=True, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 plt.close('all')
 
@@ -391,100 +362,100 @@ ylim = [0, 2]
 hist_and_plot(slice_data(pamtra, 'DWRkw', 0, 2),
               'SW10 vs Z10  |  0<DWRkw<2', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_0_2.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRkw', 2, 4),
               'SW10 vs Z10  |  2<DWRkw<4', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_2_4.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRxk', 4, 6),
               'SW10 vs Z10  |  4<DWRkw<6', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_4_6.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtra, 'DWRkw', 6, 8),
               'SW10 vs Z10  |  6<DWRxk<8', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_6_8.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 
 hist_and_plot(slice_data(pamtraTl0, 'DWRkw', 0, 2),
               'SW10 vs Z10  |  0<DWRkw<2  |  T<0', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_0_2_Tneg.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(pamtraTl0, 'DWRkw', 2, 4),
               'SW10 vs Z10  |  2<DWRkw<4  |  T<0', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_W_Z_DWRkw_2_4_Tneg.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','W10']), 'DWRkw', 0, 2),
               'SW10 vs Z10  |  0<DWRkw<2', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_0_2.png',
               inverty=inverty, figax=None,
-              bins=(65,65))
+              bins=(65,65),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','W10']), 'DWRkw', 2, 4),
               'SW10 vs Z10  |  2<DWRkw<4', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_2_4.png',
               inverty=inverty, figax=None,
-              bins=(60,60))
+              bins=(60,60),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','W10']), 'DWRxk', 4, 6),
               'SW10 vs Z10  |  4<DWRkw<6', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_4_6.png',
               inverty=inverty, figax=None,
-              bins=(60,60))
+              bins=(60,60),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(subset=['Z10','W10']), 'DWRkw', 6, 8),
               'SW10 vs Z10  |  6<DWRxk<8', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_6_8.png',
               inverty=inverty, figax=None,
-              bins=(60,60))
+              bins=(60,60),density=True, CFAD=True)
 
 
 hist_and_plot(slice_data(radarTl0.dropna(subset=['Z10','W10']), 'DWRkw', 0, 2),
               'SW10 vs Z10  |  0<DWRkw<2  |  T<0', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_0_2_Tneg.png',
               inverty=inverty, figax=None,
-              bins=(45,45))
+              bins=(45,45),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radarTl0.dropna(subset=['Z10','W10']), 'DWRkw', 2, 4),
               'SW10 vs Z10  |  2<DWRkw<4  |  T<0', yvar='W10', xvar='Z10',
               xlabel='Z X   [dBZ]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_W_Z_DWRkw_2_4_Tneg.png',
               inverty=inverty, figax=None,
-              bins=(50,50))
+              bins=(50,50),density=True, CFAD=True)
 
 plt.close('all')
 
@@ -500,10 +471,10 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', 0),
               'V10 vs DWRkw  |  T>0', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_DWRkw_T>0.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -517,10 +488,10 @@ plt.savefig('tripex/pamtraSCAT_V_DWRkw_T>0withcurves.png')
 hist_and_plot(slice_data(radar, 'T', 0),
               'V10 vs DWRkw  |  T>0', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_DWRkw_T>0.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -537,10 +508,10 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -5, 0),
               'V10 vs DWRkw  |  -5<T<0', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_DWRkw_T_-5_0.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -554,10 +525,10 @@ plt.savefig('tripex/pamtraSCAT_V_DWRkw_-5_0withcurves.png')
 hist_and_plot(slice_data(radar, 'T', -5, 0),
               'V10 vs DWRkw  |  -5<T<0', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_DWRkw_T_-5_0.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -571,10 +542,10 @@ plt.savefig('tripex/radarSCAT_V_DWRkw_-5_0withcurves.png')
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -10, -5),
               'V10 vs DWRkw  |  -10<T<-5', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_DWRkw_T_-10_-5.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -586,10 +557,10 @@ plt.savefig('tripex/pamtraSCAT_V_DWRkw_-10_-5withcurves.png')
 hist_and_plot(slice_data(radar.dropna(), 'T', -10, -5),
               'V10 vs DWRkw  |  -10<T<-5', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_DWRkw_T_-10_-5.png',
               inverty=inverty, figax=None,
-              bins=(80,80))
+              bins=(80,80),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes')
@@ -600,34 +571,34 @@ plt.savefig('tripex/radarSCAT_V_DWRkw_-10_-5withcurves.png')
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -15, -10),
               'V10 vs DWRkw  |  -15<T<-10', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_DWRkw_T_-15_-10.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(), 'T', -15, -10),
               'V10 vs DWRkw  |  -15<T<-10', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_DWRkw_T_-15_-10.png',
               inverty=inverty, figax=None,
-              bins=(72,72))
+              bins=(72,72),density=True, CFAD=True)
 
 h,x,y = hist_and_plot(slice_data(pamtra.dropna(), 'T', -20, -15),
               'V10 vs DWRkw  |  -20<T<-15', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_V_DWRkw_T_-20_-15.png',
               inverty=inverty, figax=None,
-              bins=(100,100))
+              bins=(100,100),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(), 'T', -20, -15),
               'V10 vs DWRkw  |  -20<T<-15', yvar='V10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='V X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_V_DWRkw_T_-20_-15.png',
               inverty=inverty, figax=None,
-              bins=(40,40))
+              bins=(40,40),density=True, CFAD=True)
 
 plt.close('all')
 
@@ -644,18 +615,18 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', 0),
               'SW10 vs DWRkw  |  T>0', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_SW_DWRkw_T>0.png',
               inverty=inverty, figax=None,
-              bins=(80,80))
+              bins=(80,80),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar, 'T', 0),
               'SW10 vs DWRkw  |  T>0', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_SW_DWRkw_T>0.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 
 radar = read_radar(campaign=campaign, minhour=minhour)
 radar = slice_data(radar, 'quality_x', maxvalue=8192)
@@ -663,10 +634,10 @@ radar = slice_data(radar, 'quality_w', maxvalue=8192)
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -5, 0),
               'SW10 vs DWRkw  |  -5<T<0', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_SW_DWRkw_T_-5_0.png',
               inverty=inverty, figax=None,
-              bins=(80,80))
+              bins=(80,80),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], Si[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], Sr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Ss[:,0], label='snowflakes')
@@ -678,10 +649,10 @@ plt.savefig('tripex/pamtraSCAT_SW_DWRkw_-5_0withcurves.png')
 hist_and_plot(slice_data(radar, 'T', -5, 0),
               'SW10 vs DWRkw  |  -5<T<0', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_SW_DWRkw_T_-5_0.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], Si[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], Sr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Ss[:,0], label='snowflakes')
@@ -692,10 +663,10 @@ plt.savefig('tripex/radarSCAT_SW_DWRkw_-5_0withcurves.png')
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -10, -5),
               'SW10 vs DWRkw  |  -10<T<-5', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_SW_DWRkw_T_-10_-5.png',
               inverty=inverty, figax=None,
-              bins=(80,80))
+              bins=(80,80),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], Si[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], Sr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Ss[:,0], label='snowflakes')
@@ -707,10 +678,10 @@ plt.savefig('tripex/pamtraSCAT_SW_DWRkw_-10_-5withcurves.png')
 hist_and_plot(slice_data(radar.dropna(), 'T', -10, -5),
               'SW10 vs DWRkw  |  -10<T<-5', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_SW_DWRkw_T_-10_-5.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 plt.plot(Zi[:,1]-Zi[:,2], Si[:,0], label='ice crystals')
 plt.plot(Zr[:,1]-Zr[:,2], Sr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Ss[:,0], label='snowflakes')
@@ -721,17 +692,17 @@ plt.savefig('tripex/radarSCAT_SW_DWRkw_-10_-5withcurves.png')
 h,x,y = hist_and_plot(slice_data(pamtra, 'T', -15, -10),
               'SW10 vs DWRkw  |  -15<T<-10', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/pamtraSCAT_SW_DWRkw_T_-15_-10.png',
               inverty=inverty, figax=None,
-              bins=(80,80))
+              bins=(80,80),density=True, CFAD=True)
 
 hist_and_plot(slice_data(radar.dropna(), 'T', -15, -10),
               'SW10 vs DWRkw  |  -15<T<-10', yvar='W10', xvar='DWRkw',
               xlabel='DWRkw   [dB]', ylabel='SW X [m/s]',
-              xlim=xlim, ylim=ylim, lognorm=True,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='tripex/3f/radarSCAT_SW_DWRkw_T_-15_-10.png',
               inverty=inverty, figax=None,
-              bins=(x,y))
+              bins=(x,y),density=True, CFAD=True)
 
 plt.close('all')

@@ -76,28 +76,28 @@ Ha, tta, Aa, Zea, MDVa, SWa = readPamtra_nc(pamK)
 Hw, ttw, Aw, Zew, MDVw, SWw = readPamtra_nc(pamW)
 
 plt.close('all')
-fig = plt.figure(figsize=(11, 8))
-ax1 = plt.subplot2grid((5, 6), (0, 0), colspan=2)
-ax2 = plt.subplot2grid((5, 6), (1, 0), colspan=2)
-ax3 = plt.subplot2grid((5, 6), (2, 0), colspan=2)
-ax4 = plt.subplot2grid((5, 6), (3, 0), colspan=2)
-ax5 = plt.subplot2grid((5, 6), (4, 0), colspan=2)
-ax6 = plt.subplot2grid((5, 6), (0, 2), colspan=2)
-ax7 = plt.subplot2grid((5, 6), (1, 2), colspan=2)
-ax8 = plt.subplot2grid((5, 6), (2, 2), colspan=2)
-ax9 = plt.subplot2grid((5, 6), (3, 2), colspan=2)
-ax10 = plt.subplot2grid((5, 6), (4, 2), colspan=2)
-ax11 = plt.subplot2grid((5, 6), (0, 4), rowspan=3)
-ax12 = plt.subplot2grid((5, 6), (0, 5), rowspan=3)
-ax13 = plt.subplot2grid((5, 6), (3, 4), colspan=2)
-ax14 = plt.subplot2grid((5, 6), (4, 4), colspan=2)
+fig0 = plt.figure(figsize=(8, 11))
+ax1 = plt.subplot2grid((5, 4), (0, 0), colspan=2)
+ax2 = plt.subplot2grid((5, 4), (1, 0), colspan=2)
+ax3 = plt.subplot2grid((5, 4), (2, 0), colspan=2)
+ax4 = plt.subplot2grid((5, 4), (3, 0), colspan=2)
+ax5 = plt.subplot2grid((5, 4), (4, 0), colspan=2)
+ax6 = plt.subplot2grid((5, 4), (0, 2), colspan=2)
+ax7 = plt.subplot2grid((5, 4), (1, 2), colspan=2)
+ax8 = plt.subplot2grid((5, 4), (2, 2), colspan=2)
+ax9 = plt.subplot2grid((5, 4), (3, 2), colspan=2)
+ax10 = plt.subplot2grid((5, 4), (4, 2), colspan=2)
 
-axs = [ax1, ax2, ax3, ax4, ax5, ax6 ,ax7, ax8, ax9, ax10, ax11, ax12, ax13, ax14]
+fig1 = plt.figure(figsize=(8, 11))
+ax11 = plt.subplot2grid((5, 2), (0, 0), rowspan=3)
+ax12 = plt.subplot2grid((5, 2), (0, 1), rowspan=3)
+ax13 = plt.subplot2grid((5, 2), (4, 0), colspan=1)
+ax14 = plt.subplot2grid((5, 2), (4, 1), colspan=1)
 
 hlim = [0, 10]
 TlimK = [0, 150]
 TlimV = [100, 300]
-vlim = [-1, 8]
+vlim = [-8, 8]
 Zmin, Zmax = -35, 25
 Vmin, Vmax = -1, 5
 Dmin, Dmax = -5, 20
@@ -180,8 +180,10 @@ ax10.set_xlim(ax1.get_xlim())
 ax10.get_yaxis().set_ticks([])
 ax10.set_xlabel('time')
 
+plt.tight_layout()
+fig0.savefig('tripex_plots.png', dpi=600)
 
-tidx = 6572#4800
+tidx = 939#6572#4800
 hidx = 29#70
 selTime = tta[tidx, hidx]
 selTS = pd.to_datetime(selTime)
@@ -204,6 +206,7 @@ v94 = np.zeros(spec94.shape)
 for i,j in enumerate(chirp_idx[:-1]):
   v94[j:chirp_idx[i+1],:] = np.tile(rad94var['velocity'][i,:], [chirp_idx[i+1]-j,1])
 r94 = np.tile(rad94var['range'][:][:, np.newaxis], spec94.shape[1])
+v94 = -v94
 
 rad35file = '/net/ora/20151119mira36spectra.nc'
 radar35 = nc.Dataset(rad35file)
@@ -218,9 +221,7 @@ radConst = rad35var['RadarConst'][t35idx]
 npw = rad35var['npw1'][t35idx]
 cal = radConst*SNRCorFaCo*(r35/5000.)**2/npw
 spec35 = 10.*np.log10(rad35var['SPCco'][t35idx,:,:]*cal[:, np.newaxis])
-
-
-v35 = rad35var['doppler'][:]
+v35 = sorted(rad35var['doppler'][:])
 
 mesh11 = ax11.pcolormesh(pamK.variables['Radar_Velocity'][:].squeeze(),
                          pamK.variables['height'][tidx,0,:]*0.001,
@@ -229,12 +230,13 @@ ax11.set_xlim(vlim)
 ax11.set_ylim(hlim)
 ax11.set_xlabel('Doppler Velocity   [m/s]')
 ax11.set_ylabel('Height   [km]')
+plt.colorbar(mesh11, ax=ax11, label='Spectral Power   [dB]')
 
+mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35)
+#mesh12 = ax12.pcolormesh(v94, r94*0.001, spec94)
 ax12.set_xlim(vlim)
 ax12.set_ylim(hlim)
 ax12.set_xlabel('Doppler Velocity   [m/s]')
-mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35)
-plt.colorbar(mesh11, ax=ax11, label='Spectral Power   [dB]')
 plt.colorbar(mesh12, ax=ax12, label='Spectral Power   [dB]')
 
 ax13.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
@@ -266,5 +268,4 @@ for ax in axs[0:10]:
   ax.xaxis.set_major_formatter(xfmt)
 
 plt.tight_layout()
-fig.savefig('tripex_plots.png', dpi=600)
-#fig.savefig('tripex_plots.pdf', dpi=600)
+fig1.savefig('tripex_spectra.png', dpi=600)

@@ -33,6 +33,28 @@ elif campaign == 'tripex-pol':
 
 available_dates = sorted([i.split('/')[-1][:8] for i in J10files])
 
+def running_mean(x, N, minN):
+    csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0))).astype(int))
+    nannum = csumnan[N:] - csumnan[:-N]
+    mask = ((N-nannum) > minN)
+    Filter = mask.astype(float)
+    Filter[~mask] = np.nan
+    cumsum = np.nancumsum(np.insert(x, 0, 0)) 
+    return Filter * (cumsum[N:] - cumsum[:-N]) / (float(N)-nannum)
+
+def running_mean_2d(xx, N, minN=0):
+  add = int((N - (N & 1))/2)
+  addition = np.zeros([xx.shape[0], add])*np.nan
+  x = np.concatenate([addition, xx, addition], axis=1)
+  csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0, axis=1))).astype(int),
+                      axis=1)
+  nannum = csumnan[:, N:] - csumnan[:, :-N]
+  mask = ((N-nannum) >= minN)
+  Filter = mask.astype(float)
+  Filter[~mask] = np.nan
+  csum = np.nancumsum(np.insert(x, 0, 0, axis=1), axis=1)
+  return Filter * (csum[:, N:] - csum[:, :-N]) / (float(N)-nannum)
+
 if __name__ == '__main__':
   for i, date in enumerate(available_dates[:]):
     print(i, date)
@@ -56,6 +78,13 @@ if __name__ == '__main__':
     DF['V94'] = radar_data['rv_w'][:].T.flatten()
     DF['W94'] = radar_data['sw_w'][:].T.flatten()
     
+    V10=radar_data['rv_x'][:].T
+    V35=radar_data['rv_ka'][:].T
+    V94=radar_data['rv_w'][:].T
+    DF['V10avg']=running_mean_2d(V10, 299, 75).flatten()
+    DF['V35avg']=running_mean_2d(V35, 299, 75).flatten()
+    DF['V94avg']=running_mean_2d(V94, 299, 75).flatten()
+    
     time = radar_data['time'][:] - netCDF4.date2num(pd.to_datetime(date),
                                                     'seconds since 1970-01-01 00:00:00 UTC')
     DF['runtime'] = np.tile(time,[Nr,1]).flatten()
@@ -68,8 +97,10 @@ if __name__ == '__main__':
     DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
     
     DF.dropna(how='all', subset=['Z10', 'Z35', 'Z94'], inplace=True)
-    DF.to_hdf('data/' + campaign + '_data_radar.h5',
+    DF.to_hdf('data/' + campaign + '_data_radar_avg.h5',
               key='stat',mode='a',append=True)
-    
+  #end = timer.time()
+  #print(end-start)
+  #DF2 = pd.read_hdf('data/' + campaign + '_data_radar_avg.h5', key='stat')
   end = timer.time()
   print(end-start)

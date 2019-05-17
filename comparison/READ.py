@@ -11,8 +11,8 @@ import numpy as np
 
 T0 = 273.15
 
-def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9):
-  data = pd.read_hdf('data/'+hydroset+'data_pamtra_icon.h5', key='stat')
+def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9, suffix=''):
+  data = pd.read_hdf('data/'+hydroset+'data_pamtra_icon'+suffix+'.h5', key='stat')
   data['T'] = data['T'] - 273.15
   data['V10'] = -1.0*data['V10']
   data['V35'] = -1.0*data['V35']
@@ -24,12 +24,12 @@ def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9):
   #data = data[(data['runtime']>3600.*minhour)*(data['runtime']<3600.*maxhour)]
   return slice_data(data, 'runtime', 3600.*minhour, 3600.*maxhour)
 
-def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9):
+def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9, avg=''):
   if 'runtime' not in cols:
     cols.append('runtime')
   if len(cols)==1:
     cols=None
-  data = pd.read_hdf('data/'+campaign+'_data_radar.h5',
+  data = pd.read_hdf('data/'+campaign+'_data_radar'+avg+'.h5',
                      key='stat', columns=cols)
   #data.dropna(inplace=True)
   cols=data.columns

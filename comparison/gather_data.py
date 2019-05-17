@@ -25,7 +25,7 @@ hydroset = 'all_hydro'
 # hydroset = 'only_ice'
 # hydroset = 'no_snow'
 
-pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
+pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data_bk/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
 
 if campaign == 'tripex':
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     DF['QC'] = icon_data['QC'][:].T.flatten()
     DF['QR'] = icon_data['QR'][:].T.flatten()
     
-    DF.to_hdf('data/' + campaign + '_' + hydroset + '_data_pamtra_icon.h5',
+    DF.to_hdf('data/' + campaign + '_' + hydroset + '_data_pamtra_icon_bk.h5',
               key='stat',mode='a',append=True)
     
   f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))

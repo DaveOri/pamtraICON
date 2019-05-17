@@ -14,9 +14,9 @@ plt.close('all')
 
 def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
                   xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-                  xlim=[-5, 20], ylim=[-5, 20], lognorm=True,
+                  xlim=[-5, 20], ylim=[-5, 20], lognorm=True, vminmax=None,
                   savename='auto3f', inverty=False, figax=None,
-                  bins=100, density=False, CFAD=False):
+                  bins=100, density=False, CFAD=False, cmap='jet'):
   dataclean = data[[xvar, yvar]].dropna()
   hst, xedge, yedge = np.histogram2d(dataclean[xvar], dataclean[yvar], bins=bins)
   hst = hst.T
@@ -26,7 +26,7 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
     yBinW = yedge[1:]-yedge[:-1]
     hst = hst/xBinW/yBinW[:,np.newaxis]
   if CFAD:
-    hst = hst/np.nansum(hst,axis=1)[:,np.newaxis]
+    hst = 100.*hst/np.nansum(hst,axis=1)[:,np.newaxis]
   xcenter = (xedge[:-1] + xedge[1:])*0.5
   ycenter = (yedge[:-1] + yedge[1:])*0.5
   if figax is None:
@@ -34,13 +34,24 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
   else:
     fig, ax = figax
   if lognorm:
-    mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap='jet',
-                         norm=colors.LogNorm(vmin=1, vmax=np.nanmax(hst)))
+    norm = colors.LogNorm(vmin=np.nanmin(hst[np.nonzero(hst)]),
+                                             vmax=np.nanmax(hst))
+    if vminmax is not None:
+      norm = colors.LogNorm(vmin=vminmax[0], vmax=vminmax[1])
+    mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap=cmap,
+                         norm=norm)
   else:
-    mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap='jet')
+    if vminmax is None:
+      mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap='jet')
+    else:
+      mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap='jet',
+                           vmin=vminmax[0], vmax=vminmax[1])
   ax.set_xlim(xlim)
   ax.set_ylim(ylim)
-  plt.colorbar(mesh, ax=ax, extend='max', label='counts')
+  clabel='counts'
+  if CFAD:
+    clabel='relative frequency [%]'
+  plt.colorbar(mesh, ax=ax, extend='max', label=clabel)
   ax.set_title(title)
   if xlabel is not None:
     ax.set_xlabel(xlabel)
