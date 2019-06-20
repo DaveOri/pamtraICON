@@ -30,7 +30,7 @@ descriptorFile = np.array([
       )
 
 # Meteogram
-ICON_filename = 'METEOGRAM_20151119_joyce_1min.nc'
+ICON_filename = 'METEOGRAM_20151119_joyce_5min.nc'
 pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 											  descriptorFile,
 											  timeidx=None,#np.arange(1200,2400),
@@ -65,7 +65,7 @@ def run_radar_simulation(pam, radarname, hydroconf):
 
 def runHatpro():
 	# Meteogram
-	ICON_filename = 'METEOGRAM_20151119_joyce_1min.nc'
+	ICON_filename = 'METEOGRAM_20151119_joyce_5min.nc'
 	pam = pyPamtra.importer.readIcon2momMeteogram(ICON_filename,
 		                                          descriptorFile,
 		                                          timeidx=None,

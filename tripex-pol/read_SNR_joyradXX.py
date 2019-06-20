@@ -12,44 +12,42 @@ import numpy as np
 # Calculate noise level tripex-pol Ka-band Joyrad35
 dataset = nc.Dataset('/data/obs/site/jue/joyrad35/2019/01/15/' +
                      '20190115_1200.znc')
+dataset = nc.Dataset('/data/obs/site/jue/joyrad35/2019/01/13/' +
+                     '20190113_0800.znc')
+ti, ri = 1430, 23
 range_ka = dataset.variables['range'][:]
-HSDco = dataset.variables['HSDco'][:]
-Nt, Nr = HSDco.shape
-range_ka = np.tile(range_ka,(Nt,1))
-SNRCorFaCo = dataset.variables['SNRCorFaCo'][:]
-radar_const = dataset.variables['RadarConst'][:]
-radar_const = np.tile(radar_const[np.newaxis].T,(1,Nr))
-noise_power_co = dataset.variables['npw1'][:]
-noise_power_co = np.tile(noise_power_co[np.newaxis].T,(1,Nr))
-noise_ka_lin = radar_const*SNRCorFaCo*HSDco/noise_power_co*(range_ka/5000.)**2.
+HSDco = dataset.variables['HSDco'][ti, :]
+SNRCorFaCo = dataset.variables['SNRCorFaCo'][ti, :]
+radar_const = dataset.variables['RadarConst'][ti]
+noise_power_co = dataset.variables['npw1'][ti]
+DSP2lin = radar_const*SNRCorFaCo*(range_ka/5000.)**2./noise_power_co
+noise_ka_lin = DSP2lin*HSDco
 
-SpectraDSP = dataset.variables['SPCco'][:]
-Nt, Nr, Nd = SpectraDSP.shape
-radar_const3d = np.tile(radar_const[...,np.newaxis],(1,1,Nd))
-range_ka3d = np.tile(range_ka[...,np.newaxis],(1,1,Nd))
-SpectradB = 10.0*np.log10(radar_const3d*SpectraDSP*(range_ka3d/5000.)**2)
-SpectradB = SpectradB - 10.0*np.log10(dataset.variables['nfft'][0])
+SpectraDSP = dataset.variables['SPCco'][ti, :, :]
+Nr, Nd = SpectraDSP.shape
+SpectraLin = (SpectraDSP.T*DSP2lin).T
+SpectradB = 10.0*np.log10(SpectraLin)
 dopplerV = dataset.variables['doppler'][:]
 
-ti, ri = 1430, 23
+
 plt.close('all')
 plt.figure()
-plt.plot(dopplerV, SpectradB[ti, ri, :],
-         label='H= {0:.0f}'.format(range_ka[ti, ri]))
-plt.plot(dopplerV, 10.0*np.log10(noise_ka_lin[ti, ri])*np.ones(dopplerV.shape),
+plt.plot(dopplerV, SpectradB[ri, :],
+         label='H= {0:.0f}'.format(range_ka[ri]))
+plt.plot(dopplerV, 10.0*np.log10(noise_ka_lin[ri])*np.ones(dopplerV.shape),
          label='mean noise lvl')
 plt.legend()
 plt.grid()
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_ka_lin[0,:]), range_ka[0,:])
+plt.plot(10.0*np.log10(noise_ka_lin[:]), range_ka[:])
 plt.grid()
 plt.xlabel('Noise level Ka [dB]')
 plt.ylabel('range    [m]')
 plt.savefig('noise_level_Ka.png')
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_ka_lin[0,:]), range_ka[0,:])
+plt.plot(10.0*np.log10(noise_ka_lin[:]), range_ka[:])
 plt.grid()
 plt.xlim([-70,-60])
 plt.ylim([500,1500])
@@ -58,7 +56,7 @@ plt.ylabel('range    [m]')
 plt.savefig('noise_level_Ka_zoom1k.png')
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_ka_lin[0,:]), range_ka[0,:])
+plt.plot(10.0*np.log10(noise_ka_lin[:]), range_ka[:])
 plt.grid()
 plt.xlim([-50,-40])
 plt.ylim([8500,9500])
@@ -67,59 +65,60 @@ plt.ylabel('range    [m]')
 plt.savefig('noise_level_Ka_zoom9k.png')
 
 
-# DO the same for X band Joyrad10
+#%% DO the same for X band Joyrad10
 dataset = nc.Dataset('/data/obs/site/jue/joyrad10/2019/01/15/' +
-                     '20190115_000004.znc')
-range_X = dataset.variables['range'][:]
-HSDco = dataset.variables['HSDco'][:]
-Nt, Nr = HSDco.shape
-range_X = np.tile(range_X,(Nt,1))
-SNRCorFaCo = dataset.variables['SNRCorFaCo'][:]
-radar_const = dataset.variables['RadarConst'][:]
-radar_const = np.tile(radar_const[np.newaxis].T,(1,Nr))
-noise_power_co = dataset.variables['npw1'][:]
-noise_power_co = np.tile(noise_power_co[np.newaxis].T,(1,Nr))
+                     '20190115_120004.znc')
+dataset = nc.Dataset('/data/obs/site/jue/joyrad10/2019/01/13/' +
+                     '20190113_080004.znc')
+tt, rr = 1430, 25
+range_x = dataset.variables['range'][:]
+HSDco = dataset.variables['HSDco'][tt, :]
+SNRCorFaCo = dataset.variables['SNRCorFaCo'][tt, :]
+radar_const = dataset.variables['RadarConst'][tt]
+noise_power_co = dataset.variables['npw1'][tt]
+DSP2lin = radar_const*SNRCorFaCo*(range_x/5000.)**2./noise_power_co
+noise_x_lin = DSP2lin*HSDco
 
-noise_X_lin = radar_const*SNRCorFaCo*HSDco/noise_power_co*(range_X/5000.)**2.
+SpectraDSP = dataset.variables['SPCco'][tt, :, :]
+Nr, Nd = SpectraDSP.shape
+SpectraLin = SpectraDSP*DSP2lin[:, np.newaxis]#(SpectraDSP.T*DSP2lin).T
+SpectradB = 10.0*np.log10(SpectraLin)
+dopplerV = dataset.variables['doppler'][:]
 
-#tt, rr = 2778, 102
-#SpectraDSP = dataset.variables['SPCco'][tt,rr,:]
-#Nt, Nr, Nd = 1,1,1#SpectraDSP.shape
-##radar_const3d = np.tile(radar_const[...,np.newaxis],(1,1,Nd))
-#radar_const3d = radar_const[tt,rr]
-##range_X3d = np.tile(range_X[...,np.newaxis],(1,1,Nd))
-#range_X3d = range_X[tt,rr]
-#SpectradB = 10.0*np.log10(radar_const3d*SpectraDSP*(range_X3d/5000.)**2)
-#dopplerV = dataset.variables['doppler'][:]
-#plt.close('all')
-#plt.figure()
-##plt.plot(dopplerV, SpectradB[tt,rr,:])
-#plt.plot(dopplerV, SpectradB)
+plt.close('all')
+plt.figure()
+plt.plot(dopplerV, SpectradB[rr, :],
+         label='H= {0:.0f}'.format(range_x[rr]))
+plt.plot(dopplerV, 10.0*np.log10(noise_x_lin[rr])*np.ones(dopplerV.shape),
+         label='mean noise lvl')
+plt.legend()
+plt.grid()
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_X_lin[0,:]), range_X[0,:])
+plt.plot(10.0*np.log10(noise_x_lin[:]), range_x[:])
 plt.grid()
 plt.xlabel('Noise level X [dB]')
 plt.ylabel('range    [m]')
 plt.savefig('noise_level_X.png')
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_X_lin[0,:]), range_X[0,:])
+plt.plot(10.0*np.log10(noise_x_lin[:]), range_x[:])
 plt.grid()
-plt.xlim([-55,-45])
+plt.xlim([-70,-60])
 plt.ylim([500,1500])
 plt.xlabel('Noise level X [dB]')
 plt.ylabel('range    [m]')
 plt.savefig('noise_level_X_zoom1k.png')
 
 plt.figure()
-plt.plot(10.0*np.log10(noise_X_lin[0,:]), range_X[0,:])
+plt.plot(10.0*np.log10(noise_x_lin[:]), range_x[:])
 plt.grid()
-plt.xlim([-30,-25])
-plt.ylim([8000,10000])
+plt.xlim([-50,-40])
+plt.ylim([8500,9500])
 plt.xlabel('Noise level X [dB]')
 plt.ylabel('range    [m]')
 plt.savefig('noise_level_X_zoom9k.png')
+
 
 
 #%% Calculate noise level TRIPEx Ka-band Joyrad35

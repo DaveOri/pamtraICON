@@ -23,6 +23,7 @@ parser.add_argument('-hy','--hydroset', nargs=1,
                     help='gimme hydrosettings',
                     choices=hydrodict.keys())
 parser.add_argument('--rootpath', nargs=1, help='gimme full path for saving output')
+parser.add_argument('-m1', '--moment1', nargs=1, help='tell me the modifier to data and plot folders')
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
@@ -34,8 +35,11 @@ plt.close('all')
 rootpath = '/data/optimice/pamtra_runs/tripex-pol/'
 if args.rootpath is not None:
     rootpath = args.rootpath[0]
-runFld = rootpath + 'data/'
-plotFld = rootpath + 'plots/'
+mod=''
+if args.moment1 is not None:
+    mod =  args.moment1[0]
+runFld = rootpath + 'data' + mod + '/'
+plotFld = rootpath + 'plots' + mod + '/'
 
 runs = ['all_hydro', 'no_snow', 'only_ice', 'only_liquid', 'only_snow', 'only_graupel_hail']
 titles = ['all Hydrometeors', 'No Snow', 'Only Ice', 'Only liquid (cloud drops and rain)', 'only Snow', 'only Graupel and Hail']

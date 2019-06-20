@@ -29,12 +29,17 @@ DS = DS.drop(delete_vars)
 DS.to_netcdf('METEOGRAM_20151119_joyce_reduced.nc', mode='w', format='NETCDF4')
 keylist = [i for i in DS.keys()]
 
-DA=DS.isel(time=range(0, len(DS.time), 7))
-DA.to_netcdf('METEOGRAM_20151119_joyce_1min.nc', mode='w', format='NETCDF4')
+DA=DS.isel(time=range(0, len(DS.time), 33)) # 7=63 sec / 33=297sec5min
+DA.to_netcdf('METEOGRAM_20151119_joyce_5min.nc', mode='w', format='NETCDF4')
 
 keep = ['time', 'height', 'height_2', 'depth', 'depth_2', 'P', 'T', 'U', 'V',
         'W', 'QC', 'QI', 'QR', 'QS', 'REL_HUM', 'QG', 'QH', 'QNI', 'QNS',
         'QNR', 'QNG', 'QNH', 'QNC', 'T_S', 'U10M', 'V10M']
+compression = [{'zlib':True} for i in keep]
+DA.to_netcdf('METEOGRAM_20151119_joyce_5min_compressed.nc',
+             mode='w', format='NETCDF4',
+             encoding=dict(zip(keep, compression)))
+
 DS = DS.drop(keep)
 DS.to_netcdf('METEOGRAM_20151119_joyce_none.nc', mode='w', format='NETCDF4')
 keylist = [i for i in DS.keys()]

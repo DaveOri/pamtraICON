@@ -120,12 +120,12 @@ pam2.runParallelPamtra(radar['frequency'])
 Ze = pam2.r['Ze'][0,0,:,0,0,0]
 Ze[Ze == -9999.] = np.nan
 dopplervel = pam.r['radar_vel'][0,:]
-dv = 1.0#(dopplervel[1:]-dopplervel[0:-1])[0]
+##dv = 1.0#(dopplervel[1:]-dopplervel[0:-1])[0]
 spectrogram = pam.r['radar_spectra'][0,0,:,0,0,:]
 spectrogram[spectrogram == -9999.0] = np.nan
 linspectrogram = 10.0**(0.1*spectrogram)
 linspectrogram[~np.isfinite(linspectrogram)] = 0.0
-Ze_spec = 10.0*np.log10(dv*linspectrogram.sum(axis=1))
+Ze_spec = 10.0*np.log10(linspectrogram.sum(axis=1))
 
 plt.plot(Ze,H, marker='x', label='Ze simple')
 pam2.writeResultsToNetCDF('test_simple.nc')
@@ -168,7 +168,7 @@ plt.xlim([-10,10])
 plt.title('Hgt= ' + str(H[hgtidx])[:8])
 plt.xlabel('Doppler velocity [m/s]')
 plt.ylabel('Spectral power [dB]')
-ZeHS = 10.0*np.log10(dv*detectedSpectrum[np.isfinite(detectedSpectrum)].sum())
+ZeHS = 10.0*np.log10(detectedSpectrum[np.isfinite(detectedSpectrum)].sum())
 
 plt.legend(title='ZeHS= '+str(ZeHS)[:6]+' ZeP= '+str(Ze[hgtidx])[:6])
 plt.savefig(radarname + 'spectrum.png')
