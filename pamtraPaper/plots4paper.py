@@ -71,11 +71,28 @@ def readPamtra_nc(ncfile):
     SW = runVars['Radar_SpectrumWidth'][:,0,:,0,0,0][:xDataLim,:]
     return H, tt, A, Ze, MDV, SW
   
+def hildebrand_sekhon(spectrum, nAvg):
+    N = len(spectrum) - 1 # index of the last element
+    sortSpec = np.sort(spectrum)
+    sortSpec[~np.isfinite(sortSpec)] = 0.0
+    sum2 = sortSpec[0:-1].cumsum()**2
+    sumSquares= (sortSpec[0:-1]**2).cumsum()
+    nPts=np.arange(N)+1.0
+    sigma = nAvg*(nPts*sumSquares-sum2)
+    a=int(max(nPts[sigma < sum2]))
+    
+    if(a < 10):
+        peak_noise=max(spectrum)
+    else:
+        peak_noise=sortSpec[a-1]
+    signal_detected=1.0*spectrum
+    signal_detected[spectrum < peak_noise] = np.nan
+    return peak_noise, signal_detected
+  
 Hx, ttx, Ax, Zex, MDVx, SWx = readPamtra_nc(pamX)
 Ha, tta, Aa, Zea, MDVa, SWa = readPamtra_nc(pamK)
 Hw, ttw, Aw, Zew, MDVw, SWw = readPamtra_nc(pamW)
 
-plt.close('all')
 fig0 = plt.figure(figsize=(8, 11))
 ax1 = plt.subplot2grid((5, 4), (0, 0), colspan=2)
 ax2 = plt.subplot2grid((5, 4), (1, 0), colspan=2)
@@ -88,16 +105,19 @@ ax8 = plt.subplot2grid((5, 4), (2, 2), colspan=2)
 ax9 = plt.subplot2grid((5, 4), (3, 2), colspan=2)
 ax10 = plt.subplot2grid((5, 4), (4, 2), colspan=2)
 
-fig1 = plt.figure(figsize=(8, 11))
-ax11 = plt.subplot2grid((5, 2), (0, 0), rowspan=3)
-ax12 = plt.subplot2grid((5, 2), (0, 1), rowspan=3)
+fig1 = plt.figure(figsize=(8, 8))
+ax11 = plt.subplot2grid((5, 2), (0, 0), rowspan=4)
+ax12 = plt.subplot2grid((5, 2), (0, 1), rowspan=4)
 ax13 = plt.subplot2grid((5, 2), (4, 0), colspan=1)
 ax14 = plt.subplot2grid((5, 2), (4, 1), colspan=1)
+#axCB = plt.subplot2grid((5, 3), (0, 2), colspan=3)
 
 hlim = [0, 10]
 TlimK = [0, 150]
 TlimV = [100, 300]
-vlim = [-8, 8]
+vlim = [-2, 8]
+splim = [-70, 0]
+Smin, Smax = splim
 Zmin, Zmax = -35, 25
 Vmin, Vmax = -1, 5
 Dmin, Dmax = -5, 20
@@ -122,6 +142,7 @@ mesh3 = ax3.pcolormesh(getTime(pamK, 'datatime'),
 ax3.set_ylim(hlim)
 ax3.set_ylabel('Height    [km]')
 ax3.set_xlabel('time')
+ax3.xaxis.set_major_formatter(xfmt)
 
 
 ax4.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,:7,0]) # downwelling at 0 meters)
@@ -137,6 +158,7 @@ ax5.set_ylim(TlimV)
 ax5.set_xlim(ax1.get_xlim())
 ax5.set_ylabel('T$_b$   [K]')
 ax5.set_xlabel('time')
+ax5.xaxis.set_major_formatter(xfmt)
 
 mesh6 = ax6.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
@@ -145,7 +167,7 @@ mesh6 = ax6.pcolormesh(getTime(rad3, 'time'),
 ax6.set_ylim(hlim)
 ax6.get_xaxis().set_ticks([])
 ax6.get_yaxis().set_ticks([])
-plt.colorbar(mesh6, ax=ax6)
+
 
 mesh7 = ax7.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
@@ -154,7 +176,6 @@ mesh7 = ax7.pcolormesh(getTime(rad3, 'time'),
 ax7.set_ylim(hlim)
 ax7.get_xaxis().set_ticks([])
 ax7.get_yaxis().set_ticks([])
-plt.colorbar(mesh7, ax=ax7)
 
 mesh8 = ax8.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
@@ -164,7 +185,7 @@ ax8.set_ylim(hlim)
 ax8.set_xlim(ax1.get_xlim())
 ax8.get_yaxis().set_ticks([])
 ax8.set_xlabel('time')
-plt.colorbar(mesh8, ax=ax8)
+ax8.xaxis.set_major_formatter(xfmt)
 
 ele = hatp.variables['ele'][:]
 elemask = np.abs(ele-90.) < 1.
@@ -179,20 +200,27 @@ ax10.set_ylim(TlimV)
 ax10.set_xlim(ax1.get_xlim())
 ax10.get_yaxis().set_ticks([])
 ax10.set_xlabel('time')
+ax10.xaxis.set_major_formatter(xfmt)
 
-plt.tight_layout()
+fig0.subplots_adjust(right=0.7)
+cax6 = fig0.add_axes([0.85, 0.75, 0.05, 0.15])
+cax7 = fig0.add_axes([0.85, 0.55, 0.05, 0.15])
+cax8 = fig0.add_axes([0.85, 0.35, 0.05, 0.15])
+plt.colorbar(mesh6, cax=cax6, label='Z$_e$   [dBZ]')
+plt.colorbar(mesh7, cax=cax7, label='Mean Doppler Velocity  [m/s]')
+plt.colorbar(mesh8, cax=cax8, label='DWR$_{K_aW}$  [dB]')
+
+#fig0.tight_layout()
 fig0.savefig('tripex_plots.png', dpi=600)
 
-tidx = 939#6572#4800
-hidx = 29#70
+tidx = 197#939#6572#4800
+hidx = 42#18#18#29#70
 selTime = tta[tidx, hidx]
 selTS = pd.to_datetime(selTime)
 selHeight = Ha[tidx, hidx]
 
-rad94file = '/data/hatpro/jue/data/joyrad94/l0/' + str(selTS.year) \
-            + str(selTS.month) + '/' + str(selTS.day) + '/joyrad94_joyce_' \
-            + str(selTS.year) + str(selTS.month) + str(selTS.day) \
-            + str(selTS.hour) + '.nc'
+rad94file = '/data/hatpro/jue/data/joyrad94/l0/' + selTS.strftime('%Y%m/%d') \
+            + '/joyrad94_joyce_' + selTS.strftime('%Y%m%d%H.nc')
 radar94 = nc.Dataset(rad94file)
 rad94var = radar94.variables
 t94 = nc.num2date(rad94var['time'][:], 'seconds since 2001-01-01')
@@ -208,11 +236,11 @@ for i,j in enumerate(chirp_idx[:-1]):
 r94 = np.tile(rad94var['range'][:][:, np.newaxis], spec94.shape[1])
 v94 = -v94
 
-rad35file = '/net/ora/20151119mira36spectra.nc'
+rad35file = '/net/ora/20151119_1633.zspc.nc'
 radar35 = nc.Dataset(rad35file)
 rad35var = radar35.variables
 t35 = nc.num2date(rad35var['time'][:], 'seconds since 1970-01-01 00:00 UTC')
-t35idx = 50#np.argmin(np.abs(t35 - selTS))
+t35idx = np.argmin(np.abs(t35 - selTS))
 r35 = rad35var['range'][:]
 h35idx = np.argmin(np.abs(r35 - selHeight))
 
@@ -225,19 +253,22 @@ v35 = sorted(rad35var['doppler'][:])
 
 mesh11 = ax11.pcolormesh(pamK.variables['Radar_Velocity'][:].squeeze(),
                          pamK.variables['height'][tidx,0,:]*0.001,
-                         pamK.variables['Radar_Spectrum'][tidx,0,:,0,0,:])
+                         pamK.variables['Radar_Spectrum'][tidx,0,:,0,0,:],
+                         vmin=Smin, vmax=Smax)
 ax11.set_xlim(vlim)
 ax11.set_ylim(hlim)
-ax11.set_xlabel('Doppler Velocity   [m/s]')
+#ax11.set_xlabel('Doppler Velocity   [m/s]')
+ax11.get_xaxis().set_ticks([])
 ax11.set_ylabel('Height   [km]')
-plt.colorbar(mesh11, ax=ax11, label='Spectral Power   [dB]')
 
-mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35)
+mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35, vmin=Smin, vmax=Smax)
 #mesh12 = ax12.pcolormesh(v94, r94*0.001, spec94)
 ax12.set_xlim(vlim)
 ax12.set_ylim(hlim)
-ax12.set_xlabel('Doppler Velocity   [m/s]')
-plt.colorbar(mesh12, ax=ax12, label='Spectral Power   [dB]')
+#ax12.set_xlabel('Doppler Velocity   [m/s]')
+ax12.get_xaxis().set_ticks([])
+ax12.get_yaxis().set_ticks([])
+#plt.colorbar(mesh12, ax=ax12, label='Spectral Power   [dB]')
 
 ax13.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
           pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
@@ -248,24 +279,80 @@ ax13.plot(pamK.variables['Radar_Velocity'][:].squeeze(),
 ax13.plot(pamW.variables['Radar_Velocity'][:].squeeze(),
           pamW.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
           label='W band', c='xkcd:denim blue')
+linspecW = 10.0**(0.1*pamW.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:])
+peaknoiseW, detectedSpectrumW = hildebrand_sekhon(linspecW, 20)
 ax13.legend()
 ax13.set_xlim(vlim)
+ax13.set_ylim(splim)
 ax13.set_ylabel('Spectral Power   [dB]')
-ax13.get_xaxis().set_ticks([])
+ax13.set_xlabel('Doppler Velocity   [m/s]')
 
-#ax14.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
-#          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
-#          label='X band', c='xkcd:pale red')
 ax14.plot(v35, spec35[h35idx, :],
           label='Ka band', c='xkcd:medium green')
+linspec35 = 10.0**(0.1*spec35[h35idx, :])
+peaknoise35, detectedSpectrum35 = hildebrand_sekhon(linspec35, 20)
+
 ax14.plot(v94[h94idx,:], spec94[h94idx,:],
           label = 'W band', c='xkcd:denim blue')
+linspec94 = 10.0**(0.1*spec94[h94idx, :])
+peaknoise94, detectedSpectrum94 = hildebrand_sekhon(linspec94, 17)
+
 ax14.set_xlim(vlim)
-ax14.set_ylabel('Spectral Power   [dB]')
+ax14.set_ylim(splim)
+#ax14.set_ylabel('Spectral Power   [dB]')
+ax14.get_yaxis().set_ticks([])
 ax14.set_xlabel('Doppler Velocity   [m/s]')
 
-for ax in axs[0:10]:
-  ax.xaxis.set_major_formatter(xfmt)
+fig1.subplots_adjust(bottom=0.5, left=0.15, right=0.7)
+axCB = fig1.add_axes([0.85, 0.3, 0.05, 0.5])
+cbar = fig1.colorbar(mesh11, cax=axCB, label='Spectral Power   [dB]')
+#fig0.tight_layout()
 
-plt.tight_layout()
+print('X:', Zex[tidx, hidx], '  ',10.0*np.log10((10.0**(0.1*pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:])).sum()))
+print('K:', Zea[tidx, hidx], '  ',10.0*np.log10((10.0**(0.1*pamK.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:])).sum()))
+print('W:', Zew[tidx, hidx], '  ',10.0*np.log10((10.0**(0.1*pamW.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:])).sum()))
+
+print('K:',10.0*np.log10(rad35var['Zg'][t35idx, h35idx]), '     ',10.0*np.log10((10**(0.1*spec35[h35idx,:])).sum()))
+print('W:',10.0*np.log10(rad94var['Ze'][t94idx, h94idx]), '     ',10.0*np.log10((10**(0.1*spec94[h94idx,:])).sum()))
+
+print('Noise:', 10.0*np.log10(peaknoise35), 10.0*np.log10(peaknoise94) )
 fig1.savefig('tripex_spectra.png', dpi=600)
+
+#noise_profile = 0.0*SNRCorFaCo
+#for i in range(spec35.shape[0]):
+#  linspec35 = 10.0**(0.1*spec35[i, :])
+#  peaknoise35, detectedSpectrum35 = hildebrand_sekhon(linspec35, 20)
+#  noise_profile[i] = 10.0*np.log10(peaknoise35)
+#
+#def noiseFunc(r, N0):
+#  return N0 + 20*np.log10(r/1000.)
+#
+#from scipy.optimize import curve_fit
+#mask = (0.0*r35.data).astype(bool)
+#mask[:] = True
+#mask[:10] = False
+#mask[143:231] = False
+#pars, covs = curve_fit(noiseFunc, r35[mask], noise_profile[mask])
+#plt.figure()
+#plt.scatter(r35[mask]/1000., noise_profile[mask])
+#plt.scatter(r35[~mask]/1000., noise_profile[~mask])
+#plt.plot(r35/1000., noiseFunc(r35, *pars))
+#
+#noise_profile = 0.0*r94[:,0]
+#for i in range(spec94.shape[0]):
+#  linspec94 = 10.0**(0.1*spec94[i, :])
+#  try:
+#    peaknoise94, detectedSpectrum94 = hildebrand_sekhon(linspec94, 17)
+#    noise_profile[i] = 10.0*np.log10(peaknoise94)
+#  except:
+#    noise_profile[i] = np.nan
+#
+#mask = (0.0*r94.data[:,0]).astype(bool)
+#mask[:] = np.isfinite(noise_profile)
+##mask[:10] = False
+##mask[143:231] = False
+#pars, covs = curve_fit(noiseFunc, r94[mask,0], noise_profile[mask])
+#plt.figure()
+#plt.scatter(r94[mask,0]/1000., noise_profile[mask])
+#plt.scatter(r94[~mask,0]/1000., noise_profile[~mask])
+#plt.plot(r94[:,0]/1000., noiseFunc(r94[:,0], *pars))
