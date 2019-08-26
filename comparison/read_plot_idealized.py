@@ -9,12 +9,13 @@ Created on Tue Mar 19 10:29:05 2019
 import netCDF4
 import matplotlib.pyplot as plt
 
-plt.close('all')
+#plt.close('all')
 
 data = netCDF4.Dataset('data/idealized_hydro.nc')
 data_simple = netCDF4.Dataset('data/idealized_hydro_simple.nc')
 datavar = data.variables
 Zvar = data_simple.variables['Ze']
+#Zvar = datavar['Ze']
 Ze = Zvar[:]
 V = datavar['Radar_MeanDopplerVel'][:]
 S = datavar['Radar_SpectrumWidth'][:]
@@ -49,6 +50,8 @@ plt.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes')
 plt.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel')
 plt.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail')
+plt.xlabel('DWR KaW')
+plt.ylabel('DWR XKa')
 plt.grid()
 plt.legend()
 
@@ -59,6 +62,8 @@ plt.plot(Zr[:,1], Vr[:,1], label='raindrops')
 plt.plot(Zs[:,1], Vs[:,1], label='snowflakes')
 plt.plot(Zg[:,1], Vg[:,1], label='graupel')
 plt.plot(Zh[:,1], Vh[:,1], label='hail')
+plt.xlabel('Zk')
+plt.ylabel('Vk')
 plt.grid()
 plt.legend()
 
@@ -69,6 +74,8 @@ plt.plot(Zr[:,1], Sr[:,1], label='raindrops')
 plt.plot(Zs[:,1], Ss[:,1], label='snowflakes')
 plt.plot(Zg[:,1], Sg[:,1], label='graupel')
 plt.plot(Zh[:,1], Sh[:,1], label='hail')
+plt.xlabel('Zk')
+plt.ylabel('Sk')
 plt.grid()
 plt.legend()
 
@@ -79,6 +86,8 @@ plt.plot(Zr[:,0]-Zr[:,1], Vr[:,0], label='raindrops')
 plt.plot(Zs[:,0]-Zs[:,1], Vs[:,0], label='snowflakes')
 plt.plot(Zg[:,0]-Zg[:,1], Vg[:,0], label='graupel')
 plt.plot(Zh[:,0]-Zh[:,1], Vh[:,0], label='hail')
+plt.xlabel('DWR XKa')
+plt.ylabel('Vx')
 plt.grid()
 plt.legend()
 
@@ -89,6 +98,8 @@ plt.plot(Zr[:,1]-Zr[:,2], Vr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Vs[:,0], label='snowflakes')
 plt.plot(Zg[:,1]-Zg[:,2], Vg[:,0], label='graupel')
 plt.plot(Zh[:,1]-Zh[:,2], Vh[:,0], label='hail')
+plt.xlabel('DWR KaW')
+plt.ylabel('Vx')
 plt.grid()
 plt.legend()
 
@@ -99,5 +110,7 @@ plt.plot(Zr[:,1]-Zr[:,2], Sr[:,0], label='raindrops')
 plt.plot(Zs[:,1]-Zs[:,2], Ss[:,0], label='snowflakes')
 plt.plot(Zg[:,1]-Zg[:,2], Sg[:,0], label='graupel')
 plt.plot(Zh[:,1]-Zh[:,2], Sh[:,0], label='hail')
+plt.xlabel('DWR KaW')
+plt.ylabel('Sx')
 plt.grid()
 plt.legend()

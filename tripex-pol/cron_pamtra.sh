@@ -82,7 +82,7 @@ LAST_DAY='20160105'
 #LAST_DAY='20151215'
 
 declare -a hydro_combo=("all_hydro" "no_snow" "only_snow" "only_liquid" "only_ice" "only_graupel_hail")
-#declare -a hydro_combo=("all_hydro")
+#declare -a hydro_combo=("all_hydro" "only_snow" "only_ice")
 declare -a radar_names=("KiXPol" "Joyrad35" "Joyrad94")
 
 newactive=0
@@ -171,11 +171,11 @@ until [[ ${DAY} > ${LAST_DAY} ]]; do
 				python2 ${CODE_PATH}/plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH}/ -m1 _1mom >> ${CODE_PATH}/plot${DAY}_${hydro}.out
 				newactive=0
 			fi
-			if [ -f ${PLOT_PATH}${hydro}/${DAY}${hydro}_Ze.png ]; then
+			if [ -f ${PLOT_PATH}_1mom/${hydro}/${DAY}${hydro}_Ze.png ]; then
 				echo "Already plotted " ${DAY} ${hydro}
 			else
 				echo "found no plot ... plotting"
-				python2 ${CODE_PATH}plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH}/ -m1 _1mom >> ${CODE_PATH}/plot${DAY}_${hydro}.out
+				python2 ${CODE_PATH}/plot_results_separated.py --date ${DAY} --hydroset ${hydro} --rootpath ${ROOT_PATH}/ -m1 _1mom >> ${CODE_PATH}/plot${DAY}_${hydro}.out
 			fi
 		done
 	else

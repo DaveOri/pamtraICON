@@ -6,8 +6,8 @@ KiXPolnml = {'radar_fwhr_beamwidth_deg':1.3,
              'radar_min_v':-9.0,
              'radar_nfft':1200,
              'radar_no_ave':1,
-             'radar_pnoise0':-20.0,#-30.0, !0.8!
-#             'radar_peak_min_snr': 5,
+             'radar_pnoise0':-29.7,
+             'radar_peak_min_snr': 3,
              'frequency':9.4}
 
 Joyrad94nml = {'radar_fwhr_beamwidth_deg':0.5,
@@ -17,8 +17,8 @@ Joyrad94nml = {'radar_fwhr_beamwidth_deg':0.5,
                'radar_min_v':-6.8,
                'radar_nfft':512,
                'radar_no_ave':17,
-               'radar_pnoise0':-35.0,#-54.0, # From a curve fit I find average -44.3 !-17.3!
-#               'radar_peak_min_snr': 10,
+               'radar_pnoise0':-29.5,#-54.0, # From a curve fit I find average -44.3 !-17.3!
+               'radar_peak_min_snr': -15,
                'frequency':94.0}
 
 Joyrad10nml = {'radar_fwhr_beamwidth_deg':1.0,
@@ -29,7 +29,6 @@ Joyrad10nml = {'radar_fwhr_beamwidth_deg':1.0,
                'radar_nfft':4096,
                'radar_no_ave':10,
                'radar_pnoise0':-11.9,#-48.0,
-#               'radar_noise_distance_factor':10.0,
                'frequency':9.6}
 
 Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,
@@ -38,9 +37,9 @@ Joyrad35nml = {'radar_fwhr_beamwidth_deg':0.6,
                'radar_max_v':10.56824,
                'radar_min_v':-10.56824,
                'radar_nfft':512,
-               'radar_pnoise0':-36.9,#-64.0,
+               'radar_pnoise0':-38.4,#-64.0,
                'radar_no_ave':20,
-#               'radar_peak_min_snr': 10,
+               'radar_peak_min_snr':-10,
                'frequency':35.5}
 
 Grarad94nml = {'radar_fwhr_beamwidth_deg':0.5,

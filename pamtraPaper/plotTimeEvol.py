@@ -15,6 +15,7 @@ import netCDF4 as nc
 
 import matplotlib
 matplotlib.rcParams.update({'font.size':14})
+matplotlib.rcParams.update({'legend.fontsize':12})
 
 pamX = nc.Dataset('all_hydro/20151119all_hydro_spe_KiXPol.nc')
 pamK = nc.Dataset('all_hydro/20151119all_hydro_spe_Joyrad35.nc')
@@ -23,6 +24,10 @@ pamP = nc.Dataset('20151119hatpro.nc')
 
 rad3 = nc.Dataset('/data/optimice/tripex/tripex_level_02_test/tripex_joy_tricr00_l2_any_v00_20151119000000.nc')
 hatp = nc.Dataset('/data/hatpro/jue/data/level1/1511/sups_joy_mwr00_l1_tb_v01_20151119000003.nc')
+
+flag = hatp.variables['flag'][:]
+flags = ['{0:010b}'.format(i) for i in flag.data]
+rainflag = [bool(int(i[-4])) for i in flags]
 
 xfmt = md.DateFormatter('%H')
 xDataLim = -1
@@ -89,7 +94,7 @@ mesh0 = ax0.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
                        (Zea-Aa).T, cmap='jet', vmin=Zmin, vmax=Zmax)
 ax0.set_ylim(hlim)
-#ax1.get_xaxis().set_ticks([])
+#ax1.get_xaxis().set_ticklabels([])
 ax0.set_ylabel('Height    [km]')
 
 mesh1 = ax1.pcolormesh(getTime(rad3, 'time'),
@@ -97,14 +102,14 @@ mesh1 = ax1.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['dbz_ka'][:].T, cmap='jet',
                        vmin=Zmin, vmax=Zmax)
 ax1.set_ylim(hlim)
-#ax1.get_xaxis().set_ticks([])
-ax1.get_yaxis().set_ticks([])
+#ax1.get_xaxis().set_ticklabels([])
+ax1.get_yaxis().set_ticklabels([])
 
 mesh2 = ax2.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
                        -MDVa.T, cmap='RdBu', vmin=Vmin, vmax=Vmax)
 ax2.set_ylim(hlim)
-#ax2.get_xaxis().set_ticks([])
+#ax2.get_xaxis().set_ticklabels([])
 ax2.set_ylabel('Height    [km]')
 
 mesh3 = ax3.pcolormesh(getTime(rad3, 'time'),
@@ -112,8 +117,8 @@ mesh3 = ax3.pcolormesh(getTime(rad3, 'time'),
                        -rad3.variables['rv_ka'][:].T, cmap='RdBu',
                        vmin=Vmin, vmax=Vmax)
 ax3.set_ylim(hlim)
-#ax3.get_xaxis().set_ticks([])
-ax3.get_yaxis().set_ticks([])
+#ax3.get_xaxis().set_ticklabels([])
+ax3.get_yaxis().set_ticklabels([])
 
 mesh4 = ax4.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
@@ -129,26 +134,33 @@ mesh5 = ax5.pcolormesh(getTime(rad3, 'time'),
                        cmap='nipy_spectral', vmin=Dmin, vmax=Dmax)
 ax5.set_ylim(hlim)
 ax5.set_xlim(ax0.get_xlim())
-ax5.get_yaxis().set_ticks([])
+ax5.get_yaxis().set_ticklabels([])
 ax5.set_xlabel('time')
 ax5.xaxis.set_major_formatter(xfmt)
 
-## PPASSIVE
+## PASSIVE
 
 ax6.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,:7,0]) # downwelling at 0 meters)
 ax6.legend(f2labels(pamP.variables['frequency'][:7]))
 ax6.set_ylim(TlimK)
 ax6.set_xlim(ax0.get_xlim())
-#ax6.get_xaxis().set_ticks([])
+#ax6.get_xaxis().set_ticklabels([])
 ax6.set_ylabel('T$_b$   [K]')
 
 ele = hatp.variables['ele'][:]
 elemask = np.abs(ele-90.) < 1.
-ax7.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, :7])
+hatprotime = getTime(hatp, 'time')
+rain = 5.0*np.ones(hatprotime.shape)
+rainmasked = np.ma.MaskedArray(data = rain,
+                               mask = ~np.array(rainflag),
+                               fill_value = np.nan)
+ax7.plot(hatprotime[elemask], hatp.variables['tb'][elemask, :7])
+ax7.plot(hatprotime, rainmasked, c='k', lw=3, label='rain flag')
 ax7.set_ylim(TlimK)
 ax7.set_xlim(ax0.get_xlim())
-#ax7.get_xaxis().set_ticks([])
-ax7.get_yaxis().set_ticks([])
+#ax7.get_xaxis().set_ticklabels([])
+ax7.get_yaxis().set_ticklabels([])
+ax7.legend(loc=2)
 
 ax8.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,7:,0]) # downwelling at 0 meters)
 ax8.legend(f2labels(pamP.variables['frequency'][7:]))
@@ -159,6 +171,7 @@ ax8.set_xlabel('time')
 ax8.xaxis.set_major_formatter(xfmt)
 
 ax9.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, 7:])
+ax9.plot(hatprotime, 100+rainmasked, c='k', lw=3, label='rain flag')
 ax9.set_ylim(TlimV)
 ax9.set_xlim(ax1.get_xlim())
 ax9.get_yaxis().set_ticks([])

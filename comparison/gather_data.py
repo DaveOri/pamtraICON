@@ -19,13 +19,13 @@ import matplotlib.pyplot as plt
 campaign = 'tripex'
 
 hydroset = 'all_hydro'
-#hydroset = 'only_liquid'
-#hydroset = 'only_graupel_hail'
-#hydroset = 'only_snow'
-# hydroset = 'only_ice'
-# hydroset = 'no_snow'
+hydroset = 'only_snow'
+hydroset = 'only_ice'
+hydroset = 'no_snow'
+hydroset = 'only_liquid'
+hydroset = 'only_graupel_hail'
 
-pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data_bk/'
+pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
 
 if campaign == 'tripex':
@@ -117,24 +117,27 @@ if __name__ == '__main__':
     DF['QC'] = icon_data['QC'][:].T.flatten()
     DF['QR'] = icon_data['QR'][:].T.flatten()
     
-    DF.to_hdf('data/' + campaign + '_' + hydroset + '_data_pamtra_icon_bk.h5',
+    DF.to_hdf('data/pamtra/' + campaign + '_' + hydroset + '_data_pamtra_icon.h5',
               key='stat',mode='a',append=True)
+    for col in DF.columns:
+      DF[col].to_hdf('data/pamtra/' + campaign + '_' + hydroset + '_' + col + '_data_pamtra_icon.h5',
+                     key='stat',mode='a',append=True)
     
-  f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))
-  mesh1 = ax1.pcolormesh(icon_time, icon_heights, P)
-  mesh2 = ax2.pcolormesh(icon_time, icon_heights, T)
-  mesh3 = ax3.pcolormesh(icon_time, icon_heights, RH)
-  plt.colorbar(mesh1, label='P   [Pa]', ax=ax1)
-  plt.colorbar(mesh2, label='T   [K]', ax=ax2)
-  plt.colorbar(mesh3, label='RH   [%]', ax=ax3)
+  # f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))
+  # mesh1 = ax1.pcolormesh(icon_time, icon_heights, P)
+  # mesh2 = ax2.pcolormesh(icon_time, icon_heights, T)
+  # mesh3 = ax3.pcolormesh(icon_time, icon_heights, RH)
+  # plt.colorbar(mesh1, label='P   [Pa]', ax=ax1)
+  # plt.colorbar(mesh2, label='T   [K]', ax=ax2)
+  # plt.colorbar(mesh3, label='RH   [%]', ax=ax3)
 
-  f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))
-  mesh1 = ax1.pcolormesh(icon_time, icon_heights, Z10)
-  mesh2 = ax2.pcolormesh(icon_time, icon_heights, V10)
-  mesh3 = ax3.pcolormesh(icon_time, icon_heights, S10)
-  plt.colorbar(mesh1, label='Z    [dBZ]', ax=ax1)
-  plt.colorbar(mesh2, label='V    [m/s]', ax=ax2)
-  plt.colorbar(mesh3, label='SW   [m/s]', ax=ax3)
+  # f, (ax1,ax2,ax3) = plt.subplots(3, 1, sharex=True, figsize=(18, 18))
+  # mesh1 = ax1.pcolormesh(icon_time, icon_heights, Z10)
+  # mesh2 = ax2.pcolormesh(icon_time, icon_heights, V10)
+  # mesh3 = ax3.pcolormesh(icon_time, icon_heights, S10)
+  # plt.colorbar(mesh1, label='Z    [dBZ]', ax=ax1)
+  # plt.colorbar(mesh2, label='V    [m/s]', ax=ax2)
+  # plt.colorbar(mesh3, label='SW   [m/s]', ax=ax3)
 
   end = time.time()
   print(end-start)

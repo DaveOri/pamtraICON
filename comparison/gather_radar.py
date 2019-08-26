@@ -15,6 +15,7 @@ import pandas as pd
 from glob import glob
 import netCDF4
 import matplotlib.pyplot as plt
+#import xarray
 
 campaign = 'tripex'
 hydroset = 'all_hydro'
@@ -81,8 +82,8 @@ if __name__ == '__main__':
     V10=radar_data['rv_x'][:].T
     V35=radar_data['rv_ka'][:].T
     V94=radar_data['rv_w'][:].T
-    DF['V10avg']=running_mean_2d(V10, 299, 75).flatten()
-    DF['V35avg']=running_mean_2d(V35, 299, 75).flatten()
+    DF['V10avg']=running_mean_2d(V10, 299, 75).flatten() # 299 * 4 sec = 20 min
+    DF['V35avg']=running_mean_2d(V35, 299, 75).flatten() # 75 * 4 sec = 5 min of measurements
     DF['V94avg']=running_mean_2d(V94, 299, 75).flatten()
     
     time = radar_data['time'][:] - netCDF4.date2num(pd.to_datetime(date),
@@ -97,8 +98,17 @@ if __name__ == '__main__':
     DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
     
     DF.dropna(how='all', subset=['Z10', 'Z35', 'Z94'], inplace=True)
-    DF.to_hdf('data/' + campaign + '_data_radar_avg.h5',
-              key='stat',mode='a',append=True)
+    DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
+              key='stat', mode='a', append=True)
+    for col in DF.columns:
+      DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
+                     key='stat', mode='a', append=True)
+    #xr = xarray.Dataset.from_dataframe(DF)
+    #key_list = [i for i in xr.keys()]
+    #compress = [{'zlib':True} for i in key_list]
+    #xr.to_netcdf('data/radar/radar_compress.nc', mode='w', format='NETCDF4',
+    #             encoding=dict(zip(key_list, compress)))
+    #xr.to_netcdf('data/radar/radar.nc', mode='w', format='NETCDF4')
   #end = timer.time()
   #print(end-start)
   #DF2 = pd.read_hdf('data/' + campaign + '_data_radar_avg.h5', key='stat')

@@ -11,8 +11,52 @@ import numpy as np
 
 T0 = 273.15
 
-def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9, suffix=''):
-  data = pd.read_hdf('data/'+hydroset+'data_pamtra_icon'+suffix+'.h5', key='stat')
+radarvars = ['Z10', 'Z35', 'Z94', 'N10', 'N35', 'N94', 'S10', 'S35', 'S94',
+             'V10', 'V35', 'V94', 'W10', 'W35', 'W94',
+             'V10avg', 'V35svg', 'V94svg']
+
+def read_variables(path='data/', hydroset='all_hydro', suffix='pamtra_icon.h5',
+                   varlist=['runtime'], pamtra=False,
+                   minhour=0.0, maxhour=9e9):
+  series_list = []
+  if 'runtime' not in varlist:
+    varlist.append('runtime')
+  for var in varlist:
+    hydro = hydroset
+    if len(hydroset):
+      hydro = hydroset + '_'
+    filename = path + 'tripex_' + hydro + var + '_data_' + suffix
+    series_list.append(pd.read_hdf(filename, key='stat'))
+  radarvarlist = list(set(radarvars) & set(varlist))
+  data = pd.concat(series_list, axis=1)
+  if radarvarlist:
+    data[radarvarlist] = data[radarvarlist].replace(-9999.0, np.nan)
+  if pamtra:
+    if 'T' in varlist:
+      data['T'] = data['T'] - 273.15
+    if 'V10' in varlist:
+      data['V10'] = -1.0*data['V10']
+    if 'V35' in varlist:
+      data['V35'] = -1.0*data['V35']
+    if 'V94' in varlist:
+      data['V94'] = -1.0*data['V94']
+  
+  #try:
+  #  data = pd.concat(series_list, axis=1)
+  #  data[data==-9999.0] = np.nan
+  #except:
+  #  return series_list
+  if ('Z10' in varlist) and ('Z35' in varlist):
+    data['DWRxk'] = data['Z10'] - data['Z35']
+  if ('Z94' in varlist) and ('Z35' in varlist):
+    data['DWRkw'] = data['Z35'] - data['Z94']
+  return slice_data(data, 'runtime', 3600.*minhour, 3600.*maxhour)
+
+
+def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9, suffix='', filename=None):
+  if filename is None:
+    filename = 'data/'+hydroset+'data_pamtra_icon'+suffix+'.h5'
+  data = pd.read_hdf(filename, key='stat')
   data['T'] = data['T'] - 273.15
   data['V10'] = -1.0*data['V10']
   data['V35'] = -1.0*data['V35']
@@ -24,13 +68,15 @@ def read_prepare(hydroset='all_hydro', minhour=0.0, maxhour=999999.9, suffix='')
   #data = data[(data['runtime']>3600.*minhour)*(data['runtime']<3600.*maxhour)]
   return slice_data(data, 'runtime', 3600.*minhour, 3600.*maxhour)
 
-def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9, avg=''):
+
+def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9, avg='', filename=None):
   if 'runtime' not in cols:
     cols.append('runtime')
   if len(cols)==1:
     cols=None
-  data = pd.read_hdf('data/'+campaign+'_data_radar'+avg+'.h5',
-                     key='stat', columns=cols)
+  if filename is None:
+    filename = 'data/'+campaign+'_data_radar'+avg+'.h5'
+  data = pd.read_hdf(filename, key='stat', columns=cols)
   #data.dropna(inplace=True)
   cols=data.columns
   if ('Z10' in cols) and ('Z35' in cols):
@@ -40,8 +86,10 @@ def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9, avg=''):
   #data = data[(data['runtime']>3600.*minhour)*(data['runtime']<3600.*maxhour)]
   return slice_data(data, 'runtime', 3600.*minhour, 3600.*maxhour)
 
+
 def slice_data(data, varname, minvalue=-np.inf, maxvalue=np.inf):
   return data[(data[varname]>minvalue)*(data[varname]<maxvalue)]
+
 
 icon150heights = [21000, 20617.7923391807, 20290.2350703975, 19982.3469255595, 
     19687.435072837, 19402.3933650287, 19125.4122583281, 18855.3018784347, 

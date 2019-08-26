@@ -14,14 +14,14 @@ from READ import read_prepare
 from READ import read_radar
 from READ import slice_data
 from READ import icon150heights
-from statistics import hist_and_plot
+from statistic import hist_and_plot
 
 data = netCDF4.Dataset('data/idealized_hydro.nc')
 data_simple = netCDF4.Dataset('data/idealized_hydro_simple.nc')
 datavar = data.variables
 Zvar = data_simple.variables['Ze']
 Ze = Zvar[:]
-Ze[:,0,:,2,0,0] = Ze[:,0,:,2,0,0] + 10.*np.log10(0.93/0.72)
+Ze[:,0,:,2,0,0] = Ze[:,0,:,2,0,0] #+ 10.*np.log10(0.93/0.72)
 V = datavar['Radar_MeanDopplerVel'][:]
 S = datavar['Radar_SpectrumWidth'][:]
 
@@ -50,7 +50,7 @@ Sh = S[5,0,:,:,0,0]
 campaign = 'tripex'
 minhour=6.0
 
-pamtra = read_prepare(hydroset=campaign + '_all_hydro_', minhour=minhour, suffix='_bk')
+pamtra = read_prepare(hydroset=campaign + '_all_hydro_', minhour=minhour, suffix='')
 pamtra[pamtra==9999] = np.nan
 lognormrule=True
 
@@ -89,6 +89,50 @@ plt.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes')
 plt.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel')
 plt.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail')
 plt.savefig('ISTP/radar3f_all_withcurves.png', dpi=300)
+
+#%% Z CFAD Height
+
+hist_and_plot(pamtra, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
+              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/pamtraCFAD_Zx_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
+
+hist_and_plot(pamtra, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
+              xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/pamtraCFAD_Zk_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
+
+hist_and_plot(pamtra, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
+              xlabel='Zw   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/pamtraCFAD_Zw_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
+
+hist_and_plot(radarx, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
+              xlabel='Zx   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/radarCFAD_Zx_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
+
+hist_and_plot(radar, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
+              xlabel='Zk   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/radarCFAD_Zk_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
+
+hist_and_plot(radarw, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
+              xlabel='Zw   [dBZ]', ylabel='Hgt   [m]',
+              xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
+              savename='ISTP/radarCFAD_Zw_H.png',
+              inverty=False, figax=None,
+              bins=(100, icon150heights[::-1]), density=True, CFAD=True)
 
 #%% DWR CFAD temperature
 

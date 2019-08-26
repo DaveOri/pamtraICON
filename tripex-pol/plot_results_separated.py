@@ -24,6 +24,7 @@ parser.add_argument('-hy','--hydroset', nargs=1,
                     choices=hydrodict.keys())
 parser.add_argument('--rootpath', nargs=1, help='gimme full path for saving output')
 parser.add_argument('-m1', '--moment1', nargs=1, help='tell me the modifier to data and plot folders')
+parser.add_argument('-p', '--patch', nargs=1, help='tell me the 3 padded patch number like 001')
 parser.print_help()
 args = parser.parse_args()
 datestr = args.date[0]
@@ -38,6 +39,11 @@ if args.rootpath is not None:
 mod=''
 if args.moment1 is not None:
     mod =  args.moment1[0]
+
+patch = ''
+if args.patch is not None:
+    patch = args.patch[0]
+
 runFld = rootpath + 'data' + mod + '/'
 plotFld = rootpath + 'plots' + mod + '/'
 
@@ -72,9 +78,9 @@ figsize31=(18,18)
 figsize21=(18,12)
 
 # Open the netcdf results file
-runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad10.nc'
-runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Joyrad35.nc'
-runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'Grarad94.nc'
+runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + patch + '_mom_'+'Joyrad10.nc'
+runFile35 = runFld + hydrostr + '/' + datestr + hydrostr + patch + '_mom_'+'Joyrad35.nc'
+runFile94 = runFld + hydrostr + '/' + datestr + hydrostr + patch + '_mom_'+'Grarad94.nc'
 
 if int(datestr) < 20180930:
     runFile10 = runFld + hydrostr + '/' + datestr + hydrostr + '_mom_'+'KiXPol.nc'
@@ -121,7 +127,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_attenuation'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_attenuation'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot Ze
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
@@ -138,7 +144,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_Ze'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_Ze'+'.png', dpi=200, bbox_inches='tight')
 
 # make DWRs and plot
 DWRxa = Zex-Zea
@@ -154,7 +160,7 @@ ax2.set_title('Ka-W')
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_DWRe'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_DWRe'+'.png', dpi=200, bbox_inches='tight')
 
 # make attenuated Z and DWRs and respective plots
 Zx = Zex-Ax
@@ -174,7 +180,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_Zattenuated'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_Zattenuated'+'.png', dpi=200, bbox_inches='tight')
 
 DWRxa = Zx-Za
 DWRaw = Za-Zw
@@ -188,7 +194,7 @@ ax2.xaxis.set_major_formatter(xfmt)
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_DWRattenuated'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_DWRattenuated'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot mean doppler velocity
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
@@ -205,7 +211,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_MDV'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_MDV'+'.png', dpi=200, bbox_inches='tight')
 
 f,((ax1,ax2,ax3)) = plt.subplots(3,1,sharex=False,figsize=figsize31)
 plot_variable(ttx,Hx,SWx,ax1,None,  'height [km]','m/s','Ku-band SW',0,1,ylim=ylim)
@@ -221,7 +227,7 @@ ax1.grid(color='k')
 ax2.grid(color='k')
 ax3.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_SW'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_SW'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot dual doppler velocity
 DDWxa = MDVx-MDVa
@@ -236,7 +242,7 @@ ax2.xaxis.set_major_formatter(xfmt)
 ax1.grid(color='k')
 ax2.grid(color='k')
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_DDV'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_DDV'+'.png', dpi=200, bbox_inches='tight')
 
 # Plot dual spectral width
 DSWxa = SWx-SWa
@@ -251,6 +257,6 @@ ax2.grid(color='k')
 ax1.xaxis.set_major_formatter(xfmt)
 ax2.xaxis.set_major_formatter(xfmt)
 f.tight_layout(pad=0)
-f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+'_DSW'+'.png', dpi=200, bbox_inches='tight')
+f.savefig(plotFld+hydrostr+'/'+datestr+hydrostr+patch+'_DSW'+'.png', dpi=200, bbox_inches='tight')
 
 plt.close('all')
