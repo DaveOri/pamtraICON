@@ -15,6 +15,16 @@ import pandas as pd
 from glob import glob
 import netCDF4
 import matplotlib.pyplot as plt
+from READ import icon150heights
+icon150heights = icon150heights[::-1]
+Hmax = np.max(np.array(icon150heights))
+Hmin = np.min(np.array(icon150heights))
+heightCenter = 0.5*(np.array(icon150heights)[1:]+np.array(icon150heights)[:-1])
+Tmin = 1
+Tmax = 86400
+deltat = 9
+iconTimes = np.arange(4.5, 86405, deltat)
+timeCenters = np.arange(0+deltat, Tmax+deltat, deltat)
 #import xarray
 
 campaign = 'tripex'
@@ -33,6 +43,48 @@ elif campaign == 'tripex-pol':
   G94files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Grarad94.nc'))
 
 available_dates = sorted([i.split('/')[-1][:8] for i in J10files])
+
+def find_bin(x, bins, binCenter):
+  idx = np.digitize(x, bins)
+  return binCenter[idx-1]
+
+def find_height_Icon(x):
+  return find_bin(x, np.array(icon150heights), heightCenter)
+
+def find_time_Icon(x):
+  return find_bin(x, iconTimes, timeCenters)
+
+def dB(x):
+  return 10.0*np.log10(x)
+
+def Bd(x):
+  return 10.0**(0.1*x)
+
+def linearMean(x):
+  return dB(np.nanmean(Bd(x)))
+
+aggDict = {'Z10':linearMean,
+           'V10':np.nanmean,
+           'W10':np.nanmean,
+           'Z35':linearMean,
+           'V35':np.nanmean,
+           'W35':np.nanmean,
+           'Z94':linearMean,
+           'V94':np.nanmean,
+           'W94':np.nanmean,
+           'V10avg':np.nanmean,
+           'V35avg':np.nanmean,
+           'V94avg':np.nanmean,
+           'runtime':np.nanmean,
+           'unixtime':np.nanmean,
+           'Hgt':np.nanmean,
+           'P':np.nanmean,
+           'T':np.nanmean,
+           'RH':np.nanmean,
+           'quality_x':np.max,
+           'quality_w':np.max,
+           'groupH':np.nanmean}
+
 
 def running_mean(x, N, minN):
     csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0))).astype(int))
@@ -89,6 +141,7 @@ if __name__ == '__main__':
     time = radar_data['time'][:] - netCDF4.date2num(pd.to_datetime(date),
                                                     'seconds since 1970-01-01 00:00:00 UTC')
     DF['runtime'] = np.tile(time,[Nr,1]).flatten()
+    DF['unixtime'] = np.tile(radar_data['time'][:],[Nr,1]).flatten()
     DF['Hgt'] = np.tile(radar_data['range'][:][np.newaxis].T,[1,Nt]).flatten() + 112.5
     DF['P'] = radar_data['Pres_Cl'][:].T.flatten()
     DF['T'] = radar_data['Temp_Cl'][:].T.flatten()
@@ -97,20 +150,29 @@ if __name__ == '__main__':
     DF['quality_x'] = radar_data['quality_flag_offset_x'][:].T.flatten()
     DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
     
+    mask = (DF['Hgt']>=Hmax)+(DF['Hgt']<=Hmin)
+    mask = mask + (DF['runtime']>=Tmax)+(DF['runtime']<=Tmin)
+    DF.loc[mask, ['Z10','Z35','Z94']] = np.nan
     DF.dropna(how='all', subset=['Z10', 'Z35', 'Z94'], inplace=True)
+    
+    #
+    DF['groupT'] = find_time_Icon(DF.loc[:,'runtime'])
+    DF['groupH'] = find_height_Icon(DF.loc[:,'Hgt'])
+    groups = DF.groupby(['groupH', 'groupT'])
+    rDF = groups.aggregate(aggDict)
+    rDF.dropna(how='all', subset=['Z10','Z35','Z94'])
+    rDF.drop('groupH', axis=1, inplace=True)
+    #
+    
     DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
               key='stat', mode='a', append=True)
-    for col in DF.columns:
+    rDF.to_hdf('data/radar/' + campaign + '_data_radar_avg_regrid.h5',
+               key='stat', mode='a', append=True)
+    for col in rDF.columns:
       DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
                      key='stat', mode='a', append=True)
-    #xr = xarray.Dataset.from_dataframe(DF)
-    #key_list = [i for i in xr.keys()]
-    #compress = [{'zlib':True} for i in key_list]
-    #xr.to_netcdf('data/radar/radar_compress.nc', mode='w', format='NETCDF4',
-    #             encoding=dict(zip(key_list, compress)))
-    #xr.to_netcdf('data/radar/radar.nc', mode='w', format='NETCDF4')
-  #end = timer.time()
-  #print(end-start)
-  #DF2 = pd.read_hdf('data/' + campaign + '_data_radar_avg.h5', key='stat')
+      rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
+                      key='stat', mode='a', append=True)
+      
   end = timer.time()
   print(end-start)

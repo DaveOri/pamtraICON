@@ -31,7 +31,7 @@ model = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
 #                                 'V10', 'V35', 'V94'], minhour=6.0)
 
 radar = read_variables(path='/work/develop/pamtraICON/comparison/data/radar/',
-                       hydroset='', suffix='radar.h5', minhour=6.0,
+                       hydroset='', suffix='radar_regrid.h5', minhour=6.0,
                        varlist=['Z10', 'Z35', 'Z94', 'T',
                                 'V10avg', 'V35avg', 'V94avg', 'quality_x', 'quality_w'])
 

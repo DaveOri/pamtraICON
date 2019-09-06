@@ -18,7 +18,7 @@ pamtra = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
                         hydroset='all_hydro', suffix='pamtra_icon.h5', pamtra=True,
                         varlist=['T', 'Z10', 'Z35', 'Z94'], minhour=6.0)
 radar = read_variables(path='/work/develop/pamtraICON/comparison/data/radar/',
-                       hydroset='', suffix='radar.h5',
+                       hydroset='', suffix='radar_regrid.h5',
                        varlist=['T', 'Z10', 'Z35', 'Z94', 'quality_x', 'quality_w'], minhour=6.0)
 
 data = netCDF4.Dataset('../data/idealized_hydro.nc')

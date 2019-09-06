@@ -17,7 +17,7 @@ pamtra = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
                         varlist=['Z10', 'Z35', 'Z94', 'T'], minhour=6.0)
 
 radar = read_variables(path='/work/develop/pamtraICON/comparison/data/radar/',
-                       hydroset='', suffix='radar.h5', minhour=6.0,
+                       hydroset='', suffix='radar_regrid.h5', minhour=6.0,
                        varlist=['Z10', 'Z35', 'Z94', 'T',
                                 'quality_x', 'quality_w'])
 
@@ -30,7 +30,7 @@ CFAD = True
 bins = 100
 vminmax = [0.1, 20]
 
-hpw, xpw, ypw = hist_and_plot(pamtra, 'Simulated CFAD T - DWRxk',
+r = hist_and_plot(pamtra, 'Simulated CFAD T - DWRxk',
                               yvar='T', xvar='DWRxk',
                               xlabel='DWRxk   [dB]', ylabel='T   [K]',
                               vminmax=vminmax,
@@ -39,7 +39,7 @@ hpw, xpw, ypw = hist_and_plot(pamtra, 'Simulated CFAD T - DWRxk',
                               inverty=True, figax=None,
                               bins=bins, density=density, CFAD=CFAD)
 
-hrx, xrx, yrx = hist_and_plot(radarx, 'Measured CFAD T - DWRxk',
+r = hist_and_plot(radarx, 'Measured CFAD T - DWRxk',
                               yvar='T', xvar='DWRxk',
                               xlabel='DWRxk   [dB]', ylabel='T   [K]',
                               vminmax=vminmax,
@@ -48,7 +48,7 @@ hrx, xrx, yrx = hist_and_plot(radarx, 'Measured CFAD T - DWRxk',
                               inverty=True, figax=None,
                               bins=bins, density=density, CFAD=CFAD)
 
-hpw, xpw, ypw = hist_and_plot(pamtra, 'Simulated CFAD T - DWRkw',
+r = hist_and_plot(pamtra, 'Simulated CFAD T - DWRkw',
                               yvar='T', xvar='DWRkw',
                               xlabel='DWRkw   [dB]', ylabel='T   [K]',
                               vminmax=vminmax,
@@ -57,7 +57,7 @@ hpw, xpw, ypw = hist_and_plot(pamtra, 'Simulated CFAD T - DWRkw',
                               inverty=True, figax=None,
                               bins=bins, density=density, CFAD=CFAD)
 
-hrx, xrx, yrx = hist_and_plot(radarw, 'Measured CFAD T - DWRkw',
+r = hist_and_plot(radarw, 'Measured CFAD T - DWRkw',
                               yvar='T', xvar='DWRkw',
                               xlabel='DWRkw   [dB]', ylabel='T   [K]',
                               vminmax=vminmax,

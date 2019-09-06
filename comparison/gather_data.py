@@ -6,8 +6,8 @@ Created on Fri Jan 11 15:40:31 2019
 @author: dori
 """
 
-import time
-start = time.time()
+import time as timing
+start = timing.time()
 
 import numpy as np
 import pandas as pd
@@ -19,11 +19,12 @@ import matplotlib.pyplot as plt
 campaign = 'tripex'
 
 hydroset = 'all_hydro'
-hydroset = 'only_snow'
-hydroset = 'only_ice'
-hydroset = 'no_snow'
-hydroset = 'only_liquid'
-hydroset = 'only_graupel_hail'
+#hydroset = 'only_snow'
+#hydroset = 'only_ice'
+
+#hydroset = 'no_snow'
+#hydroset = 'only_liquid'
+#hydroset = 'only_graupel_hail'
 
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
@@ -69,18 +70,19 @@ if __name__ == '__main__':
     iconfile = icon_data_path + date + '/METEOGRAM_patch001_' + date + '_joyce.nc'
     icon_data = netCDF4.Dataset(iconfile).variables
     icon_time = netCDF4.num2date(icon_data['time'][:], icon_data['time'].units)
-    #sec_of_day = np.array([i.hour*3600+i.minute*60+i.second for i in icon_time])
+    icon_time = netCDF4.date2num(icon_time, 'seconds since 1970-01-01 00:00:00 UTC')
     icon_heights = icon_data['height_2'][:]
     P = icon_data['P'][:].T
     T = icon_data['T'][:].T
     RH = icon_data['REL_HUM'][:].T
     Hgt = np.tile(np.tile(icon_heights.T,[1,1]).T,[1,P.shape[1]])
-    #time = np.tile(sec_of_day,[P.shape[0],1])
+    time = np.tile(icon_time, [P.shape[0],1])
     runtime = np.tile(icon_data['time'][:],[P.shape[0],1])
     
     
     DF = pd.DataFrame()
     DF['runtime'] = runtime.flatten()
+    DF['unixtime'] = time.flatten()
     DF['Z10'] = Z10.flatten()
     DF['V10'] = V10.flatten()
     DF['W10'] = W10.flatten()
@@ -139,5 +141,5 @@ if __name__ == '__main__':
   # plt.colorbar(mesh2, label='V    [m/s]', ax=ax2)
   # plt.colorbar(mesh3, label='SW   [m/s]', ax=ax3)
 
-  end = time.time()
+  end = timing.time()
   print(end-start)

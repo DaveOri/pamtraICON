@@ -27,42 +27,42 @@ radarx = slice_data(radar, 'quality_x', maxvalue=8192)
 lognormrule = True
 density = True
 bins = 50
-hpx, xpx, ypx = hist_and_plot(pamtra, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
+r = hist_and_plot(pamtra, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='pamtraCFAD_Zx_H.png',
               inverty=False, figax=None,
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 
-hpk, xpk, ypk = hist_and_plot(pamtra, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
+r = hist_and_plot(pamtra, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='pamtraCFAD_Zk_H.png',
               inverty=False, figax=None,
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 
-hpw, xpw, ypw = hist_and_plot(pamtra, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
+r = hist_and_plot(pamtra, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
               xlabel='Zw   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='pamtraCFAD_Zw_H.png',
               inverty=False, figax=None,
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 
-hrx, xrx, yrx = hist_and_plot(radarx, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
+r = hist_and_plot(radarx, 'CFAD Zx hgt', yvar='Hgt', xvar='Z10',
               xlabel='Zx   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='radarCFAD_Zx_H.png',
               inverty=False, figax=None,
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 
-hrk, xrk, yrk = hist_and_plot(radar, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
+r = hist_and_plot(radar, 'CFAD Zk hgt', yvar='Hgt', xvar='Z35',
               xlabel='Zk   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='radarCFAD_Zk_H.png',
               inverty=False, figax=None,
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 
-hrw, xrw, yrw = hist_and_plot(radarw, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
+r = hist_and_plot(radarw, 'CFAD Zw hgt', yvar='Hgt', xvar='Z94',
               xlabel='Zw   [dBZ]', ylabel='Hgt   [m]', vminmax=[0.1, 100],
               xlim=[-60, 50], ylim=[0, 12000], lognorm=lognormrule,
               savename='radarCFAD_Zw_H.png',

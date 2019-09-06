@@ -25,5 +25,7 @@ plt.plot(ICON['time'], icon_rain, label='rain')
 plt.plot(ICON['time'], icon_snow, label='snow')
 plt.plot(ICON['time'], icon_snow+icon_rain, label='total icon')
 nat = PLUVIO['time'].isnull()
-plt.plot(PLUVIO['time'][~nat], pluvio_TNRT[~nat]-pluvio_TNRT[0], label='pluvio')
+plt.plot(PLUVIO['time'][~nat],
+         (pluvio_TNRT[~nat]).cumsum(),
+         label='pluvio')
 plt.legend()
