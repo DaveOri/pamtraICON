@@ -7,15 +7,14 @@ Created on Fri Jan 11 15:40:31 2019
 """
 
 import time as timer
-start = timer.time()
-
 import numpy as np
 import pandas as pd
-
 from glob import glob
 import netCDF4
 import matplotlib.pyplot as plt
 from READ import icon150heights
+
+start = timer.time()
 icon150heights = icon150heights[::-1]
 Hmax = np.max(np.array(icon150heights))
 Hmin = np.min(np.array(icon150heights))
@@ -25,13 +24,13 @@ Tmax = 86400
 deltat = 9
 iconTimes = np.arange(4.5, 86405, deltat)
 timeCenters = np.arange(0+deltat, Tmax+deltat, deltat)
-#import xarray
+
 
 campaign = 'tripex'
 hydroset = 'all_hydro'
-
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
+
 
 if campaign == 'tripex':
   J10files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_KiXPol.nc'))
@@ -41,27 +40,38 @@ elif campaign == 'tripex-pol':
   J10files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Joyrad10.nc'))
   J35files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Joyrad35.nc'))
   G94files = sorted(glob(pamtra_radar_data_path + hydroset + '/????????' + hydroset + '_mom_Grarad94.nc'))
-
 available_dates = sorted([i.split('/')[-1][:8] for i in J10files])
+
 
 def find_bin(x, bins, binCenter):
   idx = np.digitize(x, bins)
   return binCenter[idx-1]
 
+
 def find_height_Icon(x):
   return find_bin(x, np.array(icon150heights), heightCenter)
+
 
 def find_time_Icon(x):
   return find_bin(x, iconTimes, timeCenters)
 
+
 def dB(x):
   return 10.0*np.log10(x)
+
 
 def Bd(x):
   return 10.0**(0.1*x)
 
+
 def linearMean(x):
   return dB(np.nanmean(Bd(x)))
+
+
+def linearWeightedMean(x, weights):
+  w = Bd(x)
+  return np.nansum(x*w)/np.nansum(w)
+
 
 aggDict = {'Z10':linearMean,
            'V10':np.nanmean,
@@ -86,6 +96,31 @@ aggDict = {'Z10':linearMean,
            'groupH':np.nanmean}
 
 
+def reduction(x):
+  d = {}
+  d['Z10'] = linearMean(x['Z10'])
+  d['V10'] = linearWeightedMean(x['V10'], x['Z10'])
+  d['W10'] = linearWeightedMean(x['W10'], x['Z10'])
+  d['Z35'] = linearMean(x['Z35'])
+  d['V35'] = linearWeightedMean(x['V35'], x['Z35'])
+  d['W35'] = linearWeightedMean(x['W35'], x['Z35'])
+  d['Z94'] = linearMean(x['Z94'])
+  d['V94'] = linearWeightedMean(x['V94'], x['Z94'])
+  d['W94'] = linearWeightedMean(x['W94'], x['Z94'])
+  d['V10avg'] = linearWeightedMean(x['V10avg'], x['Z10'])
+  d['V35avg'] = linearWeightedMean(x['V35avg'], x['Z35'])
+  d['V94avg'] = linearWeightedMean(x['V94avg'], x['Z94'])
+  d['runtime'] = np.nanmean(x['runtime'])
+  d['unixtime'] = np.nanmean(x['unixtime'])
+  d['Hgt'] = np.nanmean(x['Hgt'])
+  d['P'] = np.nanmean(x['P'])
+  d['T'] = np.nanmean(x['T'])
+  d['RH'] = np.nanmean(x['RH'])
+  d['quality_x'] = np.max(x['quality_x'])
+  d['quality_w'] = np.max(x['quality_w'])
+  return pd.Series(d, index=d.keys())
+
+
 def running_mean(x, N, minN):
     csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0))).astype(int))
     nannum = csumnan[N:] - csumnan[:-N]
@@ -95,10 +130,15 @@ def running_mean(x, N, minN):
     cumsum = np.nancumsum(np.insert(x, 0, 0)) 
     return Filter * (cumsum[N:] - cumsum[:-N]) / (float(N)-nannum)
 
-def running_mean_2d(xx, N, minN=0):
+
+def running_mean_2d(xx, N, minN=0, weights=None):
+  if weights is None:
+    weights = np.ones(xx.shape)
+  xx = xx*weights
   add = int((N - (N & 1))/2)
   addition = np.zeros([xx.shape[0], add])*np.nan
   x = np.concatenate([addition, xx, addition], axis=1)
+  w = np.concatenate([addition, weights, addition], axis=1)
   csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0, axis=1))).astype(int),
                       axis=1)
   nannum = csumnan[:, N:] - csumnan[:, :-N]
@@ -106,7 +146,10 @@ def running_mean_2d(xx, N, minN=0):
   Filter = mask.astype(float)
   Filter[~mask] = np.nan
   csum = np.nancumsum(np.insert(x, 0, 0, axis=1), axis=1)
-  return Filter * (csum[:, N:] - csum[:, :-N]) / (float(N)-nannum)
+  wsum = np.nancumsum(np.insert(w, 0, 0, axis=1), axis=1)
+  return Filter * (csum[:, N:] - csum[:, :-N]) / (wsum[:, N:] - wsum[:, :-N])
+  #return Filter * (csum[:, N:] - csum[:, :-N]) / (float(N)-nannum)
+  
 
 if __name__ == '__main__':
   for i, date in enumerate(available_dates[:]):
@@ -120,23 +163,25 @@ if __name__ == '__main__':
     radar_time = netCDF4.num2date(radar_data['time'][:], radar_data['time'].units)
 
     DF = pd.DataFrame()
-       
-    DF['Z10'] = radar_data['dbz_x'][:].T.flatten()
+    Z10 = radar_data['dbz_x'][:].T
+    Z35 = radar_data['dbz_ka'][:].T
+    Z94 = radar_data['dbz_w'][:].T
+    DF['Z10'] = Z10.flatten()
     DF['V10'] = radar_data['rv_x'][:].T.flatten()
     DF['W10'] = radar_data['sw_x'][:].T.flatten()
-    DF['Z35'] = radar_data['dbz_ka'][:].T.flatten()
+    DF['Z35'] = Z35.flatten()
     DF['V35'] = radar_data['rv_ka'][:].T.flatten()
     DF['W35'] = radar_data['sw_ka'][:].T.flatten()
-    DF['Z94'] = radar_data['dbz_w'][:].T.flatten()
+    DF['Z94'] = Z94.flatten()
     DF['V94'] = radar_data['rv_w'][:].T.flatten()
     DF['W94'] = radar_data['sw_w'][:].T.flatten()
     
     V10=radar_data['rv_x'][:].T
     V35=radar_data['rv_ka'][:].T
     V94=radar_data['rv_w'][:].T
-    DF['V10avg']=running_mean_2d(V10, 299, 75).flatten() # 299 * 4 sec = 20 min
-    DF['V35avg']=running_mean_2d(V35, 299, 75).flatten() # 75 * 4 sec = 5 min of measurements
-    DF['V94avg']=running_mean_2d(V94, 299, 75).flatten()
+    DF['V10avg']=running_mean_2d(V10, 299, 75, Bd(Z10)).flatten() # 299 * 4 sec = 20 min
+    DF['V35avg']=running_mean_2d(V35, 299, 75, Bd(Z35)).flatten() # 75 * 4 sec = 5 min of measurements
+    DF['V94avg']=running_mean_2d(V94, 299, 75, Bd(Z94)).flatten()
     
     time = radar_data['time'][:] - netCDF4.date2num(pd.to_datetime(date),
                                                     'seconds since 1970-01-01 00:00:00 UTC')
@@ -159,9 +204,10 @@ if __name__ == '__main__':
     DF['groupT'] = find_time_Icon(DF.loc[:,'runtime'])
     DF['groupH'] = find_height_Icon(DF.loc[:,'Hgt'])
     groups = DF.groupby(['groupH', 'groupT'])
-    rDF = groups.aggregate(aggDict)
+    # rDF = groups.aggregate(aggDict)
+    rDF = groups.apply(reduction)
     rDF.dropna(how='all', subset=['Z10','Z35','Z94'])
-    rDF.drop('groupH', axis=1, inplace=True)
+    # rDF.drop('groupH', axis=1, inplace=True)
     #
     
     DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
@@ -173,6 +219,8 @@ if __name__ == '__main__':
                      key='stat', mode='a', append=True)
       rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
                       key='stat', mode='a', append=True)
+
       
   end = timer.time()
   print(end-start)
+  
