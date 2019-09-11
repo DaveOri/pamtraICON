@@ -7,6 +7,7 @@ Created on Wed Jan 16 14:13:11 2019
 """
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 from READ import read_prepare
@@ -15,7 +16,7 @@ plt.close('all')
 def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
                   xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
                   xlim=[-5, 20], ylim=[-5, 20], lognorm=True, vminmax=None,
-                  savename='auto3f', inverty=False, figax=None,
+                  savename='auto3f', inverty=False, figax=None, stats=None,
                   bins=100, density=False, CFAD=False, cmap='viridis'):
   dataclean = data[[xvar, yvar]].dropna()
   hst, xedge, yedge = np.histogram2d(dataclean[xvar], dataclean[yvar], bins=bins)
@@ -51,6 +52,25 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
   clabel='counts'
   if CFAD:
     clabel='relative frequency [%]'
+    if stats is not None:
+      bins = pd.cut(data[yvar], yedge)
+      groups = data.groupby(bins)[xvar]
+      lines = []
+      labels = []
+      if 'median' in stats:
+        l = ax.plot(groups.median(), ycenter, label='median', lw=2, ls='-.', c='k')
+        lines.append(l[0])
+        labels.append('median')
+      if 'mean' in stats:
+        l = ax.plot(groups.mean(), ycenter, label='mean', lw=2, ls='--', c='r' )
+        lines.append(l[0])
+        labels.append('mean')
+      if 'quantile' in stats:
+        l = ax.plot(groups.quantile(0.25), ycenter, label='.25 quantile', c='k')
+        ax.plot(groups.quantile(0.75), ycenter, label='.75 quantile', c='k')
+        lines.append(l[0])
+        labels.append('quartiles')
+      ax.legend(lines, labels, framealpha=0.95)
   cb = plt.colorbar(mesh, ax=ax, extend='max', label=clabel)
   ax.set_title(title)
   if xlabel is not None:
@@ -66,7 +86,7 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
     pass
   else:
     fig.savefig(savename)
-  return hst, xcenter, ycenter, cb
+  return hst, xcenter, ycenter, cb, xedge, yedge
 
 def add_one_contour(ax, data, Tminmax, color, levels=1):
   if ax is None:
