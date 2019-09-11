@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from glob import glob
 import netCDF4
-import matplotlib.pyplot as plt
+
 from READ import icon150heights
 
 start = timer.time()
@@ -120,6 +120,16 @@ def reduction(x):
   d['quality_w'] = np.max(x['quality_w'])
   return pd.Series(d, index=d.keys())
 
+def red(x):
+  d = {}
+  d['Z10'] = linearMean(x['Z10'])
+  d['Z35'] = linearMean(x['Z35'])
+  d['Z94'] = linearMean(x['Z94'])
+  d['V10avg'] = linearWeightedMean(x['V10avg'], x['Z10'])
+  d['V35avg'] = linearWeightedMean(x['V35avg'], x['Z35'])
+  d['V94avg'] = linearWeightedMean(x['V94avg'], x['Z94'])
+  return pd.Series(d, index=d.keys())
+
 
 def running_mean(x, N, minN):
     csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0))).astype(int))
@@ -133,7 +143,7 @@ def running_mean(x, N, minN):
 
 def running_mean_2d(xx, N, minN=0, weights=None):
   if weights is None:
-    weights = np.ones(xx.shape)
+    weights = xx/xx
   xx = xx*weights
   add = int((N - (N & 1))/2)
   addition = np.zeros([xx.shape[0], add])*np.nan
@@ -148,11 +158,25 @@ def running_mean_2d(xx, N, minN=0, weights=None):
   csum = np.nancumsum(np.insert(x, 0, 0, axis=1), axis=1)
   wsum = np.nancumsum(np.insert(w, 0, 0, axis=1), axis=1)
   return Filter * (csum[:, N:] - csum[:, :-N]) / (wsum[:, N:] - wsum[:, :-N])
-  #return Filter * (csum[:, N:] - csum[:, :-N]) / (float(N)-nannum)
-  
+
+
+def running_aritmeticmean_2d(xx, N, minN=0):
+  add = int((N - (N & 1))/2)
+  addition = np.zeros([xx.shape[0], add])*np.nan
+  x = np.concatenate([addition, xx, addition], axis=1)
+  csumnan = np.cumsum((~np.isfinite(np.insert(x, 0, 0, axis=1))).astype(int),
+                      axis=1)
+  nannum = csumnan[:, N:] - csumnan[:, :-N]
+  mask = ((N-nannum) >= minN)
+  Filter = mask.astype(float)
+  Filter[~mask] = np.nan
+  csum = np.nancumsum(np.insert(x, 0, 0, axis=1), axis=1)
+  return Filter * (csum[:, N:] - csum[:, :-N]) / (float(N) - nannum)
+
 
 if __name__ == '__main__':
   for i, date in enumerate(available_dates[:]):
+    turn_start = timer.time()
     print(i, date)
     #radar_file = '/data/optimice/tripex/tripex_level_02_samd/tripex_joy_tricr00_l2_any_v00_' + date + '000000.nc'
     radar_file = '/data/optimice/tripex/tripex_level_02_test/tripex_joy_tricr00_l2_any_v00_' + date + '000000.nc'
@@ -163,22 +187,22 @@ if __name__ == '__main__':
     radar_time = netCDF4.num2date(radar_data['time'][:], radar_data['time'].units)
 
     DF = pd.DataFrame()
-    Z10 = radar_data['dbz_x'][:].T
-    Z35 = radar_data['dbz_ka'][:].T
-    Z94 = radar_data['dbz_w'][:].T
+    Z10 = radar_data['dbz_x'][:].T.filled()
+    Z35 = radar_data['dbz_ka'][:].T.filled()
+    Z94 = radar_data['dbz_w'][:].T.filled()
     DF['Z10'] = Z10.flatten()
     DF['V10'] = radar_data['rv_x'][:].T.flatten()
-    DF['W10'] = radar_data['sw_x'][:].T.flatten()
+    #DF['W10'] = radar_data['sw_x'][:].T.flatten()
     DF['Z35'] = Z35.flatten()
     DF['V35'] = radar_data['rv_ka'][:].T.flatten()
-    DF['W35'] = radar_data['sw_ka'][:].T.flatten()
+    #DF['W35'] = radar_data['sw_ka'][:].T.flatten()
     DF['Z94'] = Z94.flatten()
     DF['V94'] = radar_data['rv_w'][:].T.flatten()
-    DF['W94'] = radar_data['sw_w'][:].T.flatten()
+    #DF['W94'] = radar_data['sw_w'][:].T.flatten()
     
-    V10=radar_data['rv_x'][:].T
-    V35=radar_data['rv_ka'][:].T
-    V94=radar_data['rv_w'][:].T
+    V10=radar_data['rv_x'][:].T.filled()
+    V35=radar_data['rv_ka'][:].T.filled()
+    V94=radar_data['rv_w'][:].T.filled()
     DF['V10avg']=running_mean_2d(V10, 299, 75, Bd(Z10)).flatten() # 299 * 4 sec = 20 min
     DF['V35avg']=running_mean_2d(V35, 299, 75, Bd(Z35)).flatten() # 75 * 4 sec = 5 min of measurements
     DF['V94avg']=running_mean_2d(V94, 299, 75, Bd(Z94)).flatten()
@@ -188,12 +212,12 @@ if __name__ == '__main__':
     DF['runtime'] = np.tile(time,[Nr,1]).flatten()
     DF['unixtime'] = np.tile(radar_data['time'][:],[Nr,1]).flatten()
     DF['Hgt'] = np.tile(radar_data['range'][:][np.newaxis].T,[1,Nt]).flatten() + 112.5
-    DF['P'] = radar_data['Pres_Cl'][:].T.flatten()
-    DF['T'] = radar_data['Temp_Cl'][:].T.flatten()
-    DF['RH'] = radar_data['RelHum_Cl'][:].T.flatten()
+    #DF['P'] = radar_data['Pres_Cl'][:].T.flatten()
+    #DF['T'] = radar_data['Temp_Cl'][:].T.flatten()
+    #DF['RH'] = radar_data['RelHum_Cl'][:].T.flatten()
 
-    DF['quality_x'] = radar_data['quality_flag_offset_x'][:].T.flatten()
-    DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
+    #DF['quality_x'] = radar_data['quality_flag_offset_x'][:].T.flatten()
+    #DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
     
     mask = (DF['Hgt']>=Hmax)+(DF['Hgt']<=Hmin)
     mask = mask + (DF['runtime']>=Tmax)+(DF['runtime']<=Tmin)
@@ -204,21 +228,29 @@ if __name__ == '__main__':
     DF['groupT'] = find_time_Icon(DF.loc[:,'runtime'])
     DF['groupH'] = find_height_Icon(DF.loc[:,'Hgt'])
     groups = DF.groupby(['groupH', 'groupT'])
-    # rDF = groups.aggregate(aggDict)
-    rDF = groups.apply(reduction)
+    #rDF = groups.apply(reduction)
+    rDF = groups.apply(red)
     rDF.dropna(how='all', subset=['Z10','Z35','Z94'])
-    # rDF.drop('groupH', axis=1, inplace=True)
     #
     
-    DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
-              key='stat', mode='a', append=True)
-    rDF.to_hdf('data/radar/' + campaign + '_data_radar_avg_regrid.h5',
-               key='stat', mode='a', append=True)
-    for col in rDF.columns:
+#    DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
+#              key='stat', mode='a', append=True)
+#    rDF.to_hdf('data/radar/' + campaign + '_data_radar_avg_regrid.h5',
+#               key='stat', mode='a', append=True)
+#    for col in rDF.columns:
+#      DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
+#                     key='stat', mode='a', append=True)
+#      rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
+#                      key='stat', mode='a', append=True)
+
+    for col in ['V10avg', 'V35avg', 'V94avg']:
       DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
                      key='stat', mode='a', append=True)
       rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
                       key='stat', mode='a', append=True)
+    turn_end = timer.time()
+    print(turn_end - turn_start)
+    
 
       
   end = timer.time()
