@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from READ import read_prepare
 plt.close('all')
 
@@ -58,20 +59,33 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
       lines = []
       labels = []
       if 'median' in stats:
-        l = ax.plot(groups.median(), ycenter, label='median', lw=2, ls='-.', c='k')
+        l = ax.plot(groups.median(), ycenter, label='median',
+                    lw=2, ls='-.', c='k')
         lines.append(l[0])
         labels.append('median')
       if 'mean' in stats:
-        l = ax.plot(groups.mean(), ycenter, label='mean', lw=2, ls='--', c='r' )
+        l = ax.plot(groups.mean(), ycenter, label='mean',
+                    lw=2, ls='--', c='r' )
         lines.append(l[0])
         labels.append('mean')
-      if 'quantile' in stats:
+      if 'quartile' in stats:
         l = ax.plot(groups.quantile(0.25), ycenter, label='.25 quantile', c='k')
-        ax.plot(groups.quantile(0.75), ycenter, label='.75 quantile', c='k')
+        ax.plot(groups.quantile(0.75), ycenter, label='.75 quantile',
+                ls='-', c='k')
         lines.append(l[0])
         labels.append('quartiles')
+      if 'decile' in stats:
+        l = ax.plot(groups.quantile(0.10), ycenter, label='.10 decile',
+                    ls=':', c='k')
+        ax.plot(groups.quantile(0.90), ycenter, label='.90 decile',
+                ls=':', c='k')
+        lines.append(l[0])
+        labels.append('deciles')
       ax.legend(lines, labels, framealpha=0.95)
-  cb = plt.colorbar(mesh, ax=ax, extend='max', label=clabel)
+  divider = make_axes_locatable(ax)
+  cax = divider.append_axes("right", size="5%", pad=0.1)
+  cb = plt.colorbar(mesh, cax=cax, extend='max', label=clabel)
+  #cb = plt.colorbar(mesh, ax=ax, extend='max', label=clabel)
   ax.set_title(title)
   if xlabel is not None:
     ax.set_xlabel(xlabel)

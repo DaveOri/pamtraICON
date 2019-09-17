@@ -19,12 +19,6 @@ icon150heights = icon150heights[::-1]
 Hmax = np.max(np.array(icon150heights))
 Hmin = np.min(np.array(icon150heights))
 heightCenter = 0.5*(np.array(icon150heights)[1:]+np.array(icon150heights)[:-1])
-Tmin = 1
-Tmax = 86400
-deltat = 9
-iconTimes = np.arange(4.5, 86405, deltat)
-timeCenters = np.arange(0+deltat, Tmax+deltat, deltat)
-
 
 campaign = 'tripex'
 hydroset = 'all_hydro'
@@ -192,13 +186,13 @@ if __name__ == '__main__':
     Z94 = radar_data['dbz_w'][:].T.filled()
     DF['Z10'] = Z10.flatten()
     DF['V10'] = radar_data['rv_x'][:].T.flatten()
-    #DF['W10'] = radar_data['sw_x'][:].T.flatten()
+    DF['W10'] = radar_data['sw_x'][:].T.flatten()
     DF['Z35'] = Z35.flatten()
     DF['V35'] = radar_data['rv_ka'][:].T.flatten()
-    #DF['W35'] = radar_data['sw_ka'][:].T.flatten()
+    DF['W35'] = radar_data['sw_ka'][:].T.flatten()
     DF['Z94'] = Z94.flatten()
     DF['V94'] = radar_data['rv_w'][:].T.flatten()
-    #DF['W94'] = radar_data['sw_w'][:].T.flatten()
+    DF['W94'] = radar_data['sw_w'][:].T.flatten()
     
     V10=radar_data['rv_x'][:].T.filled()
     V35=radar_data['rv_ka'][:].T.filled()
@@ -212,42 +206,51 @@ if __name__ == '__main__':
     DF['runtime'] = np.tile(time,[Nr,1]).flatten()
     DF['unixtime'] = np.tile(radar_data['time'][:],[Nr,1]).flatten()
     DF['Hgt'] = np.tile(radar_data['range'][:][np.newaxis].T,[1,Nt]).flatten() + 112.5
-    #DF['P'] = radar_data['Pres_Cl'][:].T.flatten()
-    #DF['T'] = radar_data['Temp_Cl'][:].T.flatten()
-    #DF['RH'] = radar_data['RelHum_Cl'][:].T.flatten()
+    DF['P'] = radar_data['Pres_Cl'][:].T.flatten()
+    DF['T'] = radar_data['Temp_Cl'][:].T.flatten()
+    DF['RH'] = radar_data['RelHum_Cl'][:].T.flatten()
 
-    #DF['quality_x'] = radar_data['quality_flag_offset_x'][:].T.flatten()
-    #DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
-    
+    DF['quality_x'] = radar_data['quality_flag_offset_x'][:].T.flatten()
+    DF['quality_w'] = radar_data['quality_flag_offset_w'][:].T.flatten()
+
+    startSec = DF['unixtime'].min() % 86400
+    startDay = DF['unixtime'].min() - startSec
+    deltat = 9
+    Tmin = int(startSec/deltat)
+    Tmax = 86400
+    iconTimes = np.arange(startDay + Tmin + deltat*0.5,
+                          startDay + Tmax + deltat*1.5, deltat)
+    timeCenters = np.arange(startDay + Tmin,
+                            startDay + Tmax, deltat).astype(int)
     mask = (DF['Hgt']>=Hmax)+(DF['Hgt']<=Hmin)
     mask = mask + (DF['runtime']>=Tmax)+(DF['runtime']<=Tmin)
     DF.loc[mask, ['Z10','Z35','Z94']] = np.nan
     DF.dropna(how='all', subset=['Z10', 'Z35', 'Z94'], inplace=True)
     
     #
-    DF['groupT'] = find_time_Icon(DF.loc[:,'runtime'])
+    DF['groupT'] = find_time_Icon(DF.loc[:,'unixtime'])
     DF['groupH'] = find_height_Icon(DF.loc[:,'Hgt'])
     groups = DF.groupby(['groupH', 'groupT'])
-    #rDF = groups.apply(reduction)
-    rDF = groups.apply(red)
+    rDF = groups.apply(reduction)
+    #rDF = groups.apply(red)
     rDF.dropna(how='all', subset=['Z10','Z35','Z94'])
     #
     
-#    DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
-#              key='stat', mode='a', append=True)
-#    rDF.to_hdf('data/radar/' + campaign + '_data_radar_avg_regrid.h5',
-#               key='stat', mode='a', append=True)
-#    for col in rDF.columns:
-#      DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
-#                     key='stat', mode='a', append=True)
-#      rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
-#                      key='stat', mode='a', append=True)
-
-    for col in ['V10avg', 'V35avg', 'V94avg']:
+    DF.to_hdf('data/radar/' + campaign + '_data_radar_avg.h5',
+              key='stat', mode='a', append=True)
+    rDF.to_hdf('data/radar/' + campaign + '_data_radar_avg_regrid.h5',
+               key='stat', mode='a', append=True)
+    for col in rDF.columns:
       DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
                      key='stat', mode='a', append=True)
       rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
                       key='stat', mode='a', append=True)
+
+#    for col in ['V10avg', 'V35avg', 'V94avg']:
+#      DF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar.h5',
+#                     key='stat', mode='a', append=True)
+#      rDF[col].to_hdf('data/radar/' + campaign + '_' + col + '_data_radar_regrid.h5',
+#                      key='stat', mode='a', append=True)
     turn_end = timer.time()
     print(turn_end - turn_start)
     

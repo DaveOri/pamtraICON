@@ -83,7 +83,7 @@ plt.savefig('pamtra3f_all_withcurves.png', dpi=300)
 hist_and_plot(slice_data(radarxw, 'Z10', minvalue=5).dropna(subset=['DWRxk', 'DWRkw']),
               '3f plot all', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-              xlim=xlim, ylim=xlim, lognorm=lognormrule,
+              xlim=xlim, ylim=ylim, lognorm=lognormrule,
               savename='radar3f_all.png', inverty=False, figax=None,
               bins=100,density=True, CFAD=False)
 plt.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
@@ -94,44 +94,44 @@ plt.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel', lw=lw)
 plt.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
 plt.savefig('radar3f_all_withcurves.png', dpi=300)
 
+#%% Combined plot for paper
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.5, 4.5))
+ax1.set_aspect('equal')
+ax2.set_aspect('equal')
+r = hist_and_plot(slice_data(pamtra, 'Z10', minvalue=0), 'Simulated',
+                  yvar='DWRxk', xvar='DWRkw', 
+                  xlabel='DWR$_{K_a W}$   [dB]', ylabel='DWR$_{X K_a}$   [dB]',
+                  xlim=xlim, ylim=ylim, lognorm=lognormrule, figax=(f, ax1),
+                  savename='pamRad3f_all.png', inverty=False,
+                  bins=100,density=True, CFAD=False)
+ax1.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
+ax1.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
+ax1.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)
+ax1.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes', lw=lw)
+ax1.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel', lw=lw)
+ax1.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
+ax1.legend(loc=2)
 
-#fig, (ax1, ax2) = plt.subplots(1, 2, sharey=False, constrained_layout=True,
-#                               figsize=(12,5))
-#h,x,y,cb = hist_and_plot(slice_data(pamtra, 'Z10', minvalue=-2), '3f plot all', yvar='DWRxk', xvar='DWRkw',
-#              xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-#              xlim=xlim, ylim=ylim, lognorm=lognormrule, figax=(fig, ax1),
-#              savename='pamtra3f_all_double.png', inverty=False,
-#              bins=100,density=True, CFAD=False)
-#ax1.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
-#ax1.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
-#ax1.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)
-#ax1.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes', lw=lw)
-#ax1.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel', lw=lw)
-#ax1.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
-#ax1.legend(loc=2)
-#
-#hist_and_plot(slice_data(radarxw, 'Z10', minvalue=5).dropna(subset=['DWRxk', 'DWRkw']),
-#              '3f plot all', yvar='DWRxk', xvar='DWRkw',
-#              xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
-#              xlim=xlim, ylim=xlim, lognorm=lognormrule, figax=(fig, ax2),
-#              savename='pamtra3f_all_double.png', inverty=False,
-#              bins=100,density=True, CFAD=False)
-#ax2.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
-#ax2.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
-#ax2.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)
-#ax2.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes', lw=lw)
-#ax2.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel', lw=lw)
-#ax2.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
-#cb.remove()
-#plt.draw()
-#ax1.set_aspect('equal')
-#ax2.set_aspect('equal')
-#plt.subplots_adjust(wspace=0.15)
-#fig.savefig('pamtra3f_all_double.png', dpi=300)
+r = hist_and_plot(slice_data(radarxw, 'Z10',
+                             minvalue=-2).dropna(subset=['DWRxk', 'DWRkw']),
+                  'Measured', yvar='DWRxk', xvar='DWRkw',
+                  xlabel='DWR$_{K_a W}$   [dB]', ylabel='DWR$_{X K_a}$   [dB]',
+                  xlim=xlim, ylim=ylim, lognorm=lognormrule, figax=(f, ax2),
+                  savename='pamRad3f_all.png', inverty=False,
+                  bins=(r[4], r[5]), density=True, CFAD=False)
+ax2.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
+ax2.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
+ax2.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)
+ax2.plot(Zs[:,1]-Zs[:,2],Zs[:,0]-Zs[:,1], label='snowflakes', lw=lw)
+ax2.plot(Zg[:,1]-Zg[:,2],Zg[:,0]-Zg[:,1], label='graupel', lw=lw)
+ax2.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
+f.suptitle('Triple Frequency plots', fontsize=12, fontweight='heavy', y=0.99)
+f.tight_layout()
+f.savefig('pamRad3f_all.png', dpi=300)
 
 #%%
 
-h,x,y,cb = hist_and_plot(slice_data(slice_data(pamtra, 'Z10', minvalue=-2), 'T', maxvalue=0),
+r = hist_and_plot(slice_data(slice_data(pamtra, 'Z10', minvalue=-2), 'T', maxvalue=0),
                       '3f plot T<0', yvar='DWRxk', xvar='DWRkw',
               xlabel='DWR Ka W   [dB]', ylabel='DWR X Ka   [dB]',
               xlim=xlim, ylim=ylim, lognorm=lognormrule,

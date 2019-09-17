@@ -42,6 +42,7 @@ density = False
 CFAD = True
 inverty = True
 bins = 100
+stats = ['mean', 'median', 'quartile']
 
 r = hist_and_plot(pamtra, 'Simulated CFAD   T - SW',
                               yvar='T', xvar='W35',
@@ -49,7 +50,7 @@ r = hist_and_plot(pamtra, 'Simulated CFAD   T - SW',
                               vminmax=[0.1, 40],
                               xlim=[0, 3], ylim=[-30, 10], lognorm=logrule,
                               savename='pamtra_T_SWk.png',
-                              inverty=inverty, figax=None,
+                              inverty=inverty, figax=None, stats=stats,
                               bins=bins, density=density, CFAD=CFAD)
 
 r = hist_and_plot(radar, 'Measured CFAD   T- SW',
@@ -58,5 +59,5 @@ r = hist_and_plot(radar, 'Measured CFAD   T- SW',
                               vminmax=[0.1, 40],
                               xlim=[0, 3], ylim=[-30, 10], lognorm=logrule,
                               savename='radar_T_SWk.png',
-                              inverty=inverty, figax=None,
+                              inverty=inverty, figax=None, stats=stats,
                               bins=bins, density=density, CFAD=CFAD)

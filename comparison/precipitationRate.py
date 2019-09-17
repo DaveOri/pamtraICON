@@ -92,7 +92,8 @@ if gather:
     
 else:
   print('opening files')
-  freq='10min'
+  accMins = 10
+  freq = str(accMins)+'min'
   iconfile = 'data/precipitation_icon.h5'
   icon = pd.read_hdf(iconfile, key='stat')
   icon = icon.reset_index().drop_duplicates(subset='index',
@@ -111,23 +112,23 @@ else:
   pluvio.reindex(ixp)
   pluvio = pluvio.resample(freq).apply(np.nansum)
   
-  histtype = 'step'
+  hstype = 'step'
   alpha = 1.0
   plt.figure()
   lw = 2
-  h, x, y = plt.hist(icon['ICON_PREC'], bins=30, density=True, linewidth=lw,
-                     histtype=histtype, alpha=alpha, label='icon')
+  h, x, y = plt.hist(icon['ICON_PREC']*60/accMins, bins=30, density=True,
+                     lw=lw, histtype=hstype, alpha=alpha, label='icon')
 #  plt.figure()
-  i, j, l = plt.hist(pluvio['PLUVIO_PREC'], bins=x, density=True, linewidth=lw,
-                     histtype=histtype, alpha=alpha, label='pluvio')
+  i, j, l = plt.hist(pluvio['PLUVIO_PREC']*60/accMins, bins=x, density=True,
+                     lw=lw, histtype=hstype, alpha=alpha, label='pluvio')
 #  plt.figure()
-  m, p, q = plt.hist(mrr['MRR_PREC'], bins=x, density=True, linewidth=lw,
-                     histtype=histtype, alpha=alpha, label='mrr')
+#  m, p, q = plt.hist(mrr['MRR_PREC']*60/accMins, bins=x, density=True, linewidth=lw,
+#                     histtype=hstype, alpha=alpha, label='mrr')
   plt.yscale('log')
   plt.legend()
   plt.grid()
   plt.ylabel('frequency')
-  plt.xlabel('precipitation accumulation over 10 minutes  [kg/m$^2$]')
+  plt.xlabel('precipitation rate  [mm/hr]')
   plt.savefig('precipitation_statistics.png')
 #  plt.figure()
 #  xc = 0.5*(x[1:]+x[:-1])
