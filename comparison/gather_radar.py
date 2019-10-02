@@ -104,6 +104,9 @@ def reduction(x):
   d['V10avg'] = linearWeightedMean(x['V10avg'], x['Z10'])
   d['V35avg'] = linearWeightedMean(x['V35avg'], x['Z35'])
   d['V94avg'] = linearWeightedMean(x['V94avg'], x['Z94'])
+  d['V10m5'] = linearWeightedMean(x['V10m5'], x['Z10'])
+  d['V35m5'] = linearWeightedMean(x['V35m5'], x['Z35'])
+  d['V94m5'] = linearWeightedMean(x['V94m5'], x['Z94'])
   d['runtime'] = np.nanmean(x['runtime'])
   d['unixtime'] = np.nanmean(x['unixtime'])
   d['Hgt'] = np.nanmean(x['Hgt'])
@@ -200,6 +203,9 @@ if __name__ == '__main__':
     DF['V10avg']=running_mean_2d(V10, 299, 75, Bd(Z10)).flatten() # 299 * 4 sec = 20 min
     DF['V35avg']=running_mean_2d(V35, 299, 75, Bd(Z35)).flatten() # 75 * 4 sec = 5 min of measurements
     DF['V94avg']=running_mean_2d(V94, 299, 75, Bd(Z94)).flatten()
+    DF['V10m5']=running_mean_2d(V10, 75, 12, Bd(Z10)).flatten() # 75 * 4 sec = 5 min
+    DF['V35m5']=running_mean_2d(V35, 75, 12, Bd(Z35)).flatten() # 12 * 4 sec = ~1 min of measurements
+    DF['V94m5']=running_mean_2d(V94, 75, 12, Bd(Z94)).flatten()
     
     time = radar_data['time'][:] - netCDF4.date2num(pd.to_datetime(date),
                                                     'seconds since 1970-01-01 00:00:00 UTC')

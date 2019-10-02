@@ -17,6 +17,7 @@ radarvars = ['Z10', 'Z35', 'Z94', 'N10', 'N35', 'N94', 'S10', 'S35', 'S94',
 
 def read_variables(path='data/', hydroset='all_hydro', suffix='pamtra_icon.h5',
                    varlist=['runtime'], pamtra=False,
+                   attATM=False, attHYD=False,
                    minhour=0.0, maxhour=9e9):
   series_list = []
   if 'runtime' not in varlist:
@@ -41,11 +42,23 @@ def read_variables(path='data/', hydroset='all_hydro', suffix='pamtra_icon.h5',
     if 'V94' in varlist:
       data['V94'] = -1.0*data['V94']
   
-  #try:
-  #  data = pd.concat(series_list, axis=1)
-  #  data[data==-9999.0] = np.nan
-  #except:
-  #  return series_list
+  if pamtra:
+    if attATM:
+      if ('Z10' in varlist):
+        data['Z10'] = data['Z10'] - data['A10']
+      if ('Z35' in varlist):
+        data['Z35'] = data['Z35'] - data['A35']
+      if ('Z94' in varlist):
+        data['Z94'] = data['Z94'] - data['A94']
+    if attHYD:
+      if ('Z10' in varlist):
+        data['Z10'] = data['Z10'] - data['H10']
+      if ('Z35' in varlist):
+        data['Z35'] = data['Z35'] - data['H35']
+      if ('Z94' in varlist):
+        data['Z94'] = data['Z94'] - data['H94']
+      
+
   if ('Z10' in varlist) and ('Z35' in varlist):
     data['DWRxk'] = data['Z10'] - data['Z35']
   if ('Z94' in varlist) and ('Z35' in varlist):
@@ -87,8 +100,11 @@ def read_radar(campaign, cols=[], minhour=0.0, maxhour=999999.9, avg='', filenam
   return slice_data(data, 'runtime', 3600.*minhour, 3600.*maxhour)
 
 
-def slice_data(data, varname, minvalue=-np.inf, maxvalue=np.inf):
-  return data[(data[varname]>minvalue)*(data[varname]<maxvalue)]
+def slice_data(data, varname, minvalue=-np.inf, maxvalue=np.inf,
+               left=False, right=False):
+  minmask = (data[varname]>=minvalue) if left else (data[varname]>minvalue)
+  maxmask = (data[varname]<=maxvalue) if right else (data[varname]<maxvalue)
+  return data[minmask&maxmask]
 
 
 icon150heights = [21000, 20617.7923391807, 20290.2350703975, 19982.3469255595, 

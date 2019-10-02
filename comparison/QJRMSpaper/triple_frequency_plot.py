@@ -99,11 +99,11 @@ f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10.5, 4.5))
 ax1.set_aspect('equal')
 ax2.set_aspect('equal')
 r = hist_and_plot(slice_data(pamtra, 'Z10', minvalue=0), 'Simulated',
-                  yvar='DWRxk', xvar='DWRkw', 
+                  yvar='DWRxk', xvar='DWRkw', vminmax=(.001, 1),
                   xlabel='DWR$_{K_a W}$   [dB]', ylabel='DWR$_{X K_a}$   [dB]',
                   xlim=xlim, ylim=ylim, lognorm=lognormrule, figax=(f, ax1),
                   savename='pamRad3f_all.png', inverty=False,
-                  bins=100,density=True, CFAD=False)
+                  bins=100, density=True, CFAD=False)
 ax1.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
 ax1.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
 ax1.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)
@@ -113,12 +113,13 @@ ax1.plot(Zh[:,1]-Zh[:,2],Zh[:,0]-Zh[:,1], label='hail', lw=lw)
 ax1.legend(loc=2)
 
 r = hist_and_plot(slice_data(radarxw, 'Z10',
-                             minvalue=-2).dropna(subset=['DWRxk', 'DWRkw']),
-                  'Measured', yvar='DWRxk', xvar='DWRkw',
+                             minvalue=0).dropna(subset=['DWRxk', 'DWRkw']),
+                  'Measured', yvar='DWRxk', xvar='DWRkw', vminmax=(.001, 1),
                   xlabel='DWR$_{K_a W}$   [dB]', ylabel='DWR$_{X K_a}$   [dB]',
                   xlim=xlim, ylim=ylim, lognorm=lognormrule, figax=(f, ax2),
                   savename='pamRad3f_all.png', inverty=False,
-                  bins=(r[4], r[5]), density=True, CFAD=False)
+                  bins=100,#(r[4], r[5]),
+                  density=True, CFAD=False)
 ax2.plot(Zc[:,1]-Zc[:,2],Zc[:,0]-Zc[:,1], label='cloud droplets', lw=lw)
 ax2.plot(Zi[:,1]-Zi[:,2],Zi[:,0]-Zi[:,1], label='ice crystals', lw=lw)
 ax2.plot(Zr[:,1]-Zr[:,2],Zr[:,0]-Zr[:,1], label='raindrops', lw=lw)

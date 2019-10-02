@@ -19,12 +19,11 @@ import matplotlib.pyplot as plt
 campaign = 'tripex'
 
 hydroset = 'all_hydro'
-#hydroset = 'only_snow'
-#hydroset = 'only_ice'
-
-#hydroset = 'no_snow'
-#hydroset = 'only_liquid'
-#hydroset = 'only_graupel_hail'
+hydroset = 'only_snow'
+hydroset = 'only_ice'
+hydroset = 'no_snow'
+hydroset = 'only_liquid'
+hydroset = 'only_graupel_hail'
 
 pamtra_radar_data_path = '/data/optimice/pamtra_runs/'+campaign+'/data/'
 icon_data_path = '/data/inscape/icon/experiments/juelich/testbed/testbed_'
@@ -51,9 +50,9 @@ def get_moments(R):
   W = R['Radar_SpectrumWidth'][:,0,::-1,0,0,0].T
   S = R['Radar_Skewness'][:,0,::-1,0,0,0].T
   N = R['Radar_SNR'][:,0,::-1,0,0,0].T
-  a = 2.0*(R['Attenuation_Hydrometeors'][:,0,:,0,0] + R['Attenuation_Atmosphere'][:,0,:,0])
-  A = a.T.cumsum(axis=1)
-  return Z, V, W, S, N, A
+  aH = 2.0*R['Attenuation_Hydrometeors'][:,0,:,0,0].T.cumsum(axis=1)
+  aA = 2.0*R['Attenuation_Atmosphere'][:,0,:,0].T.cumsum(axis=1)
+  return Z, V, W, S, N, aH, aA
 
 if __name__ == '__main__':
 
@@ -63,9 +62,9 @@ if __name__ == '__main__':
     J10 = netCDF4.Dataset(J10files[i], mode='r').variables
     J35 = netCDF4.Dataset(J35files[i], mode='r').variables
     G94 = netCDF4.Dataset(G94files[i], mode='r').variables
-    Z10, V10, W10, S10, N10, A10 = get_moments(J10)
-    Z35, V35, W35, S35, N35, A35 = get_moments(J35)
-    Z94, V94, W94, S94, N94, A94 = get_moments(G94)
+    Z10, V10, W10, S10, N10, H10, A10 = get_moments(J10)
+    Z35, V35, W35, S35, N35, H35, A35 = get_moments(J35)
+    Z94, V94, W94, S94, N94, H94, A94 = get_moments(G94)
     
     iconfile = icon_data_path + date + '/METEOGRAM_patch001_' + date + '_joyce.nc'
     icon_data = netCDF4.Dataset(iconfile).variables
@@ -88,18 +87,24 @@ if __name__ == '__main__':
     DF['W10'] = W10.flatten()
     DF['S10'] = S10.flatten()
     DF['N10'] = N10.flatten()
+    DF['H10'] = H10.flatten()
+    DF['A10'] = A10.flatten()
     
     DF['Z35'] = Z35.flatten()
     DF['V35'] = V35.flatten()
     DF['W35'] = W35.flatten()
     DF['S35'] = S35.flatten()
     DF['N35'] = N35.flatten()
+    DF['H35'] = H35.flatten()
+    DF['A35'] = A35.flatten()
     
     DF['Z94'] = Z94.flatten()
     DF['V94'] = V94.flatten()
     DF['W94'] = W94.flatten()
     DF['S94'] = S94.flatten()
     DF['N94'] = N94.flatten()
+    DF['H94'] = H94.flatten()
+    DF['A94'] = A94.flatten()
     
     DF['Hgt'] = Hgt.flatten()
     DF['P'] = P.flatten()

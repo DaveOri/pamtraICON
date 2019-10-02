@@ -18,6 +18,8 @@ import matplotlib.pyplot as plt
 import xarray as xr
 import gzip
 
+plt.rcParams.update({'font.size':14})
+
 gather = False
 #gather = True
 
@@ -129,7 +131,7 @@ else:
   plt.grid()
   plt.ylabel('frequency')
   plt.xlabel('precipitation rate  [mm/hr]')
-  plt.savefig('precipitation_statistics.png')
+  plt.savefig('precipitation_statistics.png', dpi=300)
 #  plt.figure()
 #  xc = 0.5*(x[1:]+x[:-1])
 #  plt.plot(xc, h, label='icon')

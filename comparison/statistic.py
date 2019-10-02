@@ -24,9 +24,10 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
   hst = hst.T
   hst[hst==0] = np.nan
   if density:
-    xBinW = xedge[1:]-xedge[:-1]
-    yBinW = yedge[1:]-yedge[:-1]
-    hst = hst/xBinW/yBinW[:,np.newaxis]
+    #xBinW = xedge[1:]-xedge[:-1]
+    #yBinW = yedge[1:]-yedge[:-1]
+    #hst = hst/xBinW/yBinW[:,np.newaxis]
+    hst = 100.*hst/np.nansum(hst)
   if CFAD:
     hst = 100.*hst/np.nansum(hst,axis=1)[:,np.newaxis]
   xcenter = (xedge[:-1] + xedge[1:])*0.5
@@ -40,6 +41,7 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
                                              vmax=np.nanmax(hst))
     if vminmax is not None:
       norm = colors.LogNorm(vmin=vminmax[0], vmax=vminmax[1])
+      hst[hst<0.1*vminmax[0]] = np.nan
     mesh = ax.pcolormesh(xcenter, ycenter, hst[:], cmap=cmap,
                          norm=norm)
   else:
@@ -51,7 +53,7 @@ def hist_and_plot(data, title, yvar='DWRxk', xvar='DWRkw',
   ax.set_xlim(xlim)
   ax.set_ylim(ylim)
   clabel='counts'
-  if CFAD:
+  if CFAD or density:
     clabel='relative frequency [%]'
     if stats is not None:
       bins = pd.cut(data[yvar], yedge)
