@@ -59,6 +59,29 @@ def qN2Dm(q, N):
   NN = N0(AA)
   return MkN(NN, LL, 4)/MkN(NN, LL, 3)
 
+def qN2MDVp(q, N):
+  ll = lam(N, q)
+  AA = A(N, ll)
+  return av*Mkf(AA, ll, 2+bv)/Mkf(AA, ll, 2)
+
+
+def qN2SWp(q, N):
+  ll = lam(N, q)
+  AA = A(N, ll)
+  mdv = qN2MDVp(q, N)
+  return av*av*Mkf(AA, ll, 2+2*bv)/Mkf(AA, ll, 2) - mdv
+
+def qN2MDVa(q, N):
+  ll = lam(N, q)
+  AA = A(N, ll)
+  return alpha - beta*Mkf(AA, ll+c, 2)/Mkf(AA, ll, 2)
+
+def qN2SWa(q, N):
+  ll = lam(N, q)
+  AA = A(N, ll)
+  mdv = qN2MDVa(q, N)
+  return alpha*alpha + beta*(-2*alpha*Mkf(AA, ll+c, 2) + beta*Mkf(AA, ll+2*c, 2))/Mkf(AA, ll, 2) - mdv
+
 def qN2moments(q, N):
   ll = lam(N, q)
   AA = 1#A(N, ll)
