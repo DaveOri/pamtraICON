@@ -26,13 +26,19 @@ def mD(D):
 def Dm(m):
   return (m/a)**(1/b)
 
-av = 114.0137
-bv = 0.23437
-
 nu=0.0
 mu=1.0/3.0
 gam = b*mu
 mup = b*nu + b - 1.0
+
+av = 114.0137
+bv = 0.23437
+
+alpha = 9.292
+beta = 9.623
+ctilde = 622.2
+rho_w = 1000.0
+c = ctilde*(6.0/(np.pi*rho_w))**mu
 
 def lam(N, q):
   return (N*gamma((nu+2)/mu)/(q*gamma((nu+1)/mu)))**mu
@@ -62,36 +68,45 @@ def qN2Dm(q, N):
 def qN2MDVp(q, N):
   ll = lam(N, q)
   AA = A(N, ll)
-  return av*Mkf(AA, ll, 2+bv)/Mkf(AA, ll, 2)
+  return -av*Mkf(AA, ll, 2+bv)/Mkf(AA, ll, 2)
 
 
 def qN2SWp(q, N):
   ll = lam(N, q)
   AA = A(N, ll)
-  mdv = qN2MDVp(q, N)
-  return av*av*Mkf(AA, ll, 2+2*bv)/Mkf(AA, ll, 2) - mdv
+  mdv = -qN2MDVp(q, N)
+  return np.sqrt(av*av*Mkf(AA, ll, 2+2*bv)/Mkf(AA, ll, 2) - mdv*mdv)
 
 def qN2MDVa(q, N):
   ll = lam(N, q)
   AA = A(N, ll)
-  return alpha - beta*Mkf(AA, ll+c, 2)/Mkf(AA, ll, 2)
+  return -(alpha - beta*Mkf(AA, ll+c, 2)/Mkf(AA, ll, 2))
 
 def qN2SWa(q, N):
   ll = lam(N, q)
   AA = A(N, ll)
-  mdv = qN2MDVa(q, N)
-  return alpha*alpha + beta*(-2*alpha*Mkf(AA, ll+c, 2) + beta*Mkf(AA, ll+2*c, 2))/Mkf(AA, ll, 2) - mdv
+  mdv = -qN2MDVa(q, N)
+  return np.sqrt(alpha*alpha + beta*(-2*alpha*Mkf(AA, ll+c, 2) + beta*Mkf(AA, ll+2*c, 2))/Mkf(AA, ll, 2) - mdv*mdv)
 
+def qN2SKa(q, N):
+  ll = lam(N, q)
+  AA = A(N, ll)
+  mdv = -qN2MDVa(q, N)
+  sw = qN2SWa(q, N)
+  M3 = alpha**3*Mkf(AA, ll, 2) - 3*alpha**2*beta*Mkf(AA, ll+c, 2) + \
+       3*alpha*beta**2*Mkf(AA, ll+2*c, 2) - beta**3*Mkf(AA, ll+3*c, 2)
+  return M3/(sw**3*Mkf(AA, ll, 2)) - 3*mdv/sw - (mdv/sw)**3
+  
 def qN2moments(q, N):
   ll = lam(N, q)
-  AA = 1#A(N, ll)
+  AA = A(N, ll)
   M2 = Mkf(AA, ll, 2)
   M2_b = Mkf(AA, ll, 2+bv)
   mdv = av*M2_b/M2
   M2b_2 = Mkf(AA, ll, 2*bv+2)
   sw = np.sqrt(av**2*M2b_2/M2 - mdv*mdv)
   M2_3b = Mkf(AA, ll, 2+3*bv)
-  sk = (M2_3b*av**3 + M2*mdv**3 -3*M2b_2*mdv*av**2 + 3*M2_b*av*mdv**3)/(M2*sw**3)
+  sk = av**3*M2_3b/(sw**3*Mkf(AA, ll, 2)) - 3*mdv/sw - (mdv/sw)**3
   return -mdv, sw, sk
 
 def Matrosov17(DDV): # Ka-W
@@ -132,7 +147,7 @@ pamtra = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
                         pamtra=True, minhour=6.0,
                         varlist=['Z10', 'Z35', 'Z94', 'W10', 'W35', 'W94',
                                  'T', 'unixtime', 'P', 'RH', 'QNR', 'QR',
-                                 'QG', 'QI', 'QS', 'QH', 'QC',
+                                 'QG', 'QI', 'QS', 'QH', 'QC', 'S35',
                                  'V10', 'V35', 'V94'])
 
 pamtra['Q'] = pamtra['QR']+pamtra['QG']+pamtra['QI']+pamtra['QS']+pamtra['QH']+pamtra['QC']
@@ -179,9 +194,13 @@ minRR = 1.0
 maxRR = 91.0
 pre = 'HIG'
 
-#mdv, sw, sk = qN2moments(pamtra['QR'], pamtra['QNR'])
-#pamtra['MDV'] = mdv
-#pamtra['SW'] = sw
+mdv, sw, sk = qN2moments(pamtra['QR'], pamtra['QNR'])
+pamtra['MDVp'] = mdv
+pamtra['SWp'] = sw
+pamtra['SKp'] = sk
+pamtra['MDVa'] = qN2MDVa(pamtra['QR'], pamtra['QNR'])
+pamtra['SWa'] = qN2SWa(pamtra['QR'], pamtra['QNR'])
+pamtra['SKa'] = qN2SKa(pamtra['QR'], pamtra['QNR'])
 
 f, ((ax11, ax12), (ax21, ax22), (ax31, ax32)) = plt.subplots(3, 2, figsize=(10.5, 9.))
 r = hist_and_plot(slice_data(pamtra, 'RR', minvalue=minRR, left=True),
@@ -349,3 +368,29 @@ f.text(x=0.5, y=0.66, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
 f.text(x=0.5, y=0.33, s='T-Dm   CFADs', fontsize=12, fontweight='heavy',
        horizontalalignment='center')
 f.savefig(pre+'pamRad_T_VSD.png', dpi=300)
+
+pam = slice_data(pamtra, 'T', minvalue=6)
+plt.figure()
+plt.scatter(pam.Dm, pam.W35, label='pamtra with Atlas')
+plt.scatter(pam.Dm, pam.SWa, label='Atlas')
+plt.scatter(pam.Dm, pam.SWp, label='powerLaw')
+plt.xlabel('Dm    [mm]'); plt.ylabel('SW     [m/s]')
+plt.grid(); plt.legend()
+plt.savefig('SW_Dm_analysis.png')
+
+plt.figure()
+plt.scatter(pam.Dm, pam.V35, label='pamtra with Atlas')
+plt.scatter(pam.Dm, pam.MDVa, label='Atlas')
+plt.scatter(pam.Dm, pam.MDVp, label='powerLaw')
+plt.xlabel('Dm    [mm]'); plt.ylabel('MDV     [m/s]')
+plt.grid(); plt.legend()
+plt.savefig('MDV_Dm_analysis.png')
+
+plt.figure()
+plt.scatter(pam.Dm, pam.S35, label='pamtra with Atlas')
+plt.scatter(pam.Dm, pam.SKa, label='Atlas')
+plt.scatter(pam.Dm, pam.SKp, label='powerLaw')
+plt.ylim([-1,1])
+plt.xlabel('Dm    [mm]'); plt.ylabel('Skewness')
+plt.grid(); plt.legend()
+plt.savefig('SK_Dm_analysis.png')
