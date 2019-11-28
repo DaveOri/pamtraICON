@@ -40,7 +40,8 @@ vlim = [-2, 8]
 splim = [-70, 0]
 Smin, Smax = splim
 Zmin, Zmax = -35, 25
-Vmin, Vmax = -1, 5
+#Vmin, Vmax = -1, 5
+Vmin, Vmax = 0, 3
 Dmin, Dmax = -5, 20
 
 # Extract netCDF4 time variables
@@ -56,7 +57,8 @@ def plot_variable(x,y,v,axes,
                   xlab=None,ylab=None,vlab=None,title=None,
                   vmin=None,vmax=None,xlim=None,ylim=None,
                   cmap='jet'):
-    mesh = axes.pcolormesh(x,y,v,vmin=vmin,vmax=vmax,cmap=cmap)
+    mesh = axes.pcolormesh(x,y,v,vmin=vmin,vmax=vmax,cmap=cmap,
+                           linewidth=0, rasterized=True)
     if title is not None:
         axes.text(0.1,0.9,title,transform=axes.transAxes,weight='black',
                   bbox=dict(facecolor='white'))
@@ -86,56 +88,71 @@ Hx, ttx, Ax, Zex, MDVx, SWx = readPamtra_nc(pamX)
 Ha, tta, Aa, Zea, MDVa, SWa = readPamtra_nc(pamK)
 Hw, ttw, Aw, Zew, MDVw, SWw = readPamtra_nc(pamW)
 
-fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 13), sharex=True,
+timelim = [tta[73,0], tta[-1,0]]
+
+fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(10, 13), sharex=True,
                          constrained_layout=True)
-((ax0, ax1), (ax2, ax3), (ax4, ax5), (ax6, ax7), (ax8, ax9)) = axes
+#((ax0, ax1), (ax2, ax3), (ax4, ax5), (ax6, ax7), (ax8, ax9)) = axes
+((ax0, ax1), (ax2, ax3), (ax4, ax5), (ax6, ax7)) = axes
 
 mesh0 = ax0.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
-                       (Zea-Aa).T, cmap='jet', vmin=Zmin, vmax=Zmax)
+                       (Zea-Aa).T, cmap='jet', vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax0.set_ylim(hlim)
 #ax1.get_xaxis().set_ticklabels([])
 ax0.set_ylabel('Height    [km]')
+ax0.set_title('Model', weight='black')
 
 mesh1 = ax1.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
                        rad3.variables['dbz_ka'][:].T, cmap='jet',
-                       vmin=Zmin, vmax=Zmax)
+                       vmin=Zmin, vmax=Zmax, linewidth=0, rasterized=True)
 ax1.set_ylim(hlim)
+ax1.set_xlim(timelim)
 #ax1.get_xaxis().set_ticklabels([])
 ax1.get_yaxis().set_ticklabels([])
+ax1.set_title('Observations', weight='black')
 
 mesh2 = ax2.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
-                       -MDVa.T, cmap='RdBu', vmin=Vmin, vmax=Vmax)
+                       #-MDVa.T, cmap='RdBu', vmin=Vmin, vmax=Vmax,
+                       -MDVa.T, cmap='jet', vmin=Vmin, vmax=Vmax,
+                       linewidth=0, rasterized=True)
 ax2.set_ylim(hlim)
+ax2.set_xlim(timelim)
 #ax2.get_xaxis().set_ticklabels([])
 ax2.set_ylabel('Height    [km]')
 
 mesh3 = ax3.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
-                       -rad3.variables['rv_ka'][:].T, cmap='RdBu',
-                       vmin=Vmin, vmax=Vmax)
+                       -rad3.variables['rv_ka'][:].T, cmap='jet',#'RdBu',
+                       vmin=Vmin, vmax=Vmax,linewidth=0, rasterized=True)
 ax3.set_ylim(hlim)
+ax3.set_xlim(timelim)
 #ax3.get_xaxis().set_ticklabels([])
 ax3.get_yaxis().set_ticklabels([])
 
 mesh4 = ax4.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
-                       (Zea-Aa-Zew+Aw).T, cmap='nipy_spectral', vmin=Dmin, vmax=Dmax)
+                       (Zea-Aa-Zew+Aw).T, cmap='nipy_spectral',
+                       vmin=Dmin, vmax=Dmax, linewidth=0, rasterized=True)
 ax4.set_ylim(hlim)
+ax4.set_xlim(timelim)
 ax4.set_ylabel('Height    [km]')
-ax4.set_xlabel('time')
+#ax4.set_xlabel('time')
 ax4.xaxis.set_major_formatter(xfmt)
 
 mesh5 = ax5.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
                        rad3.variables['dbz_ka'][:].T-rad3.variables['dbz_w'][:].T,
-                       cmap='nipy_spectral', vmin=Dmin, vmax=Dmax)
+                       cmap='nipy_spectral', vmin=Dmin, vmax=Dmax,
+                       linewidth=0, rasterized=True)
 ax5.set_ylim(hlim)
+ax5.set_xlim(timelim)
 ax5.set_xlim(ax0.get_xlim())
 ax5.get_yaxis().set_ticklabels([])
-ax5.set_xlabel('time')
+#ax5.set_xlabel('time')
 ax5.xaxis.set_major_formatter(xfmt)
 
 ## PASSIVE
@@ -162,23 +179,46 @@ ax7.set_xlim(ax0.get_xlim())
 ax7.get_yaxis().set_ticklabels([])
 ax7.legend(loc=2)
 
-ax8.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,7:,0]) # downwelling at 0 meters)
-ax8.legend(f2labels(pamP.variables['frequency'][7:]))
-ax8.set_ylim(TlimV)
-ax8.set_xlim(ax0.get_xlim())
-ax8.set_ylabel('T$_b$   [K]')
-ax8.set_xlabel('time')
-ax8.xaxis.set_major_formatter(xfmt)
+#ax8.plot(getTime(pamP, 'datatime'), pamP.variables['tb'][:,0,1,31,7:,0]) # downwelling at 0 meters)
+#ax8.legend(f2labels(pamP.variables['frequency'][7:]))
+#ax8.set_ylim(TlimV)
+#ax8.set_xlim(ax0.get_xlim())
+#ax8.set_ylabel('T$_b$   [K]')
+ax6.set_xlabel('time')
+ax6.xaxis.set_major_formatter(xfmt)
+#
+#ax9.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, 7:])
+#ax9.plot(hatprotime, 100+rainmasked, c='k', lw=3, label='rain flag')
+#ax9.set_ylim(TlimV)
+#ax9.set_xlim(ax1.get_xlim())
+ax7.get_yaxis().set_ticks([])
+ax7.set_xlabel('time')
+ax7.xaxis.set_major_formatter(xfmt)
 
-ax9.plot(getTime(hatp, 'time')[elemask], hatp.variables['tb'][elemask, 7:])
-ax9.plot(hatprotime, 100+rainmasked, c='k', lw=3, label='rain flag')
-ax9.set_ylim(TlimV)
-ax9.set_xlim(ax1.get_xlim())
-ax9.get_yaxis().set_ticks([])
-ax9.set_xlabel('time')
-ax9.xaxis.set_major_formatter(xfmt)
+tidx = 203#50
+hidx = 60#60#18#18#29#70
+selTime = tta[tidx, hidx]
+ax0.axvline(x=selTime, c='k')
+ax1.axvline(x=selTime, c='k')
+ax2.axvline(x=selTime, c='k')
+ax3.axvline(x=selTime, c='k')
+ax4.axvline(x=selTime, c='k')
+ax5.axvline(x=selTime, c='k')
+
+ax0.text(0.8,0.8,'(a)',transform=ax0.transAxes,weight='black')
+ax1.text(0.8,0.8,'(b)',transform=ax1.transAxes,weight='black')
+ax2.text(0.8,0.8,'(c)',transform=ax2.transAxes,weight='black')
+ax3.text(0.8,0.8,'(d)',transform=ax3.transAxes,weight='black')
+ax4.text(0.8,0.8,'(e)',transform=ax4.transAxes,weight='black')
+ax5.text(0.8,0.8,'(f)',transform=ax5.transAxes,weight='black')
+ax6.text(0.8,0.8,'(g)',transform=ax6.transAxes,weight='black')
+ax7.text(0.8,0.8,'(h)',transform=ax7.transAxes,weight='black')
+#ax8.text(0.8,0.8,'(i)',transform=ax8.transAxes,weight='black')
+#ax9.text(0.8,0.8,'(j)',transform=ax9.transAxes,weight='black')
+
 
 plt.colorbar(mesh1, ax=ax1, label='Z$_e$   [dBZ]')
 plt.colorbar(mesh3, ax=ax3, label='MDV  [m/s]')
 plt.colorbar(mesh5, ax=ax5, label='DWR$_{K_aW}$  [dB]')
-fig.savefig('tripex_plots.png', dpi=600)
+fig.savefig('tripex_plots.pdf')
+fig.savefig('tripex_plots_jet.png', dpi=600)

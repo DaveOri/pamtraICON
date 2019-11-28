@@ -88,7 +88,7 @@ fig1, axes = plt.subplots(nrows=3, ncols=2, figsize=(10, 13),
 ((ax11, ax12), (ax13, ax14), (ax15, ax16)) = axes
 
 tidx = 203#50
-hidx = 60#60#18#18#29#70
+hidx = 70#60#18#18#29#70
 selTime = tta[tidx, hidx]
 selTS = pd.to_datetime(selTime)
 selHeight = Ha[tidx, hidx]
@@ -130,14 +130,18 @@ v35 = sorted(rad35var['doppler'][:])
 mesh11 = ax11.pcolormesh(pamK.variables['Radar_Velocity'][:].squeeze(),
                          pamK.variables['height'][tidx,0,:]*0.001,
                          pamK.variables['Radar_Spectrum'][tidx,0,:,0,0,:],
-                         vmin=Smin, vmax=Smax)
+                         vmin=Smin, vmax=Smax, linewidth=0, rasterized=True)
 ax11.set_xlim(vlim)
 ax11.set_ylim(hlim)
 #ax11.set_xlabel('Doppler Velocity   [m/s]')
 ax11.get_xaxis().set_ticklabels([])
 ax11.set_ylabel('Height   [km]')
+ax11.set_title('Model',weight='black')
+ax11.text(0.1,0.9,'(a)',transform=ax11.transAxes,weight='black',
+                  bbox=dict(facecolor='white'))
 
-mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35, vmin=Smin, vmax=Smax)
+mesh12 = ax12.pcolormesh(v35, r35*0.001, spec35, vmin=Smin, vmax=Smax,
+                         linewidth=0, rasterized=True)
 #mesh12 = ax12.pcolormesh(v94, r94*0.001, spec94)
 ax12.set_xlim(vlim)
 ax12.set_ylim(hlim)
@@ -147,10 +151,13 @@ ax12.get_yaxis().set_ticklabels([])
 
 ax11.axhline(y=selHeight*0.001, c='r')
 ax12.axhline(y=selHeight*0.001, c='r')
-
-ax13.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
-          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
-          label='X band', c='xkcd:pale red')
+ax12.set_title('Observations',weight='black')
+ax12.text(0.1,0.9,'(b)',transform=ax12.transAxes,weight='black',
+                  bbox=dict(facecolor='white'))
+#
+#ax13.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
+#          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
+#          label='X band', c='xkcd:pale red')
 ax13.plot(pamK.variables['Radar_Velocity'][:].squeeze(),
           pamK.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
           label='Ka band', c='xkcd:medium green')
@@ -164,6 +171,9 @@ ax13.set_ylim(splim)
 ax13.get_xaxis().set_ticklabels([])
 ax13.set_ylabel('Spectral Power   [dB]')
 #ax13.set_xlabel('Doppler Velocity   [m/s]')
+ax13.text(0.1,0.8,'(c)',transform=ax13.transAxes,weight='black')
+#ax13.text(0.5,0.8,'Height= 4.8 km ',transform=ax13.transAxes)
+ax13.text(0.5,0.8,'Height= 6 km ',transform=ax13.transAxes)
 
 ax14.plot(v35, spec35[h35idx, :],
           label='Ka band', c='xkcd:medium green')
@@ -179,6 +189,7 @@ ax14.get_yaxis().set_ticklabels([])
 ax14.get_xaxis().set_ticklabels([])
 #ax14.set_xlabel('Doppler Velocity   [m/s]')
 ax14.legend()
+ax14.text(0.1,0.8,'(d)',transform=ax14.transAxes,weight='black')
 
 hidx = 16#32#18#29#70
 selTime = tta[tidx, hidx]
@@ -188,9 +199,9 @@ h94idx = np.argmin(np.abs(rad94var['range'][:] - selHeight))
 h35idx = np.argmin(np.abs(r35 - selHeight))
 print(selTime, selHeight)
 
-ax15.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
-          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
-          label='X band', c='xkcd:pale red')
+#ax15.plot(pamX.variables['Radar_Velocity'][:].squeeze(),
+#          pamX.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
+#          label='X band', c='xkcd:pale red')
 ax15.plot(pamK.variables['Radar_Velocity'][:].squeeze(),
           pamK.variables['Radar_Spectrum'][tidx,0,hidx,0,0,:],
           label='Ka band', c='xkcd:medium green')
@@ -203,6 +214,8 @@ ax15.set_xlim(vlim)
 ax15.set_ylim(splim)
 ax15.set_ylabel('Spectral Power   [dB]')
 ax15.set_xlabel('Doppler Velocity   [m/s]')
+ax15.text(0.1,0.8,'(e)',transform=ax15.transAxes,weight='black')
+ax15.text(0.5,0.1,'Height= 0.9 km ',transform=ax15.transAxes)
 
 ax16.plot(v35, spec35[h35idx, :],
           label='Ka band', c='xkcd:medium green')
@@ -217,6 +230,7 @@ ax16.set_ylim(splim)
 ax16.get_yaxis().set_ticklabels([])
 ax16.set_xlabel('Doppler Velocity   [m/s]')
 ax16.legend()
+ax16.text(0.1,0.8,'(f)',transform=ax16.transAxes,weight='black')
 
 ax13.grid()
 ax14.grid()
@@ -226,4 +240,6 @@ ax16.grid()
 ax11.axhline(y=selHeight*0.001, c='r')
 ax12.axhline(y=selHeight*0.001, c='r')
 cbar = fig1.colorbar(mesh11, ax=ax12, label='Spectral Power   [dB]')
-fig1.savefig('tripex_spectra_ssrg-rt3.png', dpi=600)
+#fig1.savefig('tripex_spectra_ssrg-rt3.png', dpi=600)
+fig1.savefig('tripex_spectra.pdf')
+fig1.savefig('tripex_spectra.png', dpi=600)
