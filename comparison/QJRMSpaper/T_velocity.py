@@ -27,6 +27,13 @@ mrrfile = '../data/precipitation_mrr.h5'
 mrr = pd.read_hdf(mrrfile, key='stat')
 mrr = mrr.resample(freq).apply(np.nansum)
 
+rad = pd.read_hdf('../data/radStatCTTmaxDWRregrid.h5', key='stat')
+rad.index = pd.to_datetime(rad.index, unit='s')
+rad = rad.resample('1s').nearest(limit=1)
+pam = pd.read_hdf('../data/pamStatCTTmaxDWR.h5', key='stat')
+pam.index = pd.to_datetime(pam.index, unit='s')
+pam = pam.resample('1s').nearest(limit=1)
+
 ixi = pd.date_range(start='2015-11-11', end='2016-1-4', freq='9s')
 icon.reindex(ixi)
 icon = icon.resample(freq).apply(np.nansum)
@@ -65,6 +72,13 @@ pamtra.unixtime = pd.to_datetime(pamtra.unixtime.astype(np.int64), unit='s')
 
 radar['RR'] = (pluvio.resample('1s').nearest().loc[radar.unixtime]*60/accMins).values
 pamtra['RR'] = (icon.resample('1s').nearest().loc[pamtra.unixtime]*60/accMins).values
+rad = rad.loc[radar.unixtime]
+pam = pam.loc[pamtra.unixtime]
+
+for col in rad.columns:
+  radar[col] = rad[col].values
+for col in pam.columns:
+  pamtra[col] = pam[col].values
 
 radarw = slice_data(radar, 'quality_w', maxvalue=8192)
 radarx = slice_data(radar, 'quality_x', maxvalue=8192)
@@ -157,6 +171,7 @@ f.suptitle('T-MDV  CFADs', fontsize=12, fontweight='heavy', y=0.99)
 f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
 f.text(x=0.5, y=0.49, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
        horizontalalignment='center')
+f.savefig('pamRad_T_VS.pdf', dpi=300)
 f.savefig('pamRad_T_VS.png', dpi=300)
 
 ## Low precipitation
@@ -211,6 +226,7 @@ f.suptitle('T-MDV  CFADs RR<1 mm/h', fontsize=12, fontweight='heavy', y=0.99)
 f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
 f.text(x=0.5, y=0.49, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
        horizontalalignment='center')
+f.savefig(pre+'pamRad_T_VS.pdf', dpi=300)
 f.savefig(pre+'pamRad_T_VS.png', dpi=300)
 
 ## Medium precipitation
@@ -319,4 +335,119 @@ f.suptitle('T-MDV  CFADs RR>1 mm/h', fontsize=12, fontweight='heavy', y=0.99)
 f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
 f.text(x=0.5, y=0.49, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
        horizontalalignment='center')
+f.savefig(pre+'pamRad_T_VS.pdf', dpi=300)
+f.savefig(pre+'pamRad_T_VS.png', dpi=300)
+
+## High DWRkw
+minKW = 6.0
+maxKW = 91.0
+pre = 'higKW'
+f, ((ax11, ax12), (ax21, ax22)) = plt.subplots(2, 2, figsize=(10.5, 9.))
+r = hist_and_plot(slice_data(pamtra, 'maxDWRkw', minvalue=minKW, left=True),
+                  'Simulated MDV Ka',
+                  yvar='T', xvar='V35',
+                  xlabel='MDV   [m/s]', ylabel='T   [deg C]',
+                  vminmax=[0.1, 30],
+                  xlim=[-3, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png', legend=False,
+                  inverty=inverty, figax=(f, ax11), stats=stats,
+                  bins=bins, density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(radar, 'maxDWRkw', minvalue=minKW, left=True),
+                  'Measured MDV Ka',
+                  yvar='T', xvar='V35m5',
+                  xlabel='MDV   [m/s]', ylabel='T   [deg C]',
+                  vminmax=[0.1, 30],
+                  xlim=[-3, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax12), stats=stats,
+                  bins=(r[4], r[5]), density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(radar, 'maxDWRkw', minvalue=minKW, left=True),
+                  'Measured SW Ka',
+                  yvar='T', xvar='W35',
+                  xlabel='SW   [m/s]',
+                  ylabel='T   [deg C]',
+                  vminmax=[0.1, 40],
+                  xlim=[0, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax22), stats=stats,
+                  bins=bins, density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(pamtra, 'maxDWRkw', minvalue=minKW, left=True),
+                  'Simulated SW Ka',
+                  yvar='T', xvar='W35',
+                  xlabel='SW   [m/s]',
+                  ylabel='T   [deg C]',
+                  vminmax=[0.1, 40],
+                  xlim=[0, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax21), stats=stats,
+                  bins=(r[4], r[5]), density=density, CFAD=CFAD)
+
+
+f.suptitle('T-MDV  CFADs maxDWRkw>6 dB', fontsize=12, fontweight='heavy', y=0.99)
+f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
+f.text(x=0.5, y=0.49, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
+       horizontalalignment='center')
+f.savefig(pre+'pamRad_T_VS.pdf', dpi=300)
+f.savefig(pre+'pamRad_T_VS.png', dpi=300)
+
+## Low DWRkw
+minKW = 0.0
+maxKW = 6.0
+pre = 'lowKW'
+f, ((ax11, ax12), (ax21, ax22)) = plt.subplots(2, 2, figsize=(10.5, 9.))
+r = hist_and_plot(slice_data(pamtra, 'maxDWRkw',
+                             minvalue=minKW, maxvalue=maxKW, left=True),
+                  'Simulated MDV Ka',
+                  yvar='T', xvar='V35',
+                  xlabel='MDV   [m/s]', ylabel='T   [deg C]',
+                  vminmax=[0.1, 30],
+                  xlim=[-3, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png', legend=False,
+                  inverty=inverty, figax=(f, ax11), stats=stats,
+                  bins=bins, density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(radar, 'maxDWRkw',
+                             minvalue=minKW, maxvalue=maxKW, left=True),
+                  'Measured MDV Ka',
+                  yvar='T', xvar='V35m5',
+                  xlabel='MDV   [m/s]', ylabel='T   [deg C]',
+                  vminmax=[0.1, 30],
+                  xlim=[-3, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax12), stats=stats,
+                  bins=(r[4], r[5]), density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(radar, 'maxDWRkw',
+                             minvalue=minKW, maxvalue=maxKW, left=True),
+                  'Measured SW Ka',
+                  yvar='T', xvar='W35',
+                  xlabel='SW   [m/s]',
+                  ylabel='T   [deg C]',
+                  vminmax=[0.1, 40],
+                  xlim=[0, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax22), stats=stats,
+                  bins=bins, density=density, CFAD=CFAD)
+
+r = hist_and_plot(slice_data(pamtra, 'maxDWRkw',
+                             minvalue=minKW, maxvalue=maxKW, left=True),
+                  'Simulated SW Ka',
+                  yvar='T', xvar='W35',
+                  xlabel='SW   [m/s]',
+                  ylabel='T   [deg C]',
+                  vminmax=[0.1, 40],
+                  xlim=[0, 1], ylim=[-40, 0], lognorm=logrule,
+                  savename=pre+'pamRad_T_VS.png',
+                  inverty=inverty, figax=(f, ax21), stats=stats,
+                  bins=(r[4], r[5]), density=density, CFAD=CFAD)
+
+
+f.suptitle('T-MDV  CFADs maxDWRkw<6 dB', fontsize=12, fontweight='heavy', y=0.99)
+f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
+f.text(x=0.5, y=0.49, s='T-SW   CFADs', fontsize=12, fontweight='heavy',
+       horizontalalignment='center')
+f.savefig(pre+'pamRad_T_VS.pdf', dpi=300)
 f.savefig(pre+'pamRad_T_VS.png', dpi=300)

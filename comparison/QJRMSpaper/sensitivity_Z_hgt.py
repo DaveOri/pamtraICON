@@ -90,5 +90,6 @@ r = hist_and_plot(radar, 'Measured', yvar='Hgt', xvar='Z35',
               bins=(bins, icon150heights[::-1]), density=density, CFAD=True)
 f.suptitle('Reflectivity CFADs', fontsize=12, fontweight='heavy', y=0.99)
 f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
+f.savefig('pamRadCFAD_Zk_H.pdf', dpi=300)
 f.savefig('pamRadCFAD_Zk_H.png', dpi=300)
 

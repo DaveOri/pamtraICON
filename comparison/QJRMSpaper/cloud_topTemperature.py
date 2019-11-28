@@ -62,7 +62,7 @@ if compute:
   pamtraProfiles = pamtra.dropna(subset=['Z35']).groupby('unixtime')
   #radarxProfiles = radarx.groupby('unixtime')
   #radarwProfiles = radarw.groupby('unixtime')
-  radarProfiles = radar.dropna(subset=['Z35']).groupby('groupT')
+  radarProfiles = radar.dropna(subset=['Z35']).groupby('unixtime')
   radpuProfiles = radpure.dropna(subset=['Z35']).groupby('unixtime')
   
   def reduction(x):
@@ -122,6 +122,9 @@ else:
   rad = pd.read_hdf('../data/radStatCTTmaxDWRregrid.h5', key='stat')
   pam = pd.read_hdf('../data/pamStatCTTmaxDWR.h5', key='stat')
   rpu = pd.read_hdf('../data/radStatCTTmaxDWR.h5', key='stat')
+  
+print('DONE')
+
 rad.index = pd.to_datetime(rad.index.astype(np.int64), unit='s')
 pam.index = pd.to_datetime(pam.index.astype(np.int64), unit='s')
 rpu.index = pd.to_datetime(rpu.index.astype(np.int64), unit='s')

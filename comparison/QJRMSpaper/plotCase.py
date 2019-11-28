@@ -52,7 +52,8 @@ def plot_variable(x,y,v,axes,
                   xlab=None,ylab=None,vlab=None,title=None,
                   vmin=None,vmax=None,xlim=None,ylim=None,
                   cmap='jet'):
-    mesh = axes.pcolormesh(x,y,v,vmin=vmin,vmax=vmax,cmap=cmap)
+    mesh = axes.pcolormesh(x, y, v, vmin=vmin, vmax=vmax, cmap=cmap,
+                           linewidth=0, rasterized=True)
     if title is not None:
         axes.text(0.1,0.9,title,transform=axes.transAxes,weight='black',
                   bbox=dict(facecolor='white'))
@@ -89,7 +90,8 @@ fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(9.5, 6),
 
 mesh0 = ax0.pcolormesh(getTime(pamX, 'datatime'),
                        pamX.variables['height'][0,0,:]*0.001,
-                       (Zex-Ax).T, cmap='jet', vmin=Zmin, vmax=Zmax)
+                       (Zex-Ax).T, cmap='jet', vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax0.set_ylim(hlim)
 #ax1.get_xaxis().set_ticklabels([])
 ax0.set_ylabel('Height    [km]')
@@ -102,7 +104,8 @@ ax0.text(0.1, 0.8, 'Simulated X band',
 mesh1 = ax1.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
                        rad3.variables['dbz_x'][:].T, cmap='jet',
-                       vmin=Zmin, vmax=Zmax)
+                       vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax1.set_ylim(hlim)
 #ax1.get_xaxis().set_ticklabels([])
 ax1.get_yaxis().set_ticklabels([])
@@ -114,7 +117,8 @@ ax1.text(0.1, 0.8, 'KiXPol',
 
 mesh2 = ax2.pcolormesh(getTime(pamK, 'datatime'),
                        pamK.variables['height'][0,0,:]*0.001,
-                       (Zea-Aa).T, cmap='jet', vmin=Zmin, vmax=Zmax)
+                       (Zea-Aa).T, cmap='jet', vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax2.set_ylim(hlim)
 #ax2.get_xaxis().set_ticklabels([])
 ax2.set_ylabel('Height    [km]')
@@ -127,7 +131,8 @@ ax2.text(0.1, 0.8, 'Simulated Ka band',
 mesh3 = ax3.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
                        rad3.variables['dbz_ka'][:].T, cmap='jet',
-                       vmin=Zmin, vmax=Zmax)
+                       vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax3.set_ylim(hlim)
 #ax3.get_xaxis().set_ticklabels([])
 ax3.get_yaxis().set_ticklabels([])
@@ -140,7 +145,8 @@ ax3.text(0.1, 0.8, 'Joyrad35',
 
 mesh4 = ax4.pcolormesh(getTime(pamW, 'datatime'),
                        pamW.variables['height'][0,0,:]*0.001,
-                       (Zew-Aw).T, cmap='jet', vmin=Zmin, vmax=Zmax)
+                       (Zew-Aw).T, cmap='jet', vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax4.set_ylim(hlim)
 ax4.set_ylabel('Height    [km]')
 ax4.set_xlabel('time')
@@ -154,7 +160,8 @@ ax4.text(0.1, 0.8, 'Simulated W band',
 mesh5 = ax5.pcolormesh(getTime(rad3, 'time'),
                        rad3.variables['range'][:]*0.001,
                        rad3.variables['dbz_w'][:].T,
-                       cmap='jet', vmin=Zmin, vmax=Zmax)
+                       cmap='jet', vmin=Zmin, vmax=Zmax,
+                       linewidth=0, rasterized=True)
 ax5.set_ylim(hlim)
 ax5.set_xlim(ax0.get_xlim())
 ax5.get_yaxis().set_ticklabels([])
@@ -175,5 +182,6 @@ plt.colorbar(mesh5, ax=ax5, label='Z$_e$   [dBZ]',
 fig.suptitle('Radar reflectivity 2015-11-19',
              fontsize=12, fontweight='heavy')
 #fig.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
+fig.savefig(date + 'tripex_plots.pdf')
 fig.savefig(date + 'tripex_plots.png', dpi=350)
 

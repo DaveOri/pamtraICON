@@ -120,4 +120,5 @@ ax2.grid()
 ax3.grid()
 
 plt.tight_layout()
+plt.savefig('theoretical_DWRs.pdf', dpi=300)
 plt.savefig('theoretical_DWRs.png', dpi=300)

@@ -13,9 +13,18 @@ from READ import read_variables
 from statistic import hist_and_plot
 import matplotlib.pyplot as plt
 import netCDF4
+import pandas as pd
+import numpy as np
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
-model = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
+rad = pd.read_hdf('../data/radStatCTTmaxDWRregrid.h5', key='stat')
+rad.index = pd.to_datetime(rad.index, unit='s')
+rad = rad.resample('1s').nearest(limit=1)
+pam = pd.read_hdf('../data/pamStatCTTmaxDWR.h5', key='stat')
+pam.index = pd.to_datetime(pam.index, unit='s')
+pam = pam.resample('1s').nearest(limit=1)
+
+pamtra = read_variables(path='/work/develop/pamtraICON/comparison/data/pamtra/',
                         hydroset='all_hydro', suffix='pamtra_icon.h5', pamtra=True,
                         varlist=['Z10', 'Z35', 'Z94', 'T',
                                  'V10', 'V35', 'V94'], minhour=6.0)
@@ -45,7 +54,7 @@ Zvar = data_simple.variables['Ze']
 Ze = Zvar[:]
 Ze[:,0,:,2,0,0] = Ze[:,0,:,2,0,0] #+ 10.*np.log10(0.93/0.72)
 V = datavar['Radar_MeanDopplerVel'][:]
-
+V[V<0] = np.nan
 
 Zc = Ze[0,0,:,:,0,0]
 Zi = Ze[1,0,:,:,0,0]
@@ -65,14 +74,14 @@ Zc[:,0] -= 0.5
 Zr[:,0] -= 0.5
 
 logrule = True
-density = True
+density = False
 CFAD = False
 inverty = True
 bins = 100
 lw = 3
 
 vminmax = [1e2, 7e5]
-pamtra = slice_data(model, 'Z10', -14)
+pamtra = slice_data(pamtra, 'Z10', -14)
 r = hist_and_plot(slice_data(pamtra, 'T', -20, -5),
                               'Simulated -20<T<-5',
                               yvar='V35', xvar='DWRxk',
@@ -216,7 +225,8 @@ plt.legend(loc=1)
 plt.savefig('radar_Vk_DWRkw_T>-5.png', dpi=300)
 
 #%% Combined plot for paper
-
+bins=100
+vminmax = [1, 1e4]
 f, ((ax11, ax12), (ax21, ax22)) = plt.subplots(2, 2, figsize=(10.5, 9.))
 r = hist_and_plot(slice_data(pamtra, 'T', -20, -5),
                               'Simulated MDV - DWR XKa',
@@ -228,12 +238,6 @@ r = hist_and_plot(slice_data(pamtra, 'T', -20, -5),
                               inverty=inverty, figax=(f, ax11),
                               bins=bins, density=density, CFAD=CFAD)
 plt.gca().set_prop_cycle(color=colors[1:])
-ax11.plot(Zi[:,0]-Zi[:,1], -Vi[:,0], label='ice crystals', lw=lw)
-ax11.plot(Zr[:,0]-Zr[:,1], -Vr[:,0], label='raindrops', lw=lw)
-ax11.plot(Zs[:,0]-Zs[:,1], -Vs[:,0], label='snowflakes', lw=lw)
-ax11.plot(Zg[:,0]-Zg[:,1], -Vg[:,0], label='graupel', lw=lw)
-ax11.plot(Zh[:,0]-Zh[:,1], -Vh[:,0], label='hail', lw=lw)
-ax11.legend(loc=4)
 
 r = hist_and_plot(slice_data(radarx, 'T', -20, -5),
                               'Measured MDV - DWR XKa',
@@ -245,12 +249,6 @@ r = hist_and_plot(slice_data(radarx, 'T', -20, -5),
                               inverty=inverty, figax=(f, ax12),
                               bins=bins, density=density, CFAD=CFAD)
 plt.gca().set_prop_cycle(color=colors[1:])
-ax12.plot(Zi[:,0]-Zi[:,1], -Vi[:,0], label='ice crystals', lw=lw)
-ax12.plot(Zr[:,0]-Zr[:,1], -Vr[:,0], label='raindrops', lw=lw)
-ax12.plot(Zs[:,0]-Zs[:,1], -Vs[:,0], label='snowflakes', lw=lw)
-ax12.plot(Zg[:,0]-Zg[:,1], -Vg[:,0], label='graupel', lw=lw)
-ax12.plot(Zh[:,0]-Zh[:,1], -Vh[:,0], label='hail', lw=lw)
-#ax12.legend(loc=1)
 
 r = hist_and_plot(slice_data(pamtra, 'T', -20, -5),
                               'Simulated MDV - DWR KaW',
@@ -262,22 +260,36 @@ r = hist_and_plot(slice_data(pamtra, 'T', -20, -5),
                               inverty=inverty, figax=(f, ax21),
                               bins=bins, density=density, CFAD=CFAD)
 plt.gca().set_prop_cycle(color=colors[1:])
+
+r = hist_and_plot(slice_data(radarw, 'T', -20, -5),
+                  'Measured MDV - DWR KaW',
+                  yvar='V35avg', xvar='DWRkw',
+                  xlabel='DWRkw   [dB]', ylabel='MDV   [m/s]',
+                  vminmax=vminmax,
+                  xlim=[-5, 15], ylim=[-3, 0],
+                  lognorm=logrule,
+                  savename='pamRad_MDV_DWRno_curves.png',
+                  inverty=inverty, figax=(f, ax22),
+                  bins=bins, density=density, CFAD=CFAD)
+plt.gca().set_prop_cycle(color=colors[1:])
+ax11.plot(Zi[:,0]-Zi[:,1], -Vi[:,0], label='ice crystals', lw=lw)
+ax11.plot(Zr[:,0]-Zr[:,1], -Vr[:,0], label='raindrops', lw=lw)
+ax11.plot(Zs[:,0]-Zs[:,1], -Vs[:,0], label='snowflakes', lw=lw)
+ax11.plot(Zg[:,0]-Zg[:,1], -Vg[:,0], label='graupel', lw=lw)
+ax11.plot(Zh[:,0]-Zh[:,1], -Vh[:,0], label='hail', lw=lw)
+ax11.legend(loc=4)
+ax12.plot(Zi[:,0]-Zi[:,1], -Vi[:,0], label='ice crystals', lw=lw)
+ax12.plot(Zr[:,0]-Zr[:,1], -Vr[:,0], label='raindrops', lw=lw)
+ax12.plot(Zs[:,0]-Zs[:,1], -Vs[:,0], label='snowflakes', lw=lw)
+ax12.plot(Zg[:,0]-Zg[:,1], -Vg[:,0], label='graupel', lw=lw)
+ax12.plot(Zh[:,0]-Zh[:,1], -Vh[:,0], label='hail', lw=lw)
+#ax12.legend(loc=1)
 ax21.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals', lw=lw)
 ax21.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops', lw=lw)
 ax21.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes', lw=lw)
 ax21.plot(Zg[:,1]-Zg[:,2], -Vg[:,0], label='graupel', lw=lw)
 ax21.plot(Zh[:,1]-Zh[:,2], -Vh[:,0], label='hail', lw=lw)
 
-r = hist_and_plot(slice_data(radarw, 'T', -20, -5),
-                              'Measured MDV - DWR KaW',
-                              yvar='V35avg', xvar='DWRkw',
-                              xlabel='DWRkw   [dB]', ylabel='MDV   [m/s]',
-                              vminmax=vminmax,
-                              xlim=[-5, 15], ylim=[-3, 0], lognorm=logrule,
-                              savename='pamRad_MDV_DWR.png',
-                              inverty=inverty, figax=(f, ax22),
-                              bins=bins, density=density, CFAD=CFAD)
-plt.gca().set_prop_cycle(color=colors[1:])
 ax22.plot(Zi[:,1]-Zi[:,2], -Vi[:,0], label='ice crystals', lw=lw)
 ax22.plot(Zr[:,1]-Zr[:,2], -Vr[:,0], label='raindrops', lw=lw)
 ax22.plot(Zs[:,1]-Zs[:,2], -Vs[:,0], label='snowflakes', lw=lw)
@@ -288,4 +300,5 @@ ax22.plot(Zh[:,1]-Zh[:,2], -Vh[:,0], label='hail', lw=lw)
 
 f.suptitle('MDV - DWRs', fontsize=12, fontweight='heavy', y=0.99)
 f.tight_layout(pad=1.5, h_pad=0.5, w_pad=0.5)
+f.savefig('pamRad_MDV_DWR.pdf', dpi=300)
 f.savefig('pamRad_MDV_DWR.png', dpi=300)
